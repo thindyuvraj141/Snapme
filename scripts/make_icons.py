@@ -81,3 +81,23 @@ with wave.open(os.path.join(RES, 'raw', 'vtext_msg.wav'), 'wb') as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes(b''.join(int(max(-1, min(1, x)) * 32000).to_bytes(2, 'little', signed=True) for x in buf))
 print('notification sound written')
+
+# ---- status-bar (notification) icon: white chat bubble with a transparent V ----
+STAT = {'mdpi': 24, 'hdpi': 36, 'xhdpi': 48, 'xxhdpi': 72, 'xxxhdpi': 96}
+for d, n in STAT.items():
+    big = n * 8
+    im = Image.new('RGBA', (big, big), (0, 0, 0, 0))
+    dr = ImageDraw.Draw(im)
+    f = big / 512
+    P = lambda x, y: (x * f, y * f)
+    dr.ellipse([*P(48, 60), *P(464, 380)], fill=(255, 255, 255, 255))
+    dr.polygon([P(120, 340), P(96, 460), P(236, 372)], fill=(255, 255, 255, 255))
+    w = max(2, int(44 * f))
+    pts = [P(168, 160), P(256, 300), P(344, 160)]
+    dr.line(pts, fill=(0, 0, 0, 0), width=w, joint='curve')
+    for q in pts:
+        dr.ellipse([q[0] - w / 2, q[1] - w / 2, q[0] + w / 2, q[1] + w / 2], fill=(0, 0, 0, 0))
+    folder = os.path.join(RES, 'drawable-' + d)
+    os.makedirs(folder, exist_ok=True)
+    im.resize((n, n), Image.LANCZOS).save(os.path.join(folder, 'ic_stat_vtext.png'))
+print('status-bar icons written')
