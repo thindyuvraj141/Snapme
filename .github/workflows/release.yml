@@ -26,23 +26,14 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
-      - run: npm install @capgo/capacitor-native-biometric@^8 || echo "biometric plugin not available - PIN lock will be used"
-      - run: |
-          mkdir -p www
-          cp index.html offline.html manifest.json sw.js logo.svg www/
-      - name: Bundle web files (no remote URL) for Play Store
-        run: node -e "const fs=require('fs'),c=JSON.parse(fs.readFileSync('capacitor.config.json'));delete c.server;fs.writeFileSync('capacitor.config.json',JSON.stringify(c,null,2))"
-      - run: npx cap add android
-      - run: python3 scripts/patch_android.py
+      - run: python3 -m pip install --break-system-packages pillow
+      - name: Build (web files bundled inside the app)
+        run: bash scripts/build_android.sh
         env:
           VERSION_CODE: ${{ github.run_number }}
-      - run: python3 -m pip install --break-system-packages pillow
-      - run: python3 scripts/make_icons.py
-      - run: npx cap sync android
-      - run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew bundleRelease
+          VT_TASK: bundleRelease
+          VT_BG: "0"
+          VT_BUNDLE: "1"
       - name: Sign AAB
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > release.jks

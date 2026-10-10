@@ -18,8 +18,12 @@ jobs:
       url: ${{ steps.d.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Write version
-        run: echo "{\"v\":\"$GITHUB_SHA\"}" > version.json
+      - name: Stamp version (shown in Settings and used by App update)
+        run: |
+          sed -i "s/const APP_BUILD={v:'dev',n:'0'}/const APP_BUILD={v:'${GITHUB_SHA}',n:'${GITHUB_RUN_NUMBER}'}/" index.html
+          grep -q "n:'${GITHUB_RUN_NUMBER}'" index.html || { echo "Could not stamp the version into index.html"; exit 1; }
+          echo "{\"v\":\"${GITHUB_SHA}\",\"n\":\"${GITHUB_RUN_NUMBER}\"}" > version.json
+          rm -rf scripts assets store .github
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

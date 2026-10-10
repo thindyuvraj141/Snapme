@@ -1,4 +1,4 @@
-name: Build APK
+name: Build APK (test)
 on:
   workflow_dispatch:
 permissions:
@@ -6,6 +6,11 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    env:
+      VERSION_CODE: ${{ github.run_number }}
+      VT_TASK: assembleDebug
+      VT_BG: "1"
+      VT_BUNDLE: "0"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -16,19 +21,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm install
-      - run: npm install @capgo/capacitor-native-biometric@^8 || echo "biometric plugin not available - PIN lock will be used"
-      - run: |
-          mkdir -p www
-          cp index.html offline.html manifest.json sw.js logo.svg www/
-      - run: npx cap add android
-      - run: python3 scripts/patch_android.py
       - run: python3 -m pip install --break-system-packages pillow
-      - run: python3 scripts/make_icons.py
-      - run: npx cap sync android
-      - run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+      - name: Build (full build first, simpler fallbacks if needed)
+        run: bash scripts/build_android.sh
       - run: cp android/app/build/outputs/apk/debug/app-debug.apk VText.apk
       - uses: actions/upload-artifact@v4
         with:
@@ -37,5 +32,6 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
-          name: VText APK ${{ github.run_number }}
+          name: VText APK 1.0.${{ github.run_number }}
+          body_path: release-notes.md
           files: VText.apk
