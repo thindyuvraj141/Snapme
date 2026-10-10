@@ -1,25 +1,108 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{db}/documents {
+
+    // Id of the "unfriend" record for the signed-in user and another user.
+    function pairId(o) {
+      return request.auth.uid < o ? request.auth.uid + '_' + o : o + '_' + request.auth.uid;
+    }
+
+    // A new 1-to-1 chat can only be created if:
+    //  - the other person has a public account AND you two have not unfriended each other, or
+    //  - the other person sent YOU a friend request that is still pending (you are accepting it).
+    function dmAllowed() {
+      let m = request.resource.data.members;
+      let o = m[0] == request.auth.uid ? m[1] : m[0];
+      return (get(/databases/$(db)/documents/users/$(o)).data.get('private', false) == false
+              && !exists(/databases/$(db)/documents/unfriends/$(pairId(o))))
+          || (exists(/databases/$(db)/documents/requests/$(o + '_' + request.auth.uid))
+              && get(/databases/$(db)/documents/requests/$(o + '_' + request.auth.uid)).data.status == 'pending');
+    }
+
     function member(c) {
       return request.auth != null && request.auth.uid in get(/databases/$(db)/documents/chats/$(c)).data.members;
     }
+
     match /users/{u} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == u;
     }
+
+    // A username is claimed once. When its owner changes it, the old one is marked "retired"
+    // and nobody (including the owner) can use it again.
     match /usernames/{n} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retired'])
+        && request.resource.data.get('retired', false) == true;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid
+        && !resource.data.get('retired', false);
     }
+
+    match /reports/{r} {
+      allow create: if request.auth != null && request.resource.data.by == request.auth.uid;
+    }
+
+    match /users/{u}/sessions/{s} {
+      allow read, write: if request.auth != null && request.auth.uid == u;
+    }
+    match /users/{u}/private/{d} {
+      allow read, write: if request.auth != null && request.auth.uid == u;
+    }
+
+    match /blocks/{b} {
+      allow read: if request.auth != null && (resource == null || resource.data.by == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if request.auth != null && request.resource.data.by == request.auth.uid;
+      allow update: if request.auth != null && resource.data.by == request.auth.uid && request.resource.data.by == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.by == request.auth.uid;
+    }
+
+    // Written when someone unfriends: the pair must send/accept a new request to chat again.
+    match /unfriends/{p} {
+      allow read: if request.auth != null && (resource == null || request.auth.uid in resource.data.members);
+      allow create, update: if request.auth != null
+        && request.resource.data.members.size() == 2
+        && request.auth.uid in request.resource.data.members
+        && p == pairId(request.resource.data.members[0] == request.auth.uid ? request.resource.data.members[1] : request.resource.data.members[0]);
+      allow delete: if request.auth != null && request.auth.uid in resource.data.members;
+    }
+
+    // Request id must be "<from>_<to>" so nobody can fake a request from someone else.
+    match /requests/{r} {
+      allow read: if request.auth != null && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+      allow create: if request.auth != null && request.resource.data.from == request.auth.uid
+        && request.resource.data.status == 'pending'
+        && r == request.resource.data.from + '_' + request.resource.data.to;
+      allow update: if request.auth != null && resource.data.to == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['accepted', 'declined'];
+      allow delete: if request.auth != null && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+    }
+
     match /chats/{c} {
       allow read: if request.auth != null && request.auth.uid in resource.data.members;
-      allow create: if request.auth != null && request.auth.uid in request.resource.data.members;
+      allow create: if request.auth != null && request.auth.uid in request.resource.data.members
+        && (request.resource.data.type != 'dm' || (request.resource.data.members.size() == 2 && dmAllowed()));
+      allow delete: if request.auth != null && request.auth.uid in resource.data.members && resource.data.type == 'dm';
+      allow update: if request.auth != null && request.auth.uid in resource.data.members && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames'])
+        || (resource.data.type == 'group' && request.auth.uid in resource.data.get('admins', [])
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','members','names','photo','admins']))
+        || (resource.data.type == 'group'
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['members'])
+            && !(request.auth.uid in request.resource.data.members)
+            && request.resource.data.members.size() == resource.data.members.size() - 1));
     }
     match /chats/{c}/messages/{m} {
       allow read: if member(c);
       allow create: if member(c) && request.resource.data.from == request.auth.uid
         && request.resource.data.expireAt is timestamp;
+      allow update: if member(c) && (
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
+        || (resource.data.from == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','edited'])));
+      allow delete: if member(c) && resource.data.from == request.auth.uid;
     }
     match /chats/{c}/messages/{m}/parts/{p} {
       allow read: if member(c);

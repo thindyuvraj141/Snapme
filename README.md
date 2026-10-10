@@ -1,25 +1,38 @@
 # VText 💬
-WhatsApp jaisi chat app (PWA). Frontend: GitHub Pages, deploy: GitHub Actions, backend: Firebase (free).
 
-## Setup (10 minute)
-1. **Firebase**: console.firebase.google.com par project banao.
-   - Build > Authentication > Sign-in method > **Email/Password** ON karo.
-   - Build > Firestore Database > Create (production mode).
-   - Firestore > Rules me `firestore.rules` ka content paste karke Publish karo.
-   - Project settings > Your apps > Web (`</>`) > config copy karke `config.js` me paste karo.
-   - **Auto-delete (backup nahi):** Firestore > **TTL** tab > Create policy: collection group `messages`, field `expireAt`; phir ek aur: collection group `parts`, field `expireAt`. Messages 24 ghante baad khud delete ho jaate hain (app expire hue messages turant chhupa deti hai).
-2. **GitHub**: naya repo banao, saari files upload/push karo (branch `main`).
-3. Repo > Settings > Pages > Source = **GitHub Actions**.
-4. Actions tab me "Deploy VText" chalega. Link: `https://USERNAME.github.io/REPO/`
-5. Firebase > Authentication > Settings > **Authorized domains** me `USERNAME.github.io` add karo.
-6. Phone me link kholo > browser menu > **Add to Home screen** (app ki tarah install hogi).
+A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub Actions. Backend: Firebase (free Spark plan: Authentication + Firestore). Optional Android app built by GitHub Actions (Capacitor).
 
-## Features
-Username se dost add (➕), group (👥), text, photo (auto compress), video (max 3MB ~10-15 sec). Naya account banate waqt username chuno.
-Purane version ke rules/accounts naye rules ke saath kaam nahi karenge, naya signup karo.
+## One-time setup
+1. **Firebase** (console.firebase.google.com)
+   - Build > Authentication > Sign-in method: turn **Email/Password** on.
+   - Build > Firestore Database > Create database (production mode).
+   - Firestore > **Rules**: paste the whole content of `firestore.rules` and press **Publish**. (Do this again whenever `firestore.rules` changes. The friend-request, private-account, unfriend and username rules live there.)
+   - Project settings > Your apps > Web: the config is already inside `index.html` for project `vtext-506f7`. If you use another project, replace the `FIREBASE_CONFIG` block in `index.html`.
+   - Auto-delete: Firestore > **TTL** > create a policy for collection group `messages` on field `expireAt`, and another for `parts` on `expireAt`. The app hides expired messages immediately; TTL removes them from the database.
+2. **GitHub**: put all files in the repo (branch `main`). Repo > Settings > Pages > Source = **GitHub Actions**. The workflow `Deploy VText` publishes `https://USERNAME.github.io/REPO/`.
+3. Firebase > Authentication > Settings > **Authorized domains**: add `USERNAME.github.io`.
+4. Replace `YOUR_EMAIL@example.com` with your support email in `index.html`, `privacy.html`, `terms.html` and `delete-account.html`.
 
-## APK (Capacitor)
-1. Repo me `package.json`, `capacitor.config.json`, `scripts/`, `assets/` aur `.github/workflows/android.yml` bhi hone chahiye.
-2. Actions tab > **Build APK** > **Run workflow**.
-3. 5-10 min baad Releases (repo ka right side) me `VText.apk` milegi, ya run page ke Artifacts me.
-4. APK site `thindyuvraj141.github.io/VText` se load hoti hai, to `index.html` badalne par APK dobara banane ki zaroorat nahi.
+## How the app works
+- Create an account with name, username, email and password. Friends find you by username.
+- Public accounts can be added directly. A **private account** must receive a friend request first; messages flow only after it is accepted. After an **unfriend**, the chat is deleted for both people and a new request is needed to chat again.
+- Blocked people cannot see your username, email, photo or online status. Unblocking keeps the friendship.
+- Optional fingerprint lock (stored only on the phone). After 2 failed fingerprint tries the account password unlocks the app.
+- You can change your username once in a while; the old one is retired forever.
+- Messages expire automatically (1 hour, 24 hours or 7 days). There is no backup.
+
+## Updating the website app
+Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the app. On the phone open **Settings > App update**; the app only updates when you tap it, and the visible version changes.
+
+## Android APK
+1. The repo must contain `package.json`, `capacitor.config.json`, `scripts/` (including `vtext-debug.keystore.b64`), `assets/` and `.github/workflows/android.yml`.
+2. Actions > **Build APK (test)** > Run workflow. After about 10 minutes `VText.apk` is in the repo's **Releases** (right side) and in the run's Artifacts.
+3. The APK loads the website, so changing `index.html` does **not** need a new APK. Build a new APK only when native things change (fingerprint, background service, icons).
+4. Every APK has an increasing version code and is signed with the same key, so a new APK installs over the old one. **If you installed an APK built before this key was added, uninstall it once** (the signing key changed), then install the new one.
+5. The build tries the full app first; if an optional part (fingerprint plugin or background service) fails, it builds a simpler APK and says so in the release notes.
+
+### Notifications in the background (free plan)
+VText keeps a small "running" notification and asks Android to exclude it from battery optimisation, so messages reach you while the app is in the background. Real push notifications for a **force-stopped** app need Firebase Cloud Messaging with a server (Firebase Blaze plan), which is not free, so VText does not use it.
+
+## Play Store
+See `PLAY-STORE.md`.
