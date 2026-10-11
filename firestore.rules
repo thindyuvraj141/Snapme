@@ -86,7 +86,7 @@ service cloud.firestore {
         && (request.resource.data.type != 'dm' || (request.resource.data.members.size() == 2 && dmAllowed()));
       allow delete: if request.auth != null && request.auth.uid in resource.data.members && resource.data.type == 'dm';
       allow update: if request.auth != null && request.auth.uid in resource.data.members && (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames'])
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames','un'])
         || (resource.data.type == 'group' && request.auth.uid in resource.data.get('admins', [])
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','members','names','photo','admins']))
         || (resource.data.type == 'group'
@@ -102,7 +102,9 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
         || (resource.data.from == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','edited'])));
-      allow delete: if member(c) && resource.data.from == request.auth.uid;
+      // The sender can always delete a message. In "disappear right after reading" chats the flag `ar` is set
+      // on the message and the person who received it deletes it a few seconds after reading.
+      allow delete: if member(c) && (resource.data.from == request.auth.uid || resource.data.get('ar', false) == true);
     }
     match /chats/{c}/messages/{m}/parts/{p} {
       allow read: if member(c);
