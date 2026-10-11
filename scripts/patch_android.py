@@ -19,6 +19,8 @@ perms = ['RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS', 'ACCESS_FINE_LOCATION', 'ACCES
 if native == 'full':
     perms += ['FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_SPECIAL_USE', 'REQUEST_IGNORE_BATTERY_OPTIMIZATIONS']
 add = ''.join('    <uses-permission android:name="android.permission.%s"/>\n' % x for x in perms if ('android.permission.%s"' % x) not in s)
+if 'WRITE_EXTERNAL_STORAGE' not in s:  # only needed on Android 9 and older, to save photos/videos into the gallery
+    add += '    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>\n'
 for f in ('camera', 'microphone', 'location', 'fingerprint'):
     if 'android.hardware.%s"' % f not in s:
         add += '    <uses-feature android:name="android.hardware.%s" android:required="false"/>\n' % f
@@ -68,3 +70,25 @@ if native == 'full':
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
+
+# ---------------- dark look (matches the neon-dark app: no white flash, dark system bars) ----------------
+try:
+    vals = root / 'app/src/main/res/values'
+    vals.mkdir(parents=True, exist_ok=True)
+    cp = vals / 'colors.xml'
+    c = cp.read_text() if cp.exists() else '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
+    if 'vt_bg' not in c:
+        c = c.replace('</resources>', '    <color name="vt_bg">#05060B</color>\n</resources>')
+        cp.write_text(c)
+    sp = vals / 'styles.xml'
+    if sp.exists():
+        st = sp.read_text()
+        st = st.replace('Theme.AppCompat.DayNight.NoActionBar', 'Theme.AppCompat.NoActionBar').replace('Theme.AppCompat.Light.NoActionBar', 'Theme.AppCompat.NoActionBar')
+        if 'android:statusBarColor' not in st:
+            st = re.sub(r'(<style name="AppTheme\.NoActionBar"[^>]*>)',
+                        r'\1\n        <item name="android:windowBackground">@color/vt_bg</item>\n        <item name="android:statusBarColor">@color/vt_bg</item>\n        <item name="android:navigationBarColor">@color/vt_bg</item>\n        <item name="android:windowLightStatusBar">false</item>',
+                        st, count=1)
+        sp.write_text(st)
+    print('dark theme applied')
+except Exception as e:  # cosmetic only - never fail the build because of it
+    print('WARNING: dark theme not applied:', e)
