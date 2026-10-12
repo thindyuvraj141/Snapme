@@ -11,18 +11,20 @@ A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub
    - Auto-delete: Firestore > **TTL** > create a policy for collection group `messages` on field `expireAt`, and another for `parts` on `expireAt`. The app hides expired messages immediately; TTL removes them from the database.
 2. **GitHub**: put all files in the repo (branch `main`). Repo > Settings > Pages > Source = **GitHub Actions**. The workflow `Deploy VText` publishes `https://USERNAME.github.io/REPO/`.
 3. Firebase > Authentication > Settings > **Authorized domains**: add `USERNAME.github.io`.
-4. Replace `YOUR_EMAIL@example.com` with your support email in `index.html`, `privacy.html`, `terms.html` and `delete-account.html`.
+4. The support email `VVaultweb@gmail.com` is already set in `index.html`, `privacy.html`, `terms.html` and `delete-account.html`. Change it in those four files if you want another address.
 
 ## How the app works
 - Create an account with name, username, email and password. Friends find you by username.
 - Public accounts can be added directly. A **private account** must receive a friend request first; messages flow only after it is accepted. After an **unfriend**, the chat is deleted for both people and a new request is needed to chat again.
 - Blocked people cannot see your username, email, photo or online status. Unblocking keeps the friendship.
-- Optional fingerprint lock (stored only on the phone). After 2 failed fingerprint tries the account password unlocks the app.
+- App lock (Profile > Settings > Safety & Visibility): asks for your account password every time the app is opened. **Fingerprint unlock** is a second switch there: it needs the newest APK and at least one fingerprint saved in the phone's own Settings. After 2 failed fingerprint tries the account password unlocks the app. Everything is stored only on the phone.
 - You can change your username once in a while; the old one is retired forever.
 - Messages are deleted automatically. Set it per chat from the chat's ⋮ menu > **Auto-delete**: **After seen** (one-to-one chats only: the message is deleted about 10 seconds after the other person sees it), **Today** (24 hours) or **7 days**. The default for new chats is in Settings > Chat Style. There is no backup.
 - Photos and videos can be saved to the phone: open one and tap **Save**, or use the chat's ⋮ menu > **Photos & videos · save**. (The Android app saves into the gallery; the website downloads the file.)
 - Re-publish `firestore.rules` after this update: it adds the unread counters and the delete-after-seen rule.
-- Profile page: the **Background** button puts a gallery photo or a colour style behind your profile photo (saved on your profile, only you see it). Settings is the gear button on the Profile tab.
+- The round neon button on the Chats tab opens the camera directly. New group is in the ⋮ menu.
+- Settings > **Share VText** shares the GitHub Releases page `https://github.com/thindyuvraj141/VText/releases` (where the APK is published) with your username.
+- Profile page: the **Background** button puts a gallery photo or a colour style behind your profile photo (saved on your profile, only you see it). **Settings** is the row right under your @username on the Profile tab.
 
 ## Updating the website app
 Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the app. On the phone open **Settings > App update**; the app only updates when you tap it, and the visible version changes.

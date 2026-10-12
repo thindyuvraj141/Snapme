@@ -7,7 +7,7 @@
    `keytool -genkeypair -v -keystore vtext.jks -alias vtext -keyalg RSA -keysize 2048 -validity 10000`
    `base64 -w0 vtext.jks` (copy the output). Keep the keystore and passwords safe and never put them in the repo.
 4. GitHub repo > Settings > Secrets and variables > Actions: add 4 secrets: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
-5. Replace `YOUR_EMAIL@example.com` with your email in `privacy.html`, `terms.html`, `delete-account.html` and `index.html`.
+5. The support email `VVaultweb@gmail.com` is already set in `privacy.html`, `terms.html`, `delete-account.html` and `index.html` (change it there if needed).
 6. Firebase: publish the latest `firestore.rules`. In Google Cloud / Firebase, add TTL policies on `messages` and `parts` (field `expireAt`), because the privacy policy says expired messages are removed.
 
 ## Every release

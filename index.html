@@ -251,7 +251,6 @@ a{color:var(--acc)}
 .top.w.c{justify-content:flex-start}
 .top.w.c b.g,#ttl{position:static;transform:none;flex:1;text-align:left;font-family:inherit;font-weight:800;font-size:1.7rem;letter-spacing:-.5px;background:none;-webkit-text-fill-color:currentColor;color:var(--txt)}
 #pbtn{display:none}
-#sb{background:var(--card);border:1px solid var(--line);color:var(--txt)}
 #mm{color:var(--txt)}
 #sw2{display:block;margin:2px 18px 12px;position:relative;color:var(--sub)}
 #sw2 svg{position:absolute;left:18px;top:50%;margin-top:-13px;width:24px;height:24px;color:var(--sub);pointer-events:none}
@@ -280,8 +279,10 @@ a{color:var(--acc)}
 .av.on::after{width:16px;height:16px;right:0;bottom:0;background:#22c55e;border:3px solid var(--bg)}
 .av.big.on::after{width:22px;height:22px;right:6px;bottom:6px;border-width:4px}
 .empty{color:var(--sub)}
-#fab{right:20px;bottom:calc(92px + env(safe-area-inset-bottom));width:60px;height:60px;border-radius:50%;background:var(--grad);box-shadow:0 10px 28px -6px var(--g2);display:flex;align-items:center;justify-content:center;color:#fff}
-#fab svg{width:27px;height:27px}
+#fab{right:20px;bottom:calc(92px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#7df9ff;border:2.5px solid transparent;background:linear-gradient(#05060c,#0b0b18) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 50%,#ff3df2) border-box;box-shadow:0 0 12px #22d3ee99,0 0 26px #7c3aed88,0 0 44px -6px #ff3df277,inset 0 0 14px #7c3aed55;transition:transform .15s,box-shadow .15s}
+#fab:active{transform:scale(.92);box-shadow:0 0 8px #22d3ee99,0 0 18px #7c3aed88,inset 0 0 14px #7c3aed77}
+#fab svg{width:29px;height:29px;stroke-width:1.9;filter:drop-shadow(0 0 4px #22d3eecc) drop-shadow(0 0 9px #7c3aedcc)}
+html:not(.dk) #fab{background:linear-gradient(#fff,#f3f1ff) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 50%,#ff3df2) border-box;color:#6d3df0}
 #nav{background:var(--panel);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));align-items:flex-end}
 #nav button{color:var(--sub);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:2px 0;min-width:0}
 #nav i{width:auto;height:auto;margin:0;background:none;border-radius:0;position:relative;display:flex}
@@ -418,8 +419,9 @@ select{appearance:none}
 .pstats b{display:block;font-size:1.25rem;font-weight:800}.pstats span{color:var(--sub);font-size:.88rem}
 .pbtns{display:flex;gap:10px;margin-bottom:6px}
 .pbtns .btn{margin:0;flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:600}
-.pbtns .gear{width:54px;border-radius:27px;background:var(--card);border:1px solid var(--line);color:var(--txt);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0}
-.pbtns .gear svg{width:22px;height:22px}
+#prb .prset{align-self:stretch;display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:14px 18px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--txt);font-size:1rem;font-weight:700;cursor:pointer;text-align:left}
+#prb .prset i{font-style:normal;color:var(--sub);font-size:1.5rem;line-height:1}
+#prb .prset:active{background:var(--pill)}
 #p-prof{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 16px 16px;margin-top:16px}
 #p-prof label{color:var(--sub)}
 
@@ -470,8 +472,8 @@ select{appearance:none}
 </div></div>
 <div id="anim"><svg class="vm"><use href="#vm"/></svg><b>V Text</b><span>Welcome! Getting things ready…</span></div>
 <div id="app">
-<div id="side"><div class="top w c"><button class="ib" id="pbtn" aria-label="Profile"><div class="av" id="pav"></div></button><b class="g" id="ttl">Messages</b><button class="ib" id="sb" aria-label="Camera"></button><button class="ib" id="mm" aria-label="Menu">⋮</button></div>
-<div id="sw2"><input id="search" placeholder="Search chats…" autocomplete="off"></div><div id="chips"><span class="on" data-f="all">All</span><span data-f="un">Unread</span><span data-f="gr">Groups</span></div><div id="list"></div><button id="fab" aria-label="Quick actions"></button><div id="nav"></div></div>
+<div id="side"><div class="top w c"><button class="ib" id="pbtn" aria-label="Profile"><div class="av" id="pav"></div></button><b class="g" id="ttl">Messages</b><button class="ib" id="mm" aria-label="Menu">⋮</button></div>
+<div id="sw2"><input id="search" placeholder="Search chats…" autocomplete="off"></div><div id="chips"><span class="on" data-f="all">All</span><span data-f="un">Unread</span><span data-f="gr">Groups</span></div><div id="list"></div><button id="fab" aria-label="Camera"></button><div id="nav"></div></div>
 <div id="chat"><div class="top"><button class="ib" id="back">←</button><div class="av" id="cav"></div><div class="g" id="hd" style="cursor:pointer"><b id="cname"></b><small id="cst"></small></div><button class="ib" id="cm">⋮</button></div>
 <div id="msgs"></div><button id="dn">↓</button><div id="rp"></div><div id="emo"></div>
 <div id="bar"><div class="in"><button id="eb" aria-label="Emoji"></button><input id="txt" placeholder="Type a message…" autocomplete="off"><button id="at" type="button" aria-label="Attach"></button><button id="bcam" type="button" aria-label="Camera"></button><input id="file" type="file" hidden></div><button class="rb" id="snd" aria-label="Voice message"></button></div></div>
@@ -505,7 +507,7 @@ select{appearance:none}
 <div id="ctxo"><textarea id="cti2" maxlength="80" rows="3" placeholder="Type something"></textarea><div id="ctsy"></div><div id="ctco"></div><button id="ctok">Done</button></div>
 <div id="csend"><div class="top w"><button class="ib" id="csx" aria-label="Back">←</button><b style="flex:1;font-size:1.2rem;color:var(--txt)">Send to</b></div><div id="csl"></div><button class="btn" id="csgo">Choose who to send to</button></div>
 <div id="ccrop"><b>Move and zoom your photo</b><div id="crw"><canvas id="crv" width="300" height="300"></canvas><div id="crm"></div></div><input type="range" id="crz" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><div class="bt"><button id="crc">Cancel</button><button id="cro">Use as profile picture</button></div></div></div>
-<div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button><button class="gear" id="pset" aria-label="Settings"></button></div><div id="prrows"></div></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
+<div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div><button class="prset" id="pset" aria-label="Settings"></button></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button></div><div id="prrows"></div></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -550,7 +552,7 @@ const IC={search:'<circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/>',chat:'<
 const ic=n=>'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>';
 Object.assign(IC,{home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',add:'<path d="M12 5v14M5 12h14"/>',smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14a4.5 4.5 0 008 0"/><path d="M9 9.5h.01M15 9.5h.01" stroke-width="3"/>',clip:'<path d="M21.4 11.1l-9.2 9.2a6 6 0 01-8.5-8.5l9.2-9.2a4 4 0 015.7 5.7l-9.2 9.2a2 2 0 01-2.8-2.8l8.5-8.5"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/>',pause:'<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',img:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',flip:'<path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/><path d="M3 21v-5h5"/>',bellx:'<path d="M6 16v-5a6 6 0 019-5.2M18 11v5l1.5 2H8"/><path d="M10 20a2 2 0 004 0M4 4l16 16"/>',pin:'<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',gear:'<path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>'});
 $('nav').innerHTML=[['fr','home','Friends'],['chats','chat','Chats'],['new','plus',''],['req','bell','Requests'],['prof','user','Profile']].map(a=>'<button data-n="'+a[0]+'"'+(a[0]==='chats'?' class="on"':a[0]==='new'?' class="mid" aria-label="New chat"':'')+'><i>'+ic(a[1])+'</i>'+(a[2]?'<small>'+a[2]+'</small>':'')+'</button>').join('');
-$('fab').innerHTML=ic('plus');$('prb').append($('p-prof'));$('p-prof').classList.remove('ps');$('p-prof').style.display='block';$('prb').appendChild($('prrows'));$('sw2').insertAdjacentHTML('afterbegin',ic('search'));$('sb').innerHTML=ic('cam');$('fab').innerHTML=ic('add');$('fpi').innerHTML=ic('fp').replace('width="26" height="26"','width="46" height="46"');
+$('fab').innerHTML=ic('plus');$('prb').append($('p-prof'));$('p-prof').classList.remove('ps');$('p-prof').style.display='block';$('prb').appendChild($('prrows'));$('sw2').insertAdjacentHTML('afterbegin',ic('search'));$('fab').innerHTML=ic('cam');$('fpi').innerHTML=ic('fp').replace('width="26" height="26"','width="46" height="46"');
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)}
 function ask(title,def,noInput,pwd,lb){return new Promise(res=>{const d=$('dlg'),i=$('di');$('dt').textContent=title;$('dc').textContent=lb?lb[0]:'Cancel';$('dc').style.display=(lb&&lb[0]==='')?'none':'';$('dk').textContent=lb?lb[1]:'OK';i.style.display=noInput?'none':'block';i.type=pwd?'password':'text';i.value=def||'';d.style.display='flex';if(!noInput)setTimeout(()=>i.focus(),60);const done=v=>{d.style.display='none';$('dk').onclick=$('dc').onclick=null;res(v)};$('dk').onclick=()=>done(noInput?true:i.value);$('dc').onclick=()=>done(noInput?false:null)})}
 const confirmD=t=>ask(t,'',true);const msgD=t=>ask(t,'',true,false,['','OK']);
@@ -577,6 +579,7 @@ function afterSplash(){if(document.documentElement.classList.contains('locked'))
 function hideSplash(){clearTimeout(hideSplash.t);const w=Math.max(0,T0+(FAST0?150:(get('in','')==='1'?2000:1500))-Date.now());hideSplash.t=setTimeout(()=>{const c=document.documentElement.classList;if(c.contains('boot')){c.remove('boot');afterSplash()}},w)}
 setTimeout(hideSplash,9000);
 try{if(get('fgs_try','')){put('keep','0');put('fgs_try','')}}catch(e){}
+const SHARE_URL='https://github.com/thindyuvraj141/VText/releases';
 const APP_URL='https://thindyuvraj141.github.io/VText/';
 try{const _a=new URLSearchParams(location.search).get('add');if(_a)localStorage.setItem('vt_add',_a.toLowerCase().replace(/[^a-z0-9_]/g,''))}catch(e){}
 let hiddenAt=0,lockBusy=false,lastUnlock=0,bioFails=0;
@@ -588,14 +591,22 @@ async function savePwHash(pw){const s=[...crypto.getRandomValues(new Uint8Array(
 async function pwOk(pw){if(!pw)return false;const h=lockPw();if(h&&(await pbk(pw,h.s))===h.h)return true;if(window.__reauth&&await window.__reauth(pw)){await savePwHash(pw);return true}return false}
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
-async function bioKind(){
+let bioWhy='';
+const BIO_WHY={11:'No fingerprint is saved on this phone. Add one in your phone Settings > Security, then come back.',12:'This phone has no fingerprint sensor.',1:'The fingerprint sensor is busy right now. Try again in a moment.',15:'Your phone needs a security update before the fingerprint can be used.'};
+async function bioProbe(w){
+  const V=plug('VTextBg');if(V&&V.bioStatus){try{const a=await V.bioStatus();if(a&&a.available)return'vt';w.why=BIO_WHY[a&&a.code]||'Fingerprint is not available on this phone.'}catch(e){}}
   const N=plug('NativeBiometric');if(N){try{const a=await N.isAvailable({useFallback:false});if(a&&a.isAvailable)return'nb'}catch(e){}}
   const B=plug('BiometricAuth');if(B){try{const a=await B.checkBiometry();if(a&&a.isAvailable)return'ba'}catch(e){}}
-  if(!isNative()){try{if(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())return'web'}catch(e){}}
+  if(!isNative()){try{if(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())return'web'}catch(e){}
+    w.why='This browser cannot use the fingerprint for web apps. Open the VText Android app to use it.';return''}
+  if(!w.why)w.why='This VText app has no fingerprint support yet. Install the newest VText APK.';
   return''}
-async function bioReady(){const k=await bioKind();return k==='web'?!!get('wacred',''):!!k}
+async function bioKind(){const w={why:''};const k=await bioProbe(w);bioWhy=k?'':w.why;return k}
+const bioPref=()=>get('lockbio','1')==='1';
+async function bioReady(){if(!bioPref())return false;const k=await bioKind();return k==='web'?!!get('wacred',''):!!k}
 async function webEnroll(){try{const w=(window.__who&&window.__who())||{};const cr=await navigator.credentials.create({publicKey:{rp:{name:'VText'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:w.email||'user',displayName:w.name||'VText user'},challenge:crypto.getRandomValues(new Uint8Array(32)),pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});put('wacred',b64u(cr.rawId));return true}catch(e){return false}}
 async function bioVerify(reason){const k=await bioKind();
+  if(k==='vt'){await plug('VTextBg').bioAuth({title:'VText',reason,cancel:'Use password'});return true}
   if(k==='nb'){await plug('NativeBiometric').verifyIdentity({reason,title:'VText',subtitle:reason,description:'',useFallback:false,maxAttempts:3});return true}
   if(k==='ba'){await plug('BiometricAuth').authenticate({reason,cancelTitle:'Cancel',allowDeviceCredential:false,androidTitle:'VText',androidSubtitle:reason});return true}
   if(k==='web'){const id=get('wacred','');if(!id)throw Error('not enrolled');await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{id:unb64u(id),type:'public-key',transports:['internal']}],userVerification:'required',timeout:60000}});return true}
@@ -610,10 +621,17 @@ async function enableLock(pw){const k=await bioKind();
   if(!(await pwOk(pw))){toast('Wrong password');return false}
   if(k==='web'&&!(await webEnroll())){toast('Couldn’t set up the fingerprint');return false}
   if(k&&!(await bioVerifyN('Confirm it’s you',2))){toast('Fingerprint not confirmed');return false}
-  await savePwHash(pw);put('lock','1');return true}
+  await savePwHash(pw);put('lockbio',k?'1':'0');put('lock','1');return true}
+async function setBio(v){
+  if(!v){put('lockbio','0');return true}
+  const k=await bioKind();if(!k){toast(bioWhy||'Fingerprint is not available here');return false}
+  if(!lockOn())return enableLock();
+  if(k==='web'&&!get('wacred','')&&!(await webEnroll())){toast('Couldn’t set up the fingerprint');return false}
+  if(!(await bioVerifyN('Confirm it’s you',2))){toast('Fingerprint not confirmed');return false}
+  put('lockbio','1');return true}
 async function disableLock(){if(!(await lockAuth('Turn off the lock')))return false;put('lock','0');document.documentElement.classList.remove('locked');return true}
 function lockUI(mode,msg){$('lkm').textContent=msg||'';$('lk-pw').style.display=mode==='pw'?'block':'none';$('unl').style.display=mode==='bio'?'':'none';$('lkpw').style.display=mode==='bio'?'':'none';$('lke').textContent='';if(mode==='pw')setTimeout(()=>{try{$('lkp').focus()}catch(e){}},80)}
-function unlocked(){$('lkp').value='';bioFails=0;document.documentElement.classList.remove('locked');lastUnlock=Date.now();hiddenAt=0}
+function unlocked(){$('lkp').value='';bioFails=0;pausedAt=0;document.documentElement.classList.remove('locked');lastUnlock=Date.now();hiddenAt=0}
 async function unlockFlow(){
   if(lockBusy)return;lockBusy=true;
   try{
@@ -625,8 +643,22 @@ async function unlockFlow(){
         lockUI('bio',bioFails?'Fingerprint not recognized. Try again or use your account password.':'Unlock with your fingerprint or use your account password.');return}}
     lockUI('pw','Enter your account password to unlock VText.')
   }finally{lockBusy=false}}
-function onResume(){if(!lockOn()||lockBusy||!hiddenAt)return;if(Date.now()-lastUnlock<1500)return;if(Date.now()-hiddenAt>=+get('lockdelay','0')){document.documentElement.classList.add('locked');bioFails=0;unlockFlow()}}
-document.addEventListener('visibilitychange',()=>{if(document.hidden){if(!lockBusy)hiddenAt=Date.now()}else onResume()});
+/* the lock follows the real app lifecycle: Android pause/resume (when available), otherwise the page visibility.
+   lockGrace() stops the lock from kicking in while the phone shows its own screens (photo picker, camera, permission prompts). */
+let pausedAt=0,graceUntil=0;
+const lockGrace=ms=>{graceUntil=Math.max(graceUntil,Date.now()+ms)};
+function onPaused(){if(!lockOn()||lockBusy||Date.now()<graceUntil||Date.now()-lastUnlock<600)return;if(!pausedAt)pausedAt=Date.now();hiddenAt=pausedAt;if(+get('lockdelay','0')===0)document.documentElement.classList.add('locked')}
+function onResumed(){if(!lockOn()||lockBusy||!pausedAt)return;
+  const was=pausedAt;pausedAt=0;
+  if(document.documentElement.classList.contains('locked')||Date.now()-was>=+get('lockdelay','0')){document.documentElement.classList.add('locked');bioFails=0;unlockFlow()}}
+let nativeLife=false;
+window.__vtLife=st=>{nativeLife=true;st==='pause'?onPaused():onResumed()};
+try{const AP=plug('App');if(isNative()&&AP&&AP.addListener){AP.addListener('pause',()=>{nativeLife=true;onPaused()});AP.addListener('resume',()=>{nativeLife=true;onResumed()})}}catch(e){}
+document.addEventListener('visibilitychange',()=>{if(nativeLife)return;document.hidden?onPaused():onResumed()});
+try{const oc=HTMLInputElement.prototype.click;HTMLInputElement.prototype.click=function(){if(this.type==='file')lockGrace(120000);return oc.apply(this,arguments)};
+  const md=navigator.mediaDevices;if(md&&md.getUserMedia){const og=md.getUserMedia.bind(md);md.getUserMedia=function(){lockGrace(30000);return og.apply(null,arguments)}}
+  if(window.Notification&&Notification.requestPermission){const orq=Notification.requestPermission.bind(Notification);Notification.requestPermission=function(){lockGrace(30000);return orq.apply(null,arguments)}}}catch(e){}
+function lockNow(){if(!lockOn())return;pausedAt=0;document.documentElement.classList.add('locked');bioFails=0;unlockFlow()}
 $('unl').onclick=unlockFlow;$('lkpw').onclick=()=>lockUI('pw','Enter your account password to unlock VText.');
 let pwTry=0;$('lku').onclick=async()=>{const p=$('lkp').value;if(!p){$('lke').textContent='Enter your password.';return}$('lku').disabled=true;const ok=await pwOk(p);$('lku').disabled=false;if(ok){pwTry=0;unlocked()}else{pwTry++;$('lke').textContent=pwTry>=5?'Wrong password. Forgot it? Log out below and use “Forgot password”.':'Wrong password. Try again.'}};
 $('lklo').onclick=async()=>{if(await confirmD('Log out of VText? The lock will be turned off.')&&window.__logout)window.__logout()};
@@ -727,7 +759,7 @@ function avatarSVG(cfg,o){o=o||{};const c=Object.assign({},AV0,cfg||{}),id='av'+
 function svgToPng(svg,n){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=c.height=n;c.getContext('2d').drawImage(i,0,0,n,n);res(c.toDataURL('image/png'))};i.onerror=()=>rej(Error('Avatar render failed'));i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
 function cropSquare(url,n){return new Promise((res,rej)=>{const m=new Image();m.onload=()=>{const c=document.createElement('canvas');c.width=c.height=n;const q=Math.min(m.width,m.height);c.getContext('2d').drawImage(m,(m.width-q)/2,(m.height-q)/2,q,q,0,0,n,n);res(c.toDataURL('image/jpeg',.75))};m.onerror=()=>rej(Error('Image error'));m.src=url})}
 function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/jpeg',q);if(o.length<800000)return o;q-=.1;if(q<.4){const t=document.createElement('canvas');t.width=Math.round(c.width*.8);t.height=Math.round(c.height*.8);t.getContext('2d').drawImage(c,0,0,t.width,t.height);c=t;q=.8}}return o}
-const SUPPORT_EMAIL='YOUR_EMAIL@example.com';
+const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
 privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents and locations you send.</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone and location are used only when you tap the related button. Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
@@ -867,7 +899,7 @@ function showReqs(){$('pv').querySelector('.hero').style.display='none';$('pvt')
   if(!reqs.length)b.innerHTML='<div class="empty" style="padding:40px 0">No pending requests</div>';
   reqs.forEach(r=>{const d=document.createElement('div');d.className='rw';const a=document.createElement('div');a.className='av';av(a,r.fromName||'U',false,r.fromPhoto);const t=document.createElement('div');t.style.flex='1';t.textContent=r.fromName;const sm=document.createElement('small');sm.textContent='@'+r.fromUsername;t.appendChild(sm);
     const ok=document.createElement('button'),no=document.createElement('button');ok.className=no.className='btn';ok.style.cssText='width:auto;margin:0 6px 0 0;padding:8px 14px';no.style.cssText='width:auto;margin:0;padding:8px 14px;background:#64748b';ok.textContent='Accept';no.textContent='Decline';ok.onclick=()=>acceptReq(r);no.onclick=()=>declineReq(r);d.append(a,t,ok,no);b.appendChild(d)});$('pv').style.display='flex'}
-async function shareLink(){const u=APP_URL+'?add='+encodeURIComponent(me.username),t='Chat with me on VText! My username: @'+me.username,SH=plug('Share');
+async function shareLink(){const u=SHARE_URL,t='Chat with me on VText! Download the app from the link below, then add me. My username: @'+me.username,SH=plug('Share');
   try{if(SH)await SH.share({title:'VText',text:t,url:u,dialogTitle:'Share VText'});else if(navigator.share)await navigator.share({title:'VText',text:t,url:u});else throw 0}
   catch(e){if(e&&/cancel/i.test(e.message||''))return;try{await navigator.clipboard.writeText(t+' '+u);toast('Link copied')}catch(x){toast(u)}}}
 function nbadge(){const i=$('nav').querySelector('[data-n="req"] i');if(!i)return;let b=i.querySelector('.bd');if(!reqs.length){b&&b.remove();return}if(!b){b=document.createElement('span');b.className='bd';i.appendChild(b)}b.textContent=reqs.length}
@@ -1201,13 +1233,13 @@ function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app
   const opt=id=>[...$(id).options].map(o=>[o.value,o.textContent]),lab=id=>(opt(id).find(o=>o[0]===$(id).value)||['',''])[1];
   const ch=(t,id)=>({t,s:lab(id),tap:()=>choose(t,opt(id),$(id).value,v=>{hid(id,v);drawPanel(p)})});
   const tg=(t,s,id)=>({t,s,sw:1,on:$(id).checked,set:v=>hid(id,v)});
-  const LBL={everyone:'Everyone',contacts:'My contacts',nobody:'Nobody'},thr=[['everyone','Everyone'],['contacts','My contacts'],['nobody','Nobody']];
+  const LBL={everyone:'All users',contacts:'Friends only',nobody:'No one'},thr=[['everyone','All users'],['contacts','Friends only'],['nobody','No one']];
   const pc=(t,k,d,os,fn)=>({t,s:LBL[me[k]||d],tap:()=>choose(t,os,me[k]||d,v=>{if(fn)fn(v);else setU({[k]:v});me[k]=v;drawPanel(p)})});
   const u=auth.currentUser||{},ver=!!u.emailVerified;
   const D={
    acc:[['Login and security',[{t:'Password',s:'Send a password reset link to your email',tap:()=>$('pw').click()},{t:'Email address',s:(u.email||'')+(ver?' · Verified':' · Not verified'),tap:changeEmail},{t:'Email verification',s:ver?'Your email is verified':'Tap to send a verification email',ok:ver,tap:verifyEmail},{t:'Login PIN',s:me.pinOn?'On':'Off',tap:pinMenu},{t:'Current sessions',s:'See where you are logged in, and recent logins and logouts',tap:()=>openP('sess','Current sessions')}]],
      ['Your account',[{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername},{t:'Delete account',s:'Permanently delete your account and data',red:1,tap:()=>$('da').click()},{t:'How account deletion works',tap:()=>openDoc('delete')}]]],
-   priv:[['Who can see my personal info',[pc('Profile picture','pv_photo','everyone',thr,setPhotoPriv)]],
+   priv:[['Who can see my profile',[pc('My profile photo','pv_photo','everyone',thr,setPhotoPriv)]],
      ['',[tg('Seen ticks','If turned off, you won’t send or receive seen ticks.','rr')]],
      ['Friends',[tg('Private account','People must send a request before they can chat with you.','pr'),{t:'Blocked accounts',s:'See and unblock people',tap:()=>$('bk').click()}]],
      ['Groups',[pc('Group invites from','pv_groups','everyone',thr)]],
@@ -1275,7 +1307,7 @@ function start(){
 }
 let typT=null;
 const peerTyping=c=>c.type==='dm'&&Object.entries(c.typing||{}).some(a=>a[0]!==me.uid&&!blockedBy.has(a[0])&&Date.now()-M(a[1])<6000);
-function hdr(){const T={chats:'Messages',fr:'Friends',req:'Requests'};$('ttl').textContent=T[tab]||'Messages';$('fab').style.display=tab==='chats'?'':'none';$('sb').style.display=tab==='chats'?'':'none';$('sw2').style.display=(tab==='chats'||tab==='fr')?'':'none';$('chips').style.display=tab==='chats'?'':'none'}
+function hdr(){const T={chats:'Messages',fr:'Friends',req:'Requests'};$('ttl').textContent=T[tab]||'Messages';$('fab').style.display=tab==='chats'?'':'none';$('sw2').style.display=(tab==='chats'||tab==='fr')?'':'none';$('chips').style.display=tab==='chats'?'':'none'}
 function renderList(){
   hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='req')return renderReqTab(l);if(tab==='fr')return renderFriends(l,q);
   const pn=lset('pin'),mu=lset('mut'),lk=lset('lck');
@@ -1318,9 +1350,15 @@ $('cm').onclick=()=>{if(!cur)return;const id=cur.id,g=cur.type==='group',ad=g&&(
   ['More…',()=>{const m=[['Clear chat',()=>{put('clr_'+id,Date.now());renderM()}]];if(g){if(ad)m.push(['Add participants',addM],['Change group name',renG],['Change group photo',()=>{pt='g';$('pf').click()}]);m.push(['Exit group',()=>leaveG()])}else m.push([lset('blk').has(o)?'Unblock':'Block',()=>{setBlock(o)}],['Report',()=>reportIt(o)],['Unfriend',()=>unfriend(o)]);sheet(m,'pop')}]];
   sheet(r,'pop')};
 $('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addC();return}if(n==='prof'){openProfile();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
-const lockRows=()=>[{t:bioK?'Fingerprint lock':'App lock',s:lockOn()?(bioK?'On. VText asks for your fingerprint when you open it. If it fails twice, use your account password.':'On. VText asks for your account password when you open it.'):(bioK?'Unlock VText with your fingerprint instead of typing your password.':'Fingerprint is not available on this phone or build. The lock uses your account password.'),sw:1,on:lockOn(),set:v=>(v?enableLock():disableLock()).then(()=>drawPanel('priv'))},
-  {t:'Lock after',s:({'0':'Immediately','60000':'1 minute','300000':'5 minutes','1800000':'30 minutes'})[get('lockdelay','0')],tap:()=>choose('Lock after',[['0','Immediately'],['60000','1 minute'],['300000','5 minutes'],['1800000','30 minutes']],get('lockdelay','0'),v=>{put('lockdelay',v);drawPanel('priv')})},
-  {t:'Locked chats',s:lset('lck').size+' chat(s) locked. Long-press a chat, or use ⋮ > Lock chat inside a chat.'}];
+let bioShown='';
+const lockRows=()=>{bioShown=bioK+'|'+bioWhy;bioKind().then(k=>{if(k+'|'+bioWhy!==bioShown){bioK=k;if(cp2==='priv')drawPanel('priv')}});
+  const bioOn=!!bioK&&lockOn()&&bioPref();
+  const r=[{t:'App lock',s:lockOn()?'On. VText asks for '+(bioOn?'your fingerprint (or your account password)':'your account password')+' every time you open it.':'Ask for your account password every time VText is opened.',sw:1,on:lockOn(),set:v=>(v?enableLock():disableLock()).then(()=>drawPanel('priv'))},
+    {t:'Fingerprint unlock',s:bioK?(bioOn?'On. Touch the sensor to open VText. Your account password is the backup.':'Use your fingerprint instead of typing the password.'):(bioWhy||'Checking your phone…'),sw:1,on:bioOn,set:v=>setBio(v).then(()=>drawPanel('priv'))}];
+  if(lockOn())r.push({t:'Lock now',s:'Lock VText right away',tap:lockNow});
+  r.push({t:'Lock after',s:({'0':'Immediately','60000':'1 minute','300000':'5 minutes','1800000':'30 minutes'})[get('lockdelay','0')],tap:()=>choose('Lock after',[['0','Immediately'],['60000','1 minute'],['300000','5 minutes'],['1800000','30 minutes']],get('lockdelay','0'),v=>{put('lockdelay',v);drawPanel('priv')})},
+    {t:'Locked chats',s:lset('lck').size+' chat(s) locked. Long-press a chat, or use ⋮ > Lock chat inside a chat.'});
+  return r};
 function lrow(l){let d=null;if(showLock){d=urow(null,'← Back to chats','Locked chats are shown below',[])}else if(lset('lck').size){d=urow(null,'Locked chats',lset('lck').size+' locked · tap to open',[])}
   if(!d)return;const a=d.querySelector('.av');a.style.background='var(--acc)';a.innerHTML=showLock?'←':ic('lock');d.onclick=()=>showLock?(showLock=false,renderList()):viewLocked();l.appendChild(d)}
 async function viewLocked(){if(await lockAuth('View locked chats')){showLock=true;renderList()}}
@@ -1353,7 +1391,7 @@ function chatMenu(c){const id=c.id,g=c.type==='group',o=g?null:peerOf(c),r=[[tit
   if(g)r.push(['Exit group',()=>leaveG(c)]);else r.push([lset('blk').has(o)?'Unblock':'Block',()=>setBlock(o)],['Unfriend',()=>unfriend(o)]);
   sheet(r)}
 function closeSearch(){if($('search').value){$('search').value='';renderList()}}
-$('search').oninput=renderList;$('sb').onclick=()=>$('fab').click();
+$('search').oninput=renderList;
 $('mm').onclick=()=>sheet([['New group',newG],['Clear unread',readAll]].concat(lset('lck').size?[['Unlock chat',unlockPicker]]:[],[]),'pop');
 function readAll(){chats.forEach(c=>{if(c.lastFrom&&c.lastFrom!==me.uid&&M(c.lastTs)>M(c.seen&&c.seen[me.uid]))db.doc('chats/'+c.id).update({['seen.'+me.uid]:SV()}).catch(()=>{})})}
 const col2=()=>db.collection('chats/'+cur.id+'/messages');
@@ -1565,7 +1603,7 @@ function paintCard(){av($('sav2'),me.name,false,me.photo);$('sname2').textConten
 /* profile page */
 function paintProfile(){if(!me)return;av($('sav'),me.name,false,me.photo);$('sname').textContent=me.name;$('su').textContent='@'+me.username;
   $('ps1').textContent=chats.filter(c=>c.type==='dm').length;$('ps2').textContent=chats.filter(c=>c.type==='group').length;$('ps3').textContent=reqs.length;paintCover()}
-$('pset').innerHTML=ic('gear');$('pcam').innerHTML=ic('cam');$('pbg').innerHTML=ic('img')+'<span>Background</span>';
+$('pset').innerHTML='<span>Settings</span><i>›</i>';$('pcam').innerHTML=ic('cam');$('pbg').innerHTML=ic('img')+'<span>Background</span>';
 $('pset').onclick=()=>{$('prf').style.display='none';openSet()};
 $('pcam').onclick=()=>{pt='me';$('pf').click()};
 $('pedit').onclick=()=>{const i=$('sn');i.focus();try{i.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}};
@@ -1592,8 +1630,7 @@ function voiceEl(x){const w=document.createElement('div');w.className='vc';
   const a0=vAud.get(x.id);if(a0)a0._ui=paint;paint();w.onclick=ev=>ev.stopPropagation();return w}
 
 /* home quick actions: the header icon opens the camera; the round button offers Camera / New group; New chat lives in the middle of the bottom bar */
-$('sb').onclick=()=>{if(window.openCamera)openCamera()};
-$('fab').onclick=()=>sheet([['Camera',()=>{if(window.openCamera)openCamera()}],['New group',newG]]);
+$('fab').onclick=()=>{if(window.openCamera)openCamera()};
 
 /* profile background: a gallery photo or one of a few colour styles, stored on the profile (users/<uid>.cover) */
 const COVERS={neon:['Neon','radial-gradient(circle at 15% 20%,#3b82f6bb,transparent 55%),radial-gradient(circle at 85% 0%,#d946efbb,transparent 55%),linear-gradient(135deg,#1a1648,#2a1458 55%,#3b1366)'],
