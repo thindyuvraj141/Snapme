@@ -57,6 +57,10 @@ if kb.exists():
             print('WARNING: could not add signing config');
 else:
     print('WARNING: scripts/vtext-debug.keystore.b64 missing - APKs will be signed with a random key')
+if native == 'full' and 'androidx.biometric' not in t:  # fingerprint prompt used by the VTextBg plugin
+    t, nb = re.subn(r'(\ndependencies\s*\{)', lambda m: m.group(1) + "\n    implementation 'androidx.biometric:biometric:1.1.0'", t, count=1)
+    if not nb:
+        print('WARNING: could not add the biometric dependency')
 g.write_text(t)
 
 # ---------------- native helpers ----------------
