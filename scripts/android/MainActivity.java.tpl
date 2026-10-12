@@ -38,6 +38,29 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
     }
 
+    // Tell the page when the app really goes to the background / comes back (used by the app lock).
+    private void life(String state) {
+        try {
+            if (getBridge() != null && getBridge().getWebView() != null) {
+                getBridge().getWebView().evaluateJavascript("window.__vtLife&&window.__vtLife('" + state + "')", null);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        life("pause");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        life("resume");
+    }
+
     @Override
     public void onStop() {
         super.onStop();

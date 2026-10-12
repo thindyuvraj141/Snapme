@@ -15,13 +15,17 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Base64;
 
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.concurrent.Executor;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -89,6 +93,68 @@ public class VTextBgPlugin extends Plugin {
                 call.reject("Not available on this phone");
             }
         }
+    }
+
+    /** Is a fingerprint (or face) sensor with at least one saved fingerprint available? */
+    @PluginMethod
+    public void bioStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        try {
+            BiometricManager bm = BiometricManager.from(getContext());
+            int res = bm.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG
+                    | BiometricManager.Authenticators.BIOMETRIC_WEAK);
+            r.put("available", res == BiometricManager.BIOMETRIC_SUCCESS);
+            r.put("code", res);
+        } catch (Exception e) {
+            r.put("available", false);
+            r.put("code", -1);
+        }
+        call.resolve(r);
+    }
+
+    /** Shows the system fingerprint prompt. Resolves on success, rejects with "cancelled" or the error text. */
+    @PluginMethod
+    public void bioAuth(final PluginCall call) {
+        final String title = call.getString("title", "VText");
+        final String reason = call.getString("reason", "Unlock VText");
+        final String cancel = call.getString("cancel", "Use password");
+        if (getActivity() == null || !(getActivity() instanceof FragmentActivity)) {
+            call.reject("Fingerprint is not available");
+            return;
+        }
+        final FragmentActivity act = (FragmentActivity) getActivity();
+        act.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Executor ex = ContextCompat.getMainExecutor(act);
+                    BiometricPrompt prompt = new BiometricPrompt(act, ex, new BiometricPrompt.AuthenticationCallback() {
+                        @Override
+                        public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                            call.resolve();
+                        }
+
+                        @Override
+                        public void onAuthenticationError(int errorCode, CharSequence errString) {
+                            boolean cancelled = errorCode == BiometricPrompt.ERROR_USER_CANCELED
+                                    || errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON
+                                    || errorCode == BiometricPrompt.ERROR_CANCELED;
+                            call.reject(cancelled ? "cancelled" : String.valueOf(errString));
+                        }
+                    });
+                    BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                            .setTitle(title)
+                            .setSubtitle(reason)
+                            .setNegativeButtonText(cancel)
+                            .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG
+                                    | BiometricManager.Authenticators.BIOMETRIC_WEAK)
+                            .build();
+                    prompt.authenticate(info);
+                } catch (Exception e) {
+                    call.reject("Fingerprint error: " + e.getMessage());
+                }
+            }
+        });
     }
 
     /** Saves a photo / video / voice message / file into the phone's gallery or Downloads (folder "VText"). */
