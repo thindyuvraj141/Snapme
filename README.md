@@ -19,9 +19,10 @@ A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub
 - Blocked people cannot see your username, email, photo or online status. Unblocking keeps the friendship.
 - Optional fingerprint lock (stored only on the phone). After 2 failed fingerprint tries the account password unlocks the app.
 - You can change your username once in a while; the old one is retired forever.
-- Messages expire automatically (1 hour, 24 hours, 7 days or 30 days). Set the time per chat from the chat's ⋮ menu > **Disappearing messages**; in a one-to-one chat you can also choose **Right after reading** (the message is deleted about 10 seconds after the other person sees it). The default for new chats is in Settings > Chat Settings. There is no backup.
+- Messages are deleted automatically. Set it per chat from the chat's ⋮ menu > **Auto-delete**: **After seen** (one-to-one chats only: the message is deleted about 10 seconds after the other person sees it), **Today** (24 hours) or **7 days**. The default for new chats is in Settings > Chat Style. There is no backup.
 - Photos and videos can be saved to the phone: open one and tap **Save**, or use the chat's ⋮ menu > **Photos & videos · save**. (The Android app saves into the gallery; the website downloads the file.)
-- Re-publish `firestore.rules` after this update: it adds the unread counters and the after-reading delete rule.
+- Re-publish `firestore.rules` after this update: it adds the unread counters and the delete-after-seen rule.
+- Profile page: the **Background** button puts a gallery photo or a colour style behind your profile photo (saved on your profile, only you see it). Settings is the gear button on the Profile tab.
 
 ## Updating the website app
 Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the app. On the phone open **Settings > App update**; the app only updates when you tap it, and the visible version changes.

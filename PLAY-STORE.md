@@ -24,4 +24,4 @@ The Play Store build bundles the web files inside the app (so updates go through
 - Graphics: `store/icon-512.png`, `store/feature-graphic-1024x500.png`, and at least 2 real phone screenshots.
 
 Short description: Simple private chat with photos, voice notes and groups.
-Full description: VText is a simple chat app. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages, documents and your location. Take photos with fun lenses, add stickers and text, and make your own cartoon avatar. Messages disappear automatically after the time you choose.
+Full description: VText is a simple chat app. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages, documents and your location. Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
