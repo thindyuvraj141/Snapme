@@ -39,7 +39,48 @@ if native == 'full' and 'VTextService' not in s:
            '        </service>\n')
     assert '</application>' in s
     s = s.replace('</application>', svc + '    </application>', 1)
+# push notifications (Firebase Cloud Messaging): which channel / icon notifications use when the app is closed.
+# Harmless when the push plugin or google-services.json is not part of the build.
+if 'default_notification_channel_id' not in s:
+    meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="messages"/>\n'
+            '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
+    s = s.replace('</application>', meta + '    </application>', 1)
 mp.write_text(s)
+
+# ---------------- Firebase config for push (optional) ----------------
+# Put the file you download from Firebase console (Project settings > Your apps > Android > google-services.json)
+# into the repo as scripts/google-services.json. Without it the app still builds; push simply stays off.
+def firebase_config():
+    gs = pathlib.Path('scripts/google-services.json')
+    if not gs.exists():
+        print('push: scripts/google-services.json not found - push notifications stay off in this build')
+        return
+    try:
+        j = json.loads(gs.read_text())
+        pkgs = [c['client_info']['android_client_info']['package_name'] for c in j.get('client', [])]
+    except Exception as e:
+        print('WARNING: scripts/google-services.json is not valid (%s) - push stays off' % e)
+        return
+    if app_id not in pkgs:
+        print('WARNING: google-services.json is for %s, but this app is %s - push stays off. '
+              'In Firebase console add an Android app with the package name %s and download the file again.' % (pkgs or 'no app', app_id, app_id))
+        return
+    (root / 'app/google-services.json').write_text(gs.read_text())
+    # the standard Capacitor template already applies the plugin when the file exists; make sure of it
+    rb = root / 'build.gradle'
+    if rb.exists():
+        r = rb.read_text()
+        if 'com.google.gms:google-services' not in r:
+            r, n = re.subn(r"(classpath\s+['\"]com\.android\.tools\.build:gradle[^'\"]*['\"])", lambda m: m.group(1) + "\n        classpath 'com.google.gms:google-services:4.4.2'", r, count=1)
+            if n: rb.write_text(r)
+            else: print('WARNING: could not add the google-services classpath')
+    ab = root / 'app/build.gradle'
+    a_txt = ab.read_text()
+    if 'com.google.gms.google-services' not in a_txt:
+        a_txt += "\ntry {\n    def servicesJSON = file('google-services.json')\n    if (servicesJSON.text) {\n        apply plugin: 'com.google.gms.google-services'\n    }\n} catch(Exception e) {\n    logger.info(\"google-services.json not found\")\n}\n"
+        ab.write_text(a_txt)
+    print('push: Firebase configuration added (project %s)' % j.get('project_info', {}).get('project_id', '?'))
+firebase_config()
 
 # ---------------- version ----------------
 vc = os.environ.get('VERSION_CODE')
