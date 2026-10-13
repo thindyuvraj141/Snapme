@@ -25,17 +25,81 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
+import com.getcapacitor.PermissionState;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+import com.getcapacitor.annotation.PermissionCallback;
 
-/** Small local Capacitor plugin: background service, battery optimisation helpers and "save to gallery". */
-@CapacitorPlugin(name = "VTextBg")
+/** Small local Capacitor plugin: background service, battery optimisation helpers, fingerprint, "save to gallery" and permission requests. */
+@CapacitorPlugin(
+        name = "VTextBg",
+        permissions = {
+                @Permission(alias = "camera", strings = {Manifest.permission.CAMERA}),
+                @Permission(alias = "location", strings = {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}),
+                @Permission(alias = "photos", strings = {"android.permission.READ_MEDIA_IMAGES", "android.permission.READ_MEDIA_VIDEO"}),
+                @Permission(alias = "storage", strings = {Manifest.permission.READ_EXTERNAL_STORAGE})
+        })
 public class VTextBgPlugin extends Plugin {
+
+    // ---------- permissions: camera, gallery (photos / videos), location ----------
+    private String stateOf(String alias) {
+        try {
+            PermissionState s = getPermissionState(alias);
+            if (s == PermissionState.GRANTED) return "granted";
+            if (s == PermissionState.DENIED) return "denied";
+            return "prompt";
+        } catch (Exception e) {
+            return "denied";
+        }
+    }
+
+    private String mediaAlias() {
+        return Build.VERSION.SDK_INT >= 33 ? "photos" : "storage";
+    }
+
+    private JSObject permState() {
+        JSObject r = new JSObject();
+        r.put("camera", stateOf("camera"));
+        r.put("location", stateOf("location"));
+        r.put("media", stateOf(mediaAlias()));
+        return r;
+    }
+
+    /** Current state of the three permissions without asking: "granted", "denied" or "prompt". */
+    @PluginMethod
+    public void permStatus(PluginCall call) {
+        call.resolve(permState());
+    }
+
+    /** Asks for the permissions given as booleans (camera, location, media; all true by default). */
+    @PluginMethod
+    public void askPerms(PluginCall call) {
+        ArrayList<String> need = new ArrayList<String>();
+        if (call.getBoolean("camera", true) && !"granted".equals(stateOf("camera"))) need.add("camera");
+        if (call.getBoolean("location", true) && !"granted".equals(stateOf("location"))) need.add("location");
+        if (call.getBoolean("media", true) && !"granted".equals(stateOf(mediaAlias()))) need.add(mediaAlias());
+        if (need.isEmpty()) {
+            call.resolve(permState());
+            return;
+        }
+        try {
+            requestPermissionForAliases(need.toArray(new String[0]), call, "permsDone");
+        } catch (Exception e) {
+            call.resolve(permState());
+        }
+    }
+
+    @PermissionCallback
+    private void permsDone(PluginCall call) {
+        call.resolve(permState());
+    }
 
     @PluginMethod
     public void start(PluginCall call) {
