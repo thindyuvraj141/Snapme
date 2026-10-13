@@ -72,6 +72,25 @@ public class VTextBgPlugin extends Plugin {
         return r;
     }
 
+    /**
+     * Push notifications: true when this APK contains the Firebase configuration (google-services.json was added to the
+     * repo before the build). Checked with reflection so the app still builds and runs without the Firebase libraries.
+     */
+    @PluginMethod
+    public void pushReady(PluginCall call) {
+        boolean ok = false;
+        try {
+            Class<?> c = Class.forName("com.google.firebase.FirebaseApp");
+            Object list = c.getMethod("getApps", Context.class).invoke(null, getContext());
+            ok = (list instanceof java.util.List) && !((java.util.List<?>) list).isEmpty();
+        } catch (Throwable e) {
+            ok = false;
+        }
+        JSObject r = new JSObject();
+        r.put("ready", ok);
+        call.resolve(r);
+    }
+
     /** Current state of the three permissions without asking: "granted", "denied" or "prompt". */
     @PluginMethod
     public void permStatus(PluginCall call) {
