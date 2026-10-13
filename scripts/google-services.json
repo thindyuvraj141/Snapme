@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "448390510213",
+    "project_id": "vtext-506f7",
+    "storage_bucket": "vtext-506f7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:448390510213:android:360b43f11cb124473ddbec",
+        "android_client_info": {
+          "package_name": "com.thindyuvraj.vtext"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB3DysZgD-guSLoMsY1I5MQDzJikj0C0kE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
