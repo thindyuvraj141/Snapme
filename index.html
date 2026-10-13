@@ -624,6 +624,7 @@ html:not(.dk) .pmr i{background:linear-gradient(#fff,#f3f1ff) padding-box,linear
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
 <script>
 window.FIREBASE_CONFIG = {
   apiKey: "AIzaSyBkh_MJ6qBZySNvUwitl1iuvdGK1iadS6k",
@@ -875,14 +876,14 @@ function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/j
 const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
-privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account.</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
+privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while VText is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account.</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
 terms:['Terms & community rules','<p>By using VText you agree to these rules.</p><ul><li>No harassment, threats, hate speech or bullying.</li><li>No sexual content involving minors and no sexually explicit content.</li><li>No violence, illegal activity, scams, spam or impersonation.</li><li>Do not share other people’s private information.</li><li>You are responsible for what you send.</li></ul><p>You can block and report any user or message in the app. We may remove content or suspend accounts that break these rules.</p>'+mail],
 delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>What is deleted</h4><p>Your login, profile (name, username, photo, about) and username are deleted. Messages you sent may remain in other people’s chats until they expire (default 24 hours).</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
 bg:['Background notifications','<p>On the Android app, VText keeps running in the background with a small “VText is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Settings &gt; Notifications: keep “Keep running in the background” turned on.</li><li>Settings &gt; Notifications &gt; Battery optimisation: tap and choose Allow, so Android does not pause VText when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock VText in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe VText away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open VText again.</p>']};
 function openDoc(k){const d=DOCS[k];if(!d)return;$('dct').textContent=d[0];$('dcb').innerHTML=d[1];$('doc').style.display='flex'}
 $('dcx').onclick=()=>$('doc').style.display='none';
 document.addEventListener('click',e=>{const a=e.target.closest('[data-doc]');if(a){e.preventDefault();openDoc(a.dataset.doc)}});
-const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));return q.has(v)};
+const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
 function linkify(e,t){t.split(/(https?:\/\/\S+)/g).forEach(p=>{if(/^https?:\/\//.test(p)){const a=document.createElement('a');a.href=p;a.target='_blank';a.rel='noopener';a.textContent=p;a.style.color='var(--acc)';a.onclick=ev=>ev.stopPropagation();e.appendChild(a)}else e.appendChild(document.createTextNode(p))})}
 function beep(){if(get('snd','1')!=='1')return;try{const a=new(window.AudioContext||window.webkitAudioContext)(),t=a.currentTime;[[880,0],[1318,.14]].forEach(([f,d])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.2,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.4);o.start(t+d);o.stop(t+d+.45)})}catch(e){}}
 if(typeof firebase==='undefined'){$('e-w').textContent='Firebase failed to load. Check your internet, VPN or ad-blocker.';$('wl').disabled=true;$('ws').disabled=true}
@@ -920,14 +921,14 @@ $('go2').onclick=async()=>{const email=$('se').value.trim(),pass=$('sp').value;a
   creating=false;holdAuth=false;$('go2').disabled=false};
 window.__reauth=async pw=>{try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));return true}catch(e){return false}};
 window.__who=()=>({email:(auth.currentUser||{}).email,name:me&&me.name});
-const logout=async()=>{manual=true;try{await endSession()}catch(e){}try{await locLogout()}catch(e){}auth.signOut()};window.__logout=()=>logout();$('lo').onclick=()=>{$('set').style.display='none';logout()};
+const logout=async()=>{manual=true;try{await endSession()}catch(e){}try{await locLogout()}catch(e){}try{await pushLogout()}catch(e){}auth.signOut()};window.__logout=()=>logout();$('lo').onclick=()=>{$('set').style.display='none';logout()};
 let presUnsubs=[],presU=[],presence={},onSig='',prevIds=null;const justRemoved=new Set();
 function stop(){[unsubM,unsubC,unsubP,unsubS,unsubR,unsubQ,unsubB1,unsubB2].forEach(f=>f&&f());unsubM=unsubC=unsubP=unsubS=unsubR=unsubQ=unsubB1=unsubB2=null;reqs=[];sent=[];blockedBy=new Set();[unsubSe,unsubSo].forEach(f=>f&&f());unsubSe=unsubSo=null;presUnsubs.forEach(f=>f());presUnsubs=[];presU=[];presence={};onSig='';prevIds=null;mySid=null;seState={};cur=null;chats=[];vids.clear()}
 const beat=()=>{if(!me||document.hidden||!active)return;if(me.actOn!==false){db.doc('users/'+me.uid).set({seen:SV()},{merge:true}).catch(()=>{});if(mySid)sessRef(mySid).set({lastActive:SV()},{merge:true}).catch(()=>{})}};setInterval(beat,6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});
 let lo,manual=false,delAcc=false;
 function showApp(){$('auth').style.display='none';$('app').style.display='flex'}
 let pendErr='';
-const goLogin=reset=>{stop();try{locReset()}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
+const goLogin=reset=>{stop();try{locReset()}catch(e){}try{PUSH.state='';PUSH.tok=''}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
 function showAnim(ms){return new Promise(res=>{const a=$('anim');a.classList.add('show');setTimeout(()=>{a.classList.add('out');setTimeout(()=>{a.classList.remove('show','out');res()},350)},FAST0?250:ms)})}
 async function postAuth(){hideSplash();
   if(!lockOn()&&await bioKind()){step('pg-bio');await new Promise(res=>{$('bio0').onclick=res;$('bio1').onclick=async()=>{$('bio1').disabled=true;aerr('e-bio','');let ok=false;try{ok=await enableLock(creds)}catch(e){}$('bio1').disabled=false;if(ok)res();else aerr('e-bio','Couldn’t turn on the fingerprint. Try again or tap “Not now”.')}})}
@@ -1359,7 +1360,7 @@ function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app
      ['Lock',lockRows()]],
    chats:[['Auto-delete',[ch('Default timer for new chats','ex')]],['Chat look',[ch('Wallpaper','wp'),tg('Enter is send','Pressing Enter sends the message','en')]]],
    app:[['Appearance',[ch('App theme','th'),ch('Accent colour','tc')]]],
-   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...(isNative()&&plug('VTextBg')?[{t:'Keep running in the background',s:'Shows a small “VText is running” notification so Android keeps VText alive and you get messages while the app is in the background.',sw:1,on:get('keep','1')==='1',set:async v=>{put('keep',v?'1':'0');const ok=await keepAlive(v);if(v&&!ok){put('keep','0');toast('Couldn’t start background mode on this phone')}drawPanel('notif')}},{t:'Battery optimisation',s:batIgn===null?'Checking…':batIgn?'VText is allowed to run in the background ✅':'Android may stop VText when your phone is idle. Tap to fix this.',tap:()=>batteryAsk(true)}]:[]),{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
+   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),...(isNative()&&plug('VTextBg')?[{t:'Keep running in the background',s:'Shows a small “VText is running” notification so Android keeps VText alive and you get messages while the app is in the background.',sw:1,on:get('keep','1')==='1',set:async v=>{put('keep',v?'1':'0');const ok=await keepAlive(v);if(v&&!ok){put('keep','0');toast('Couldn’t start background mode on this phone')}drawPanel('notif')}},{t:'Battery optimisation',s:batIgn===null?'Checking…':batIgn?'VText is allowed to run in the background ✅':'Android may stop VText when your phone is idle. Tap to fix this.',tap:()=>batteryAsk(true)}]:[]),{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
    acs:[['Accessibility',[ch('Font size','fs')]]]};
   stRows(host,D[p]);
   if(p==='acc'&&auth.currentUser&&auth.currentUser.reload&&!ver)auth.currentUser.reload().then(()=>{if(cp2==='acc'&&auth.currentUser.emailVerified)drawPanel('acc')}).catch(()=>{})}
@@ -1385,8 +1386,9 @@ async function mkProfile(u){hideSplash();const name=((await ask('Welcome! Enter 
   if(!name||!/^[a-z0-9_]{3,20}$/.test(un))return bad('A name and a valid username are required. Please log in again.');
   try{const b=db.batch();b.set(db.doc('usernames/'+un),{uid:u.uid});b.set(db.doc('users/'+u.uid),{name,username:un});await b.commit()}catch(e){bad('That username is taken. Log in again and choose another.')}}
 let active=true,nid=1;const LN=()=>plug('LocalNotifications');
-async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'messages',name:'Messages',importance:5,sound:'vtext_msg.wav',vibration:true,visibility:1})}catch(e){}}else if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}
-function pushNote(t,b,chat){if(get('notif','1')!=='1')return;const L=LN();
+async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'messages',name:'Messages',importance:5,sound:'vtext_msg.wav',vibration:true,visibility:1})}catch(e){}}else if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
+  try{pushInit()}catch(e){}}
+function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;const L=LN();
   if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'messages',sound:'vtext_msg.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
   else if(window.Notification&&Notification.permission==='granted'){try{const n=new Notification(t,{body:b,icon:'logo.svg'});n.onclick=()=>{window.focus();if(chat)openChatById(chat)}}catch(e){}}}
 function openChatById(id){const c=chats.find(x=>x.id===id);if(c){showLock=lset('lck').has(id);tab='chats';[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));openChat(c)}}
@@ -1629,7 +1631,7 @@ $('sx').onclick=()=>{if(cp2)closeP();else $('set').style.display='none'};$('spe'
 $('rows').onclick=async e=>{const r=e.target.closest('[data-p]');if(!r)return;const p=r.dataset.p;if(p==='pp'||p==='tc'){openDoc(p==='pp'?'privacy':'terms');return}if(p==='perm'){permShow();return}if(p==='upd'){checkUpdate();return}if(p==='inv'){shareLink();return}if(p==='out'){if(await confirmD('Log out of VText?')){$('set').style.display='none';logout()}return}openP(p,r.dataset.t)};
 $('th').onchange=e=>{put('th2',e.target.value);look()};$('fs').onchange=e=>{put('fs',e.target.value);look()};
 $('ex').onchange=e=>put('exp',e.target.value);$('en').onchange=e=>put('enter',e.target.checked?'1':'0');
-$('nt').onchange=e=>{if(!e.target.checked){put('notif','0');return}put('notif','1');setupNotif()};
+$('nt').onchange=e=>{if(!e.target.checked){put('notif','0');pushStop().then(()=>{PUSH.state='off';if(cp2==='notif')drawPanel('notif')});return}put('notif','1');setupNotif()};
 $('ss').onclick=async()=>{const name=$('sn').value.trim();if(!name)return toast('Enter a name');
   try{await db.doc('users/'+me.uid).set({name},{merge:true});
     const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['names.'+me.uid]:name}));await b.commit();toast('Profile saved ✅')}catch(e){toast(e.message)}};
@@ -1643,7 +1645,7 @@ $('wp').onchange=e=>{put('wp',e.target.value);look()};$('sd').onchange=e=>put('s
 $('pw').onclick=()=>auth.sendPasswordResetEmail(auth.currentUser.email).then(()=>toast('Reset email sent')).catch(e=>toast(e.message));
 $('bk').onclick=()=>{const b=lset('blk'),r=[];chats.forEach(c=>{if(c.type==='dm'){const o=c.members.find(x=>x!==me.uid);if(b.has(o))r.push(['✅ Unblock: '+title(c),()=>setBlock(o)])}});sheet(r.length?r:[['No blocked contacts']])};
 $('da').onclick=async()=>{if(!(await confirmD('Your account will be deleted permanently. Are you sure?')))return;const pw=await ask('Enter your password to confirm','',false,true);if(!pw)return;
-  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));delAcc=true;manual=true;const b=db.batch();b.delete(db.doc('users/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/pin'));b.delete(db.doc('usernames/'+me.username));b.delete(db.doc('locs/'+me.uid));await b.commit();await u.delete();$('set').style.display='none';$('prf').style.display='none';goLogin(true);toast('Your account was deleted')}catch(e){delAcc=false;manual=false;toast(E[e.code]||'Wrong password or error: '+e.message)}};
+  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));delAcc=true;manual=true;try{await pushLogout()}catch(e){}const b=db.batch();b.delete(db.doc('users/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/pin'));b.delete(db.doc('usernames/'+me.username));b.delete(db.doc('locs/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/push'));await b.commit();await u.delete();$('set').style.display='none';$('prf').style.display='none';goLogin(true);toast('Your account was deleted')}catch(e){delAcc=false;manual=false;toast(E[e.code]||'Wrong password or error: '+e.message)}};
 $('at').onclick=()=>cur&&sheet([['📸 Camera',()=>openCamera({to:cur.id})],['🖼 Photo / Video',()=>{$('file').accept='image/*,video/*';$('file').click()}],['📄 Document (up to 600 KB)',()=>{$('file').accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip';$('file').click()}]]);
 function sendLoc(){navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>post({type:'loc',lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)},'📍 Location').catch(e=>toast(e.message)),()=>toast('Location permission denied')):toast('Location is not supported')}
 /* ---- chat timer: After seen (direct chats) / Today (24 h) / 7 days ---- */
@@ -2009,6 +2011,71 @@ $('lpx').onclick=()=>$('lpn').classList.remove('show');
 $('lad').innerHTML=ic('userplus')+'<span>Add friends</span>';$('lad').onclick=()=>addC();
 $('lpkx').onclick=()=>{$('lpick').style.display='none'};
 setInterval(()=>{if(LOC.open&&!document.hidden)locDraw()},2e4);
+/* ===== Push notifications (Firebase Cloud Messaging) =====
+   Android app : @capacitor/push-notifications (added by scripts/build_android.sh, needs scripts/google-services.json)
+   Browser/PWA : firebase-messaging-sw.js + a web-push key (window.VT_VAPID in config.js)
+   Each phone/browser saves its token in  users/{uid}/private/push  ->  { t:{ <deviceId>:{k:token,p:'android'|'web',ts} }, mut:[chatIds], lck:[chatIds] }
+   A Cloud Function (functions/index.js, needs the Blaze plan) reads it to send the message push. */
+const PUSH={state:'',err:'',tok:'',busy:false,wired:false,msgWired:false};
+const PN=()=>plug('PushNotifications');
+const pushVapid=()=>String(window.VT_VAPID||'');
+/* true when a server sends the pushes (config.js: VT_PUSH_SERVER = true) and this phone is registered: then the app does not show its own copy */
+const pushServer=()=>window.VT_PUSH_SERVER===true&&PUSH.state==='on';
+function pushDid(){let d=get('did','');if(!d){d=((window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/-/g,'').slice(0,24);put('did',d)}return d}
+const pushDoc=()=>db.doc('users/'+me.uid+'/private/push');
+function pushSave(tok,plat){if(!me||!tok)return Promise.resolve();PUSH.tok=tok;
+  const key=me.uid+':'+tok;if(get('ptok','')===key&&Date.now()-(+get('ptok_t','0')||0)<6048e5){pushPrefsSoon();return Promise.resolve()}
+  return pushDoc().set({t:{[pushDid()]:{k:tok,p:plat,ts:SV()}}},{merge:true}).then(()=>{put('ptok',key);put('ptok_t',String(Date.now()));pushPrefsSoon()}).catch(e=>{PUSH.err=(e&&e.message)||'error'})}
+function pushForget(){put('ptok','');if(!me)return Promise.resolve();return pushDoc().update({['t.'+pushDid()]:firebase.firestore.FieldValue.delete()}).catch(()=>{})}
+/* muted / locked chats are kept on the phone only; the server needs to know them to stay silent or hide the sender */
+let pushPT=null;
+function pushPrefsSoon(){clearTimeout(pushPT);pushPT=setTimeout(pushPrefs,1200)}
+function pushPrefs(){if(!me||!PUSH.tok)return;pushDoc().set({mut:[...lset('mut')],lck:[...lset('lck')]},{merge:true}).catch(()=>{})}
+/* a tapped notification opens its chat (waits until the app is unlocked and the chat list is loaded) */
+function pushOpen(id){if(!id)return;let n=0;const t=setInterval(()=>{n++;const c=document.documentElement.classList;
+  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&chats.some(x=>x.id===id)){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
+/* ---- Android app ---- */
+async function pushNative(){const P=PN();
+  if(!P){PUSH.state=plug('VTextBg')?'oldapk':'';return}                       /* this APK was built without the push plugin */
+  const V=plug('VTextBg');let ready=false;
+  if(V&&V.pushReady){try{ready=!!((await V.pushReady())||{}).ready}catch(e){ready=false}}   /* no Firebase file in the build (or an old APK): do not call register() */
+  if(!ready){PUSH.state='nofb';return}
+  let pm;try{pm=await P.checkPermissions()}catch(e){pm={}}
+  if(!pm||pm.receive!=='granted'){try{pm=await P.requestPermissions()}catch(e){pm={}}}
+  if(!pm||pm.receive!=='granted'){PUSH.state='perm';return}
+  if(!PUSH.wired){PUSH.wired=true;
+    P.addListener('registration',t=>{if(!t||!t.value)return;PUSH.state='on';PUSH.err='';pushSave(t.value,'android').then(()=>{if(cp2==='notif')drawPanel('notif')})});
+    P.addListener('registrationError',e=>{PUSH.state='err';PUSH.err=(e&&e.error)||'error';if(cp2==='notif')drawPanel('notif')});
+    P.addListener('pushNotificationActionPerformed',a=>{const d=a&&a.notification&&a.notification.data;if(d&&d.chat)pushOpen(String(d.chat))});
+    P.addListener('pushNotificationReceived',()=>{})}                         /* app is open: the live chat listener already shows it */
+  await P.register()}
+/* ---- browser / installed web app ---- */
+function pushLoadMsg(){return new Promise((res,rej)=>{if(firebase.messaging)return res();const s=document.createElement('script');s.src='https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js';s.onload=()=>res();s.onerror=()=>rej(new Error('Could not load Firebase Messaging'));document.head.appendChild(s)})}
+async function pushWeb(){
+  if(!pushVapid()||!('serviceWorker' in navigator)||!window.Notification||!('PushManager' in window)){PUSH.state='';return}
+  if(Notification.permission==='denied'){PUSH.state='perm';return}
+  if(Notification.permission!=='granted'){PUSH.state='ask';return}            /* the normal notification prompt (setupNotif) asks; no extra nagging here */
+  await pushLoadMsg();
+  /* own scope, so the app-shell worker (sw.js) is never replaced */
+  const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js',{scope:'firebase-cloud-messaging-push-scope'});
+  const tok=await firebase.messaging().getToken({vapidKey:pushVapid(),serviceWorkerRegistration:reg});
+  if(!PUSH.msgWired){PUSH.msgWired=true;navigator.serviceWorker.addEventListener('message',e=>{const d=e&&e.data;if(d&&d.vtChat)pushOpen(String(d.vtChat))})}
+  if(tok){PUSH.state='on';PUSH.err='';await pushSave(tok,'web')}else PUSH.state='err'}
+/* ---- start / stop ---- */
+/* opened from a browser notification while the site was closed: https://…/VText/#chat=<id> */
+function pushHash(){const m=/[#&]chat=([\w-]+)/.exec(location.hash||'');if(m){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}pushOpen(m[1])}}
+async function pushInit(){if(!me||PUSH.busy)return;PUSH.busy=true;pushHash();
+  try{if(get('notif','1')!=='1'){await pushStop();PUSH.state='off'}else if(isNative())await pushNative();else await pushWeb()}
+  catch(e){PUSH.state='err';PUSH.err=String((e&&e.message)||e)}
+  PUSH.busy=false;try{if(cp2==='notif')drawPanel('notif')}catch(e){}}
+async function pushStop(){const P=PN();
+  if(P&&PUSH.wired&&isNative()){try{await P.unregister()}catch(e){}}            /* drops this phone's token at Google, so a different account on this phone gets its own */
+  await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
+const pushLogout=()=>Promise.race([pushStop(),new Promise(r=>setTimeout(r,2500))]);
+/* ---- Settings > Notifications row ---- */
+const PUSH_TXT={on:'On: this phone gets new messages even when VText is closed',nofb:'Not set up yet: the app build needs the Firebase file (google-services.json). See README.',oldapk:'Needs the newest VText APK',perm:'Blocked. Allow notifications for VText in your phone Settings.',ask:'Tap to allow notifications',off:'Off: turn on “Show notifications” above'};
+function pushRows(){const s=PUSH.state;if(!s&&!PUSH.busy)return[];
+  return[{t:'Push notifications',s:PUSH.busy&&!s?'Checking…':s==='err'?'Couldn’t register: '+PUSH.err:PUSH_TXT[s]||'',tap:async()=>{if(s==='ask'){try{await Notification.requestPermission()}catch(e){}}await pushInit();toast(PUSH.state==='on'?'Push notifications are on':(PUSH_TXT[PUSH.state]||'Push notifications are not available'))}}]}
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=128;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);res(cv.toDataURL('image/jpeg',.7))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}

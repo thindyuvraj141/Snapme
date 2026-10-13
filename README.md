@@ -30,6 +30,21 @@ A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub
 - **Permission screen:** after sign-in VText asks once for Camera, Gallery (photos/videos) and Location. It can be opened again from Settings > **App permissions**. The Android permission dialogs need the **new APK** (the website alone only asks for camera and location through the browser).
 - Deleting your account goes back to the Welcome page and also removes your shared location.
 
+## Push notifications (messages when the app is closed)
+What is already inside the app (nothing to change in the code):
+- **Android app:** the Capacitor plugin `@capacitor/push-notifications` is installed by the APK build, the manifest has the notification permission and the default notification channel/icon, and the app registers the phone with Firebase Cloud Messaging after sign-in. Tapping a push opens that chat.
+- **Website / installed web app:** `firebase-messaging-sw.js` (own scope, so `sw.js` is not touched) shows pushes in browsers.
+- Each phone/browser saves its token in `users/<uid>/private/push` (only you can read it). Turning notifications off, logging out or deleting the account removes it.
+- Settings > Notifications > **Push notifications** tells you the state of this phone (On / Not set up yet / Needs the newest APK / Blocked).
+
+What YOU have to do once (all free except step 4):
+1. **Firebase console > Project settings > Your apps > Add app > Android.** Package name: `com.thindyuvraj.vtext`. Skip the other steps, then press **Download google-services.json**.
+2. Upload that file to the repo as **`scripts/google-services.json`**. Then run **Actions > Build APK** again and install the new APK. (Without the file the app still works; the Settings row says “Not set up yet”.)
+3. *Browsers only (optional):* Firebase console > Project settings > **Cloud Messaging** > Web Push certificates > **Generate key pair**. Copy the key into `config.js` as `window.VT_VAPID = '...'`.
+4. **Sending the pushes needs a server.** Firebase's free Spark plan cannot run Cloud Functions, so nothing sends a push yet and the app keeps using its own background notifications. To switch real push on: upgrade the project to the **Blaze** plan (pay-as-you-go; the free quota is far more than this app uses, but a card is needed), then deploy `functions/` (the GitHub action **Deploy push function**: add a secret `FIREBASE_SERVICE_ACCOUNT` containing a Google service-account JSON key, then Actions > Deploy push function > Run). Open `functions/index.js` first and set `REGION` to your Firestore location. Finally set `window.VT_PUSH_SERVER = true;` in `config.js` so the app does not show a second copy of every notification.
+- Pushes show the sender's name and the message text (text is cut at 100 characters; photos show “📷 Photo”). Locked chats show only “VText · New message”, muted chats stay silent. Set `SHOW_TEXT = false` in `functions/index.js` to hide the text.
+- A phone that was force-stopped by the user gets nothing from any app until it is opened again (Android rule).
+
 ## Updating the website app
 Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the app. On the phone open **Settings > App update**; the app only updates when you tap it, and the visible version changes.
 
