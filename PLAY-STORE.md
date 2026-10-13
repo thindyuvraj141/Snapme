@@ -19,9 +19,10 @@ The Play Store build bundles the web files inside the app (so updates go through
 - Privacy policy URL: https://thindyuvraj141.github.io/VText/privacy.html
 - Account deletion URL: https://thindyuvraj141.github.io/VText/delete-account.html
 - Category: Communication. Ads: No. Content rating questionnaire: user-generated content / users interact = Yes.
-- Data safety: collected = email, name, user IDs, photos/videos, audio, messages, approximate/precise location (only if the user shares it); encrypted in transit = Yes; users can request deletion = Yes; shared with third parties = No (Firebase is a service provider).
+- Data safety: collected = email, name, user IDs, photos/videos, audio, messages, approximate/precise location (only if the user turns on sharing on the Location page; visible only to the friends they choose; foreground only, no background location); encrypted in transit = Yes; users can request deletion = Yes; shared with third parties = No (Firebase is a service provider).
 - App access: give the reviewer a test email and password.
 - Graphics: `store/icon-512.png`, `store/feature-graphic-1024x500.png`, and at least 2 real phone screenshots.
 
 Short description: Simple private chat with photos, voice notes and groups.
-Full description: VText is a simple chat app. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages, documents and your location. Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
+Full description: VText is a simple chat app. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages and documents, and see on a friends map where your friends are when you both choose to share (sharing is off until you turn it on). Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
+- Permissions declared: camera, microphone, photos/videos (READ_MEDIA_IMAGES / READ_MEDIA_VIDEO, READ_EXTERNAL_STORAGE up to Android 12), approximate + precise location (foreground only, **no** ACCESS_BACKGROUND_LOCATION), notifications, biometric. In the Play Console location declaration say: used for the optional friends map, only while the app is open.

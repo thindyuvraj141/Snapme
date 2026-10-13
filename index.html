@@ -267,6 +267,7 @@ a{color:var(--acc)}
 .u .t b{font-size:1.07rem;font-weight:700;color:var(--txt);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .u .t div{font-size:.93rem;color:var(--sub);margin-top:3px}
 .u .t div.ty{color:var(--acc);font-weight:600}
+.u .t div.gone{font-style:italic;opacity:.75}
 .u .t div .ls{color:var(--acc);font-weight:600}
 .u .r{display:flex;flex-direction:column;align-items:flex-end;gap:7px;min-width:58px;font-size:.78rem;color:var(--sub)}
 .u .r .tm{font-size:.78rem;color:var(--sub)}
@@ -281,7 +282,7 @@ a{color:var(--acc)}
 .empty{color:var(--sub)}
 #fab{right:20px;bottom:calc(92px + env(safe-area-inset-bottom));width:62px;height:62px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#7df9ff;border:2.5px solid transparent;background:linear-gradient(#05060c,#0b0b18) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 50%,#ff3df2) border-box;box-shadow:0 0 12px #22d3ee99,0 0 26px #7c3aed88,0 0 44px -6px #ff3df277,inset 0 0 14px #7c3aed55;transition:transform .15s,box-shadow .15s}
 #fab:active{transform:scale(.92);box-shadow:0 0 8px #22d3ee99,0 0 18px #7c3aed88,inset 0 0 14px #7c3aed77}
-#fab svg{width:29px;height:29px;stroke-width:1.9;filter:drop-shadow(0 0 4px #22d3eecc) drop-shadow(0 0 9px #7c3aedcc)}
+#fab svg{width:29px;height:29px;stroke-width:1.9}
 html:not(.dk) #fab{background:linear-gradient(#fff,#f3f1ff) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 50%,#ff3df2) border-box;color:#6d3df0}
 #nav{background:var(--panel);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom));align-items:flex-end}
 #nav button{color:var(--sub);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;padding:2px 0;min-width:0}
@@ -419,11 +420,11 @@ select{appearance:none}
 .pstats b{display:block;font-size:1.25rem;font-weight:800}.pstats span{color:var(--sub);font-size:.88rem}
 .pbtns{display:flex;gap:10px;margin-bottom:6px}
 .pbtns .btn{margin:0;flex:1;background:var(--card);border:1px solid var(--line);color:var(--txt);box-shadow:none;font-weight:600}
-#prb .prset{align-self:stretch;display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:14px 18px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--txt);font-size:1rem;font-weight:700;cursor:pointer;text-align:left}
-#prb .prset i{font-style:normal;color:var(--sub);font-size:1.5rem;line-height:1}
-#prb .prset:active{background:var(--pill)}
+#prb .hero #sname,#prb .hero #su{display:none}
 #p-prof{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:6px 16px 16px;margin-top:16px}
 #p-prof label{color:var(--sub)}
+#p-prof #sun{color:var(--sub);cursor:pointer;margin-bottom:12px}
+#p-prof #ss{margin-top:4px}
 
 /* ---------- camera ---------- */
 #cmr{background:#000}
@@ -451,6 +452,118 @@ select{appearance:none}
 #avtabs button.on{color:var(--acc);border-bottom-color:var(--g2)}
 .ao .th{background:var(--card);border-color:var(--line)}.ao .th.on{border-color:var(--g2);box-shadow:0 0 0 2px var(--g2)}
 .avbar{background:var(--panel)}.avbar #avu{background:var(--card);border:1px solid var(--line);box-shadow:none;color:var(--txt)}
+
+/* friends page: divider between "My friends" and "Friend requests" */
+.dvd{height:1px;background:var(--line);margin:18px 16px 4px}
+/* Location button in the bottom bar: neon pin */
+#nav [data-n="loc"] i{color:#7df9ff}
+#nav [data-n="loc"].on{color:var(--acc)}
+
+/* ===== Round 5: Friends map (neon), permission screen ===== */
+
+/* ---------- map engine ---------- */
+.vmap{position:relative;overflow:hidden;isolation:isolate;z-index:0;background:#0b0c14;touch-action:none;-webkit-user-select:none;user-select:none}
+html:not(.dk) .vmap{background:#e8e6f4}
+.vm-t,.vm-m{position:absolute;inset:0}
+.vm-t{overflow:hidden}
+.vm-i{position:absolute;left:0;top:0;width:256px;height:256px;max-width:none;opacity:0;transition:opacity .25s;transform-origin:0 0;pointer-events:none;-webkit-user-drag:none}
+.vm-i.ld{opacity:1}
+.vm-i.bad{display:none}
+.vm-m{pointer-events:none}
+.vm-k{position:absolute;left:0;top:0;pointer-events:auto;will-change:transform}
+.vm-a{position:absolute;right:6px;bottom:6px;z-index:5;font-size:.62rem;color:#ffffffb8;background:#0007;padding:2px 6px;border-radius:8px;pointer-events:none}
+html:not(.dk) .vm-a{color:#444;background:#fffa}
+
+/* ---------- Location page ---------- */
+#loc{position:fixed;inset:0;background:#05060c;z-index:21;display:none;flex-direction:column;color:#fff;overflow:hidden}
+#lmap{position:absolute;inset:0;z-index:0}
+.lhd{position:absolute;left:0;right:0;top:0;z-index:6;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 14px 22px;background:linear-gradient(#05060ce6,#05060c00);pointer-events:none}
+.lhd>*{pointer-events:auto}
+.lhd b{font-size:1.25rem;font-weight:800;letter-spacing:-.2px;text-shadow:0 2px 12px #000}
+.lhd .ib,.lb{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#7df9ff;border:1.5px solid transparent;background:linear-gradient(#0a0b16f2,#0d0c1cf2) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 55%,#ff3df2) border-box;box-shadow:0 0 12px #22d3ee55,0 0 24px #7c3aed44;font-size:1.4rem;padding:0;flex:none}
+.lb svg{width:23px;height:23px}
+.lb:active,.lhd .ib:active{transform:scale(.92)}
+.lb.on{color:#fff;background:linear-gradient(135deg,#22d3ee,#7c3aed 60%,#ff3df2);box-shadow:0 0 14px #22d3eecc,0 0 30px #7c3aed99}
+#lban{position:absolute;left:14px;right:14px;top:calc(68px + env(safe-area-inset-top));z-index:6;display:none;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:#0b0c18ee;border:1px solid #7c3aed66;box-shadow:0 8px 30px -8px #000;font-size:.88rem;line-height:1.35;color:#d9dcf2}
+#lban span{flex:1}
+#lban button{flex:none;padding:9px 16px;border-radius:20px;font-weight:700;font-size:.85rem;color:#fff;background:linear-gradient(135deg,#22d3ee,#7c3aed 60%,#ff3df2);box-shadow:0 0 14px #7c3aed88}
+#lnote{position:absolute;left:14px;right:14px;top:calc(68px + env(safe-area-inset-top));z-index:5;display:none;padding:9px 14px;border-radius:14px;background:#2a1020ee;border:1px solid #ff6b8166;color:#ffc2cc;font-size:.82rem;line-height:1.35}
+#lban[style*="flex"]~#lnote{top:calc(138px + env(safe-area-inset-top))}
+.lrt{position:absolute;right:14px;top:calc(72px + env(safe-area-inset-top));z-index:7;display:flex;flex-direction:column;align-items:flex-end;gap:12px}
+#lban[style*="flex"]~.lrt{top:calc(150px + env(safe-area-inset-top))}
+.ltip{max-width:210px;padding:5px 11px;border-radius:14px;background:#0b0c18ee;border:1px solid #ffffff22;font-size:.72rem;font-weight:600;color:#aab0cc;text-align:right}
+.ltip.on{color:#8bffb0;border-color:#22c55e88}
+.lbl{position:absolute;left:14px;bottom:calc(22px + env(safe-area-inset-bottom));z-index:7;display:flex;align-items:center;gap:12px}
+.lpill{display:flex;align-items:center;gap:8px;height:46px;padding:0 18px 0 14px;border-radius:23px;color:#fff;font-weight:700;font-size:.92rem;border:1.5px solid transparent;background:linear-gradient(#0a0b16f2,#0d0c1cf2) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 55%,#ff3df2) border-box;box-shadow:0 0 12px #22d3ee44,0 0 24px #7c3aed44}
+.lpill svg{width:21px;height:21px;color:#7df9ff}
+.lpill:active{transform:scale(.95)}
+
+/* friend markers */
+.lmk{position:absolute;left:0;top:0;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;margin-top:-6px;animation:lmkin .35s ease both}
+.lmk .av{width:50px;height:50px;border:3px solid transparent;box-sizing:border-box;background:linear-gradient(#0b0c18,#0b0c18) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 55%,#ff3df2) border-box;box-shadow:0 0 12px #22d3ee88,0 0 22px #7c3aed77;font-size:1.15rem;overflow:hidden;position:relative}
+.lmk .av img{width:100%;height:100%;border-radius:50%;object-fit:cover;display:block}
+.lmk .av::after{display:none}
+.lmk::after{content:'';width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid #7c3aed;margin-top:-5px;order:1;filter:drop-shadow(0 0 4px #7c3aed)}
+.lmk span{order:2;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:2px 9px;border-radius:10px;background:#0b0c18e6;color:#fff;font-size:.72rem;font-weight:700;border:1px solid #ffffff22}
+.lmk.old{opacity:.6;filter:grayscale(.6)}
+.lmk.me{transform:translate(-50%,-50%);margin-top:0}
+.lmk.me::after{display:none}
+.lmk.me .av{width:44px;height:44px;box-shadow:0 0 0 6px #22d3ee33,0 0 18px #22d3eeaa;animation:lpulse 2s ease-out infinite}
+.lmk.me span{background:linear-gradient(135deg,#22d3ee,#7c3aed);border-color:transparent}
+@keyframes lmkin{from{opacity:0;margin-top:-26px}to{opacity:1;margin-top:-6px}}
+@keyframes lpulse{0%{box-shadow:0 0 0 0 #22d3eeaa,0 0 18px #22d3eeaa}70%{box-shadow:0 0 0 18px #22d3ee00,0 0 18px #22d3eeaa}100%{box-shadow:0 0 0 0 #22d3ee00,0 0 18px #22d3eeaa}}
+
+/* nearby sheet */
+#lpn{position:absolute;left:0;right:0;bottom:0;z-index:9;max-height:62%;display:flex;flex-direction:column;background:#0b0c16;border-top:1.5px solid #7c3aed88;border-radius:26px 26px 0 0;box-shadow:0 -16px 50px -12px #000,0 -2px 24px #7c3aed44;transform:translateY(105%);transition:transform .28s ease;padding-bottom:env(safe-area-inset-bottom);visibility:hidden}
+#lpn.show{transform:none;visibility:visible}
+.lph{display:flex;align-items:center;justify-content:space-between;padding:16px 8px 6px 20px}
+.lph b{font-size:1.1rem;font-weight:800;color:#fff}
+.lph .ib{color:#fff}
+#lpl2{overflow:auto;padding:0 6px 14px;-webkit-overflow-scrolling:touch}
+#lpl2 .h2l{padding:12px 14px 2px;margin:0;color:#7df9ff;font-size:.75rem;text-transform:uppercase;letter-spacing:.6px}
+#lpl2 .empty{padding:14px;font-size:.9rem;line-height:1.4;color:#9a9fb4;text-align:center}
+#lpl2 .u{color:#fff;cursor:pointer;border-radius:16px}
+#lpl2 .u:active{background:#ffffff10}
+#lpl2 .u .t b{color:#fff}
+#lpl2 .u .t div{color:#9a9fb4}
+
+/* consent card */
+#lcon{position:absolute;inset:0;z-index:12;display:none;align-items:flex-end;justify-content:center;background:#000a}
+.lcc{width:100%;max-width:520px;background:#0d0e1a;border:1.5px solid #7c3aed77;border-radius:26px 26px 0 0;padding:24px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -10px 50px -10px #7c3aedaa;color:#fff}
+.lcc h3{font-size:1.3rem;font-weight:800;margin:0 0 10px;letter-spacing:-.2px}
+.lcc ul{margin:0 0 18px;padding-left:20px;color:#b9bdd4;font-size:.92rem;line-height:1.5}
+.lcc li{margin:6px 0}
+.lcc .btn{width:100%}
+.lcc .link{display:block;margin:12px auto 0;color:#7df9ff}
+
+/* "Share with…" picker */
+#lpick{position:fixed;inset:0;background:var(--bg);z-index:27;display:none;flex-direction:column}
+#lpick .sc{flex:1;overflow:auto}
+.lpr{display:flex;align-items:center;gap:14px;cursor:pointer}
+.lpr b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt)}
+.lck{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;font-size:.95rem;color:#fff;flex:none}
+.lck.on{background:var(--grad);border-color:transparent;box-shadow:0 0 12px #7c3aed88}
+
+/* ---------- permission screen ---------- */
+#perm{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:var(--bg);padding:20px;overflow:auto}
+#perm::before{content:'';position:fixed;left:-40%;top:-22%;width:100%;height:50%;background:linear-gradient(135deg,#2563eb88,#7c3aed66);filter:blur(60px);border-radius:50%;pointer-events:none}
+#perm::after{content:'';position:fixed;right:-50%;bottom:-22%;width:120%;height:50%;background:linear-gradient(135deg,#7c3aed77,#d946ef88);filter:blur(64px);border-radius:50%;pointer-events:none}
+.pmc{position:relative;z-index:1;width:100%;max-width:440px;margin:auto;padding:calc(10px + env(safe-area-inset-top)) 4px calc(10px + env(safe-area-inset-bottom))}
+.pmc h2{font-size:1.65rem;font-weight:800;letter-spacing:-.4px;margin:0 0 8px;color:var(--txt)}
+.pmc .sub{color:var(--sub);font-size:.95rem;line-height:1.45;margin:0 0 20px}
+.pmr{display:flex;align-items:flex-start;gap:14px;padding:14px;margin-bottom:12px;border-radius:20px;background:var(--card);border:1px solid var(--line)}
+.pmr i{width:46px;height:46px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;color:#7df9ff;background:linear-gradient(#0a0b16,#0d0c1c) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 55%,#ff3df2) border-box;border:1.5px solid transparent;box-shadow:0 0 12px #22d3ee44}
+html:not(.dk) .pmr i{background:linear-gradient(#fff,#f3f1ff) padding-box,linear-gradient(135deg,#22d3ee,#7c3aed 55%,#ff3df2) border-box;color:#6d3df0}
+.pmr i svg{width:23px;height:23px}
+.pmt{flex:1;min-width:0}
+.pmt b{display:block;font-size:1.05rem;font-weight:700;color:var(--txt)}
+.pmt small{display:block;margin-top:3px;color:var(--sub);font-size:.86rem;line-height:1.35}
+.pms{display:inline-block;margin-top:8px;padding:3px 10px;border-radius:12px;font-size:.72rem;font-weight:700;background:var(--pill);color:var(--sub)}
+.pms.ok{background:#22c55e22;color:#22c55e}
+.pms.no{background:#ff6b8122;color:#ff6b81}
+#pm-note{min-height:0;margin:4px 2px 12px;font-size:.85rem;line-height:1.4}
+#pm1{width:100%;margin-top:6px}
+#pm0{display:block;margin:14px auto 0}
 
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><symbol id="vm" viewBox="96 108 320 288"><polygon points="104,122 200,122 306,394 216,394" fill="url(#vga)"/><polygon points="312,122 408,122 300,394 210,394" fill="url(#vgb)"/><polygon points="257,268 210,394 306,394" fill="url(#vgc)"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">VText is locked</h2><p class="sub" id="lkm"></p>
@@ -507,7 +620,7 @@ select{appearance:none}
 <div id="ctxo"><textarea id="cti2" maxlength="80" rows="3" placeholder="Type something"></textarea><div id="ctsy"></div><div id="ctco"></div><button id="ctok">Done</button></div>
 <div id="csend"><div class="top w"><button class="ib" id="csx" aria-label="Back">←</button><b style="flex:1;font-size:1.2rem;color:var(--txt)">Send to</b></div><div id="csl"></div><button class="btn" id="csgo">Choose who to send to</button></div>
 <div id="ccrop"><b>Move and zoom your photo</b><div id="crw"><canvas id="crv" width="300" height="300"></canvas><div id="crm"></div></div><input type="range" id="crz" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><div class="bt"><button id="crc">Cancel</button><button id="cro">Use as profile picture</button></div></div></div>
-<div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div><button class="prset" id="pset" aria-label="Settings"></button></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button></div><div id="prrows"></div></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
+<div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button></div><div id="prrows"></div></div></div><div id="perm"><div class="pmc"><h2>Allow VText to use…</h2><p class="sub">So that photos, the camera and the friends map work. You can change this any time in Settings.</p><div class="pmr" data-k="camera"><i></i><div class="pmt"><b>Camera</b><small>Take photos and videos inside chats.</small><span class="pms"></span></div></div><div class="pmr" data-k="media"><i></i><div class="pmt"><b>Gallery</b><small>Choose photos and videos to send, and save them to your phone.</small><span class="pms"></span></div></div><div class="pmr" data-k="location"><i></i><div class="pmt"><b>Location</b><small>See where your friends are and who is nearby. Nothing is shared until you turn sharing on.</small><span class="pms"></span></div></div><div class="er" id="pm-note"></div><button class="btn" id="pm1">Allow</button><button class="link" id="pm0">Not now</button></div></div><div id="loc"><div id="lmap"></div><div class="lhd"><button class="ib" id="lx" aria-label="Back">←</button><b>Friends map</b></div><div id="lban"><span>You are not sharing your location. Friends cannot see where you are.</span><button id="lban1">Turn on</button></div><div id="lnote"></div><div class="lrt"><div class="ltip" id="ltip">Not sharing location</div><button class="lb" id="lsh" aria-label="Location sharing"></button><button class="lb" id="lme" aria-label="My position"></button></div><div class="lbl"><button class="lb" id="lpl" aria-label="Friends nearby"></button><button class="lpill" id="lad" aria-label="Add friends"></button></div><div id="lpn"><div class="lph"><b id="lpt">Friends nearby</b><button class="ib" id="lpx" aria-label="Close">✕</button></div><div id="lpl2"></div></div><div id="lcon"><div class="lcc"><h3>Share your location with friends?</h3><ul><li>Only your friends can see where you are. People you blocked never can.</li><li>You can choose which friends, and share an approximate spot (about 1 km) instead of the exact one.</li><li>Your location is updated while VText is open. You can stop any time.</li></ul><button class="btn" id="lcok">Share my location</button><button class="link" id="lcno">Not now</button></div></div></div><div id="lpick"><div class="top w"><button class="ib" id="lpkx" aria-label="Back">←</button><b style="flex:1">Share with…</b><button class="link" id="lpkd" style="width:auto;margin:0">Done</button></div><div class="sc" id="lpkl"></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -550,8 +663,8 @@ function sheet(rows,cls){const s=$('sheet');s.className=cls||'';s.innerHTML='';c
 $('vw').onclick=()=>$('vw').style.display='none';
 const IC={search:'<circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/>',chat:'<path d="M4 5h16v11H10l-5 4v-4H4z"/>',plus:'<path d="M4 5h16v11H10l-5 4v-4H4z"/><path d="M12 8v5M9.5 10.5h5"/>',upd:'<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="4 3"/>',com:'<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-4 3-6 6-6s6 2 6 6M15 15c3 0 6 1 6 5"/>',call:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',key:'<circle cx="8" cy="12" r="4"/><path d="M12 12h9M18 12v3M15 12v2"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',palette:'<path d="M12 3a9 9 0 100 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a3 3 0 003-3c0-5-4-11-8-11z"/><circle cx="8" cy="11" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16" cy="11" r="1"/>',bell:'<path d="M6 17v-6a6 6 0 0112 0v6l2 2H4z"/><path d="M10 21h4"/>',access:'<circle cx="12" cy="5" r="2"/><path d="M5 9l7 1.5L19 9M12 10.5V15l-3 6M12 15l3 6"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-1 .8-1.5 1.2-1.5 2.5M12 17v.5"/>',out:'<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',user_add:'<circle cx="10" cy="8" r="3.5"/><path d="M3 20c0-4 3-6 7-6s7 2 7 6M19 8v6M16 11h6"/>',refresh:'<path d="M20 12a8 8 0 10-2.3 5.7M20 5v5h-5"/>',cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',fp:'<path d="M6 8.5A7 7 0 0112 5a7 7 0 016.5 4"/><path d="M5 13c0-1 .2-2 .5-3"/><path d="M8.5 19c.8-1.3 1.2-3 1.2-5a2.3 2.3 0 014.6 0c0 2.6.8 4.4 1.7 5.5"/><path d="M12 14v2.5c0 1.2.3 2.2.8 3"/><path d="M18.5 14c0 1.2 0 2.2.4 3.3"/><path d="M15 21.5c-.6-.9-1-2-1.2-3"/>'};
 const ic=n=>'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+IC[n]+'</svg>';
-Object.assign(IC,{home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',add:'<path d="M12 5v14M5 12h14"/>',smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14a4.5 4.5 0 008 0"/><path d="M9 9.5h.01M15 9.5h.01" stroke-width="3"/>',clip:'<path d="M21.4 11.1l-9.2 9.2a6 6 0 01-8.5-8.5l9.2-9.2a4 4 0 015.7 5.7l-9.2 9.2a2 2 0 01-2.8-2.8l8.5-8.5"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/>',pause:'<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',img:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',flip:'<path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/><path d="M3 21v-5h5"/>',bellx:'<path d="M6 16v-5a6 6 0 019-5.2M18 11v5l1.5 2H8"/><path d="M10 20a2 2 0 004 0M4 4l16 16"/>',pin:'<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',gear:'<path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>'});
-$('nav').innerHTML=[['fr','home','Friends'],['chats','chat','Chats'],['new','plus',''],['req','bell','Requests'],['prof','user','Profile']].map(a=>'<button data-n="'+a[0]+'"'+(a[0]==='chats'?' class="on"':a[0]==='new'?' class="mid" aria-label="New chat"':'')+'><i>'+ic(a[1])+'</i>'+(a[2]?'<small>'+a[2]+'</small>':'')+'</button>').join('');
+Object.assign(IC,{mappin:'<path d="M12 21.5s-7-6.1-7-11.7a7 7 0 0114 0c0 5.6-7 11.7-7 11.7z"/><circle cx="12" cy="9.8" r="2.7"/>',home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',add:'<path d="M12 5v14M5 12h14"/>',smile:'<circle cx="12" cy="12" r="9"/><path d="M8 14a4.5 4.5 0 008 0"/><path d="M9 9.5h.01M15 9.5h.01" stroke-width="3"/>',clip:'<path d="M21.4 11.1l-9.2 9.2a6 6 0 01-8.5-8.5l9.2-9.2a4 4 0 015.7 5.7l-9.2 9.2a2 2 0 01-2.8-2.8l8.5-8.5"/>',mic:'<rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',send:'<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4z"/>',stop:'<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>',play:'<path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/>',pause:'<rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/>',img:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M4 18l5-5 4 4 3-3 4 4"/>',flip:'<path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/><path d="M3 21v-5h5"/>',bellx:'<path d="M6 16v-5a6 6 0 019-5.2M18 11v5l1.5 2H8"/><path d="M10 20a2 2 0 004 0M4 4l16 16"/>',pin:'<path d="M9 4h6l-1 6 3 3H7l3-3z"/><path d="M12 13v7"/>',gear:'<path d="M12 8.5a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/>'});
+$('nav').innerHTML=[['fr','home','Friends'],['chats','chat','Chats'],['new','plus',''],['loc','mappin','Location'],['prof','user','Profile']].map(a=>'<button data-n="'+a[0]+'"'+(a[0]==='chats'?' class="on"':a[0]==='new'?' class="mid" aria-label="New chat"':'')+'><i>'+ic(a[1])+'</i>'+(a[2]?'<small>'+a[2]+'</small>':'')+'</button>').join('');
 $('fab').innerHTML=ic('plus');$('prb').append($('p-prof'));$('p-prof').classList.remove('ps');$('p-prof').style.display='block';$('prb').appendChild($('prrows'));$('sw2').insertAdjacentHTML('afterbegin',ic('search'));$('fab').innerHTML=ic('cam');$('fpi').innerHTML=ic('fp').replace('width="26" height="26"','width="46" height="46"');
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2800)}
 function ask(title,def,noInput,pwd,lb){return new Promise(res=>{const d=$('dlg'),i=$('di');$('dt').textContent=title;$('dc').textContent=lb?lb[0]:'Cancel';$('dc').style.display=(lb&&lb[0]==='')?'none':'';$('dk').textContent=lb?lb[1]:'OK';i.style.display=noInput?'none':'block';i.type=pwd?'password':'text';i.value=def||'';d.style.display='flex';if(!noInput)setTimeout(()=>i.focus(),60);const done=v=>{d.style.display='none';$('dk').onclick=$('dc').onclick=null;res(v)};$('dk').onclick=()=>done(noInput?true:i.value);$('dc').onclick=()=>done(noInput?false:null)})}
@@ -762,7 +875,7 @@ function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/j
 const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
-privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents and locations you send.</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone and location are used only when you tap the related button. Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
+privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account.</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
 terms:['Terms & community rules','<p>By using VText you agree to these rules.</p><ul><li>No harassment, threats, hate speech or bullying.</li><li>No sexual content involving minors and no sexually explicit content.</li><li>No violence, illegal activity, scams, spam or impersonation.</li><li>Do not share other people’s private information.</li><li>You are responsible for what you send.</li></ul><p>You can block and report any user or message in the app. We may remove content or suspend accounts that break these rules.</p>'+mail],
 delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>What is deleted</h4><p>Your login, profile (name, username, photo, about) and username are deleted. Messages you sent may remain in other people’s chats until they expire (default 24 hours).</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
 bg:['Background notifications','<p>On the Android app, VText keeps running in the background with a small “VText is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Settings &gt; Notifications: keep “Keep running in the background” turned on.</li><li>Settings &gt; Notifications &gt; Battery optimisation: tap and choose Allow, so Android does not pause VText when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock VText in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe VText away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open VText again.</p>']};
@@ -807,14 +920,14 @@ $('go2').onclick=async()=>{const email=$('se').value.trim(),pass=$('sp').value;a
   creating=false;holdAuth=false;$('go2').disabled=false};
 window.__reauth=async pw=>{try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));return true}catch(e){return false}};
 window.__who=()=>({email:(auth.currentUser||{}).email,name:me&&me.name});
-const logout=async()=>{manual=true;try{await endSession()}catch(e){}auth.signOut()};window.__logout=()=>logout();$('lo').onclick=()=>{$('set').style.display='none';logout()};
+const logout=async()=>{manual=true;try{await endSession()}catch(e){}try{await locLogout()}catch(e){}auth.signOut()};window.__logout=()=>logout();$('lo').onclick=()=>{$('set').style.display='none';logout()};
 let presUnsubs=[],presU=[],presence={},onSig='',prevIds=null;const justRemoved=new Set();
 function stop(){[unsubM,unsubC,unsubP,unsubS,unsubR,unsubQ,unsubB1,unsubB2].forEach(f=>f&&f());unsubM=unsubC=unsubP=unsubS=unsubR=unsubQ=unsubB1=unsubB2=null;reqs=[];sent=[];blockedBy=new Set();[unsubSe,unsubSo].forEach(f=>f&&f());unsubSe=unsubSo=null;presUnsubs.forEach(f=>f());presUnsubs=[];presU=[];presence={};onSig='';prevIds=null;mySid=null;seState={};cur=null;chats=[];vids.clear()}
 const beat=()=>{if(!me||document.hidden||!active)return;if(me.actOn!==false){db.doc('users/'+me.uid).set({seen:SV()},{merge:true}).catch(()=>{});if(mySid)sessRef(mySid).set({lastActive:SV()},{merge:true}).catch(()=>{})}};setInterval(beat,6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});
-let lo,manual=false;
+let lo,manual=false,delAcc=false;
 function showApp(){$('auth').style.display='none';$('app').style.display='flex'}
 let pendErr='';
-const goLogin=reset=>{stop();me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
+const goLogin=reset=>{stop();try{locReset()}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
 function showAnim(ms){return new Promise(res=>{const a=$('anim');a.classList.add('show');setTimeout(()=>{a.classList.add('out');setTimeout(()=>{a.classList.remove('show','out');res()},350)},FAST0?250:ms)})}
 async function postAuth(){hideSplash();
   if(!lockOn()&&await bioKind()){step('pg-bio');await new Promise(res=>{$('bio0').onclick=res;$('bio1').onclick=async()=>{$('bio1').disabled=true;aerr('e-bio','');let ok=false;try{ok=await enableLock(creds)}catch(e){}$('bio1').disabled=false;if(ok)res();else aerr('e-bio','Couldn’t turn on the fingerprint. Try again or tap “Not now”.')}})}
@@ -828,7 +941,7 @@ auth.onAuthStateChanged(u=>{
   const reset=!!me||manual;manual=false;stop();me=null;
   if(!u){goLogin(reset);return}
   let asked=false;setTimeout(()=>{if(!me&&auth.currentUser&&$('auth').style.display!=='none'){hideSplash();aerr('e-w','Couldn’t load your profile. Check your internet connection and reopen the app.')}},10000);
-  unsubP=db.doc('users/'+u.uid).onSnapshot(s=>{if(!s.exists){if(!asked&&!creating){asked=true;mkProfile(u)}return}const f=!me;me={uid:u.uid,...s.data()};av($('pav'),me.name,false,me.photo);if(f)start();else refreshDots()},()=>{});
+  unsubP=db.doc('users/'+u.uid).onSnapshot(s=>{if(!s.exists){if(!asked&&!creating&&!delAcc){asked=true;mkProfile(u)}return}const f=!me;me={uid:u.uid,...s.data()};av($('pav'),me.name,false,me.photo);if(f)start();else refreshDots()},()=>{});
 });
 const peerOf=c=>c.members.find(x=>x!==me.uid);
 function isOnline(uid){if(!uid||!me||me.actOn===false||blockedBy.has(uid))return false;const p=presence[uid];return !!(p&&p.act&&Date.now()-p.seen<130000)}
@@ -902,7 +1015,7 @@ function showReqs(){$('pv').querySelector('.hero').style.display='none';$('pvt')
 async function shareLink(){const u=SHARE_URL,t='Chat with me on VText! Download the app from the link below, then add me. My username: @'+me.username,SH=plug('Share');
   try{if(SH)await SH.share({title:'VText',text:t,url:u,dialogTitle:'Share VText'});else if(navigator.share)await navigator.share({title:'VText',text:t,url:u});else throw 0}
   catch(e){if(e&&/cancel/i.test(e.message||''))return;try{await navigator.clipboard.writeText(t+' '+u);toast('Link copied')}catch(x){toast(u)}}}
-function nbadge(){const i=$('nav').querySelector('[data-n="req"] i');if(!i)return;let b=i.querySelector('.bd');if(!reqs.length){b&&b.remove();return}if(!b){b=document.createElement('span');b.className='bd';i.appendChild(b)}b.textContent=reqs.length}
+function nbadge(){const i=$('nav').querySelector('[data-n="fr"] i');if(!i)return;let b=i.querySelector('.bd');if(!reqs.length){b&&b.remove();return}if(!b){b=document.createElement('span');b.className='bd';i.appendChild(b)}b.textContent=reqs.length}
 function urow(ph,t0,sub,btns,on){const d=document.createElement('div');d.className='u';const a=document.createElement('div');a.className='av';av(a,t0||'?',false,ph,on);const t=document.createElement('div');t.className='t';const n=document.createElement('b');n.textContent=t0;const s2=document.createElement('div');s2.textContent=sub||'';t.append(n,s2);d.append(a,t);(btns||[]).forEach(b=>d.appendChild(b));return d}
 const btn=(txt,fn,grey)=>{const b=document.createElement('button');b.className='btn';b.style.cssText='width:auto;margin:0 0 0 6px;padding:8px 12px;'+(grey?'background:#64748b':'');b.textContent=txt;b.onclick=e=>{e.stopPropagation();fn()};return b};
 const hd2=(l,t)=>{const e=document.createElement('h4');e.className='h2l';e.textContent=t;l.appendChild(e)};
@@ -916,7 +1029,7 @@ async function setBlock(uid){const on=!lset('blk').has(uid);tog('blk',uid);rende
 function startBlocks(){let f=true;
   unsubB1=db.collection('blocks').where('by','==',me.uid).onSnapshot(q=>{const srv=q.docs.map(d=>d.data().to);if(f){[...lset('blk')].forEach(u=>{if(!srv.includes(u))db.doc('blocks/'+me.uid+'_'+u).set({by:me.uid,to:u,ts:SV()}).catch(()=>{})})}f=false;put('blk',JSON.stringify([...new Set([...srv,...(f?[]:[])])]));renderM();renderList()},()=>{});
   unsubB2=db.collection('blocks').where('to','==',me.uid).onSnapshot(q=>{blockedBy=new Set(q.docs.map(d=>d.data().by));if(cur){av($('cav'),title(cur),cur.type==='group',cp(cur));stat();renderM()}renderList()},()=>{})}
-function drawProfileRows(){paintProfile();stRows($('prrows'),[['Account',[{t:'Email',s:(auth.currentUser?auth.currentUser.email:'')},{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername}]]])}
+function drawProfileRows(){paintProfile();stRows($('prrows'),[['Account',[{t:'Email',s:(auth.currentUser?auth.currentUser.email:'')},{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername}]],['Settings',[{t:'Settings',s:'Safety & Visibility, chat style, notifications and more',tap:()=>{$('prf').style.display='none';openSet()}}]]]);const sr=[...$('prrows').querySelectorAll('.st.tp')].pop();if(sr)sr.id='pset'}
 function openProfile(){$('sn').value=me.name;drawProfileRows();$('prf').style.display='flex'}
 const rid=()=>Math.random().toString(36).slice(2,12)+Date.now().toString(36);
 function deviceName(){const ua=navigator.userAgent,os=/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/Linux/.test(ua)?'Linux':'Device',br=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'Browser';return(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?'VText app on '+os:br+' on '+os}
@@ -1292,7 +1405,7 @@ function start(){
   $('app').classList.remove('open');beat();setupNotif();put('in','1');startReqs();startBlocks();startSession().catch(()=>{});keepAlive(get('keep','1')==='1');
   const gate=(me.pinOn&&get('pinok','')!==me.uid)?pinGate():Promise.resolve();
   const pa=localStorage.getItem('vt_add');if(pa){localStorage.removeItem('vt_add');setTimeout(()=>addC(pa),1500)}
-  gate.then(()=>{if(first)postAuth();else{showApp();hideSplash()}});
+  gate.then(()=>{if(first)postAuth();else{showApp();hideSplash()}permAsk()});try{locInit()}catch(e){}
   const ln={};unsubC=db.collection('chats').where('members','array-contains',me.uid).onSnapshot(q=>{
     q.docs.forEach(d=>{const c=d.data();if((c.emails||{})[me.uid]!==auth.currentUser.email||(c.unames||{})[me.uid]!==me.username)db.doc('chats/'+d.id).update({['emails.'+me.uid]:auth.currentUser.email,['unames.'+me.uid]:me.username}).catch(()=>{})});
     q.docChanges().forEach(ch=>{const c=ch.doc.data(),id=ch.doc.id,t=M(c.lastTs);
@@ -1307,9 +1420,11 @@ function start(){
 }
 let typT=null;
 const peerTyping=c=>c.type==='dm'&&Object.entries(c.typing||{}).some(a=>a[0]!==me.uid&&!blockedBy.has(a[0])&&Date.now()-M(a[1])<6000);
-function hdr(){const T={chats:'Messages',fr:'Friends',req:'Requests'};$('ttl').textContent=T[tab]||'Messages';$('fab').style.display=tab==='chats'?'':'none';$('sw2').style.display=(tab==='chats'||tab==='fr')?'':'none';$('chips').style.display=tab==='chats'?'':'none'}
+function hdr(){const T={chats:'Messages',fr:'Friends'};$('ttl').textContent=T[tab]||'Messages';$('fab').style.display=tab==='chats'?'':'none';$('sw2').style.display=(tab==='chats'||tab==='fr')?'':'none';$('chips').style.display=tab==='chats'?'':'none'}
+/* the preview line must not show a message that was deleted (after seen) or has expired (Today / 7 days) */
+function previewGone(c){if(!c.lastTs)return false;if(c.last==='')return true;const t=M(c.lastTs);return t>0&&Date.now()>t+expMs(c)}
 function renderList(){
-  hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='req')return renderReqTab(l);if(tab==='fr')return renderFriends(l,q);
+  try{locSync()}catch(e){}hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='fr')return renderFriends(l,q);
   const pn=lset('pin'),mu=lset('mut'),lk=lset('lck');
   const f=chats.filter(c=>title(c).toLowerCase().includes(q)&&(showLock?lk.has(c.id):!lk.has(c.id))&&(fl==='all'||(fl==='gr'?c.type==='group':c.lastFrom&&c.lastFrom!==me.uid&&M(c.lastTs)>M(c.seen&&c.seen[me.uid])))).sort((a,b)=>(pn.has(b.id)-pn.has(a.id))||M(b.lastTs)-M(a.lastTs));
   lrow(l);let anyTyping=false;
@@ -1318,6 +1433,7 @@ function renderList(){
     const a=document.createElement('div');a.className='av';av(a,title(c),c.type==='group',cp(c),c.type==='dm'&&isOnline(peerOf(c)));
     const t=document.createElement('div');t.className='t';const n=document.createElement('b');n.textContent=title(c);const p=document.createElement('div');
     if(peerTyping(c)){anyTyping=true;p.textContent='Typing…';p.className='ty'}
+    else if(previewGone(c)){p.textContent='Message deleted';p.className='gone'}
     else if(c.lastFrom===me.uid)p.textContent='✓ '+(c.last||'New chat');
     else if(c.type==='group'&&c.lastFrom&&c.last){const s=document.createElement('span');s.className='ls';s.textContent=(((c.names||{})[c.lastFrom]||'').split(' ')[0]||'Someone')+': ';p.append(s,document.createTextNode(c.last))}
     else p.textContent=c.last||'New chat';
@@ -1333,10 +1449,18 @@ function renderList(){
   if(anyTyping)typT=setTimeout(renderList,6100);
 }
 function renderFriends(l,q){l.innerHTML='';const fr=chats.filter(c=>c.type==='dm').map(c=>{const u=peerOf(c);return{c,u,n:c.names[u]||'User'}}).filter(x=>x.n.toLowerCase().includes(q)).sort((a,b)=>a.n.localeCompare(b.n));
-  hd2(l,'My friends ('+fr.length+')');if(!fr.length){emp(l,'No friends yet. Tap the round chat button below to add a friend by username.');return}
+  hd2(l,'My friends ('+fr.length+')');if(!fr.length)emp(l,q?'No friends found.':'No friends yet. Tap the round chat button below to add a friend by username.');
   fr.forEach(x=>{const bb=blockedBy.has(x.u),d=urow(bb?null:(x.c.photos||{})[x.u],x.n,bb?'':'@'+((x.c.unames||{})[x.u]||''),[],isOnline(x.u));d.dataset.cid=x.c.id;
     if(lset('blk').has(x.u)){const t=document.createElement('small');t.textContent='Blocked';t.style.color='#e11d48';d.appendChild(t)}
-    d.onclick=()=>{tab='chats';showLock=lset('lck').has(x.c.id);[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));$('fab').style.display='';closeSearch();renderList();openChat(x.c)};l.appendChild(d)})}
+    d.onclick=()=>{tab='chats';showLock=lset('lck').has(x.c.id);[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));$('fab').style.display='';closeSearch();renderList();openChat(x.c)};l.appendChild(d)});
+  const dv=document.createElement('div');dv.className='dvd';l.appendChild(dv);renderReqs(l,q)}
+/* friend requests live on the Friends page, below the friends list */
+function renderReqs(l,q){const has=(a,b)=>!q||(a||'').toLowerCase().includes(q)||(b||'').toLowerCase().includes(q);
+  const rq=reqs.filter(r=>has(r.fromName,r.fromUsername)),sn=sent.filter(r=>has(r.toName,r.toUsername));
+  hd2(l,'Friend requests ('+reqs.length+')');
+  if(!rq.length)emp(l,q&&reqs.length?'No requests found.':'No pending requests. Requests sent to you appear here when your account is private.');
+  rq.forEach(r=>l.appendChild(urow(r.fromPhoto,r.fromName,'@'+r.fromUsername,[btn('Accept',()=>acceptReq(r)),btn('Decline',()=>declineReq(r),1)])));
+  if(sent.length){hd2(l,'Sent requests ('+sent.length+')');sn.forEach(r=>l.appendChild(urow(null,r.toName||('@'+r.toUsername),'Waiting to be accepted',[btn('Cancel request',()=>cancelReq(r.id),1)])))}}
 function stat(){if(!cur)return;let t='',k='';const tp=Object.entries(cur.typing||{}).filter(a=>a[0]!==me.uid&&!blockedBy.has(a[0])&&Date.now()-M(a[1])<6000).map(a=>cur.names[a[0]]||'');
   if(tp.length){t=cur.type==='group'?tp.join(', ')+' typing…':'Typing…';k='ty'}else if(cur.type==='group')t=Object.values(cur.names).join(', ');else if(isOnline(peerOf(cur))){t='Online';k='on'}$('cst').textContent=t;$('cst').dataset.s=k}
 async function showProfile(uid){const cs=(u,k)=>{const v=u['pv_'+k]||'everyone';return v==='everyone'||(v==='contacts'&&hasDm(uid))};const c=cur,nm=c.names[uid]||'User',bb=blockedBy.has(uid),un=()=>bb?null:(c.unames||{})[uid],em=()=>bb?'—':(c.emails||{})[uid]||'—';
@@ -1349,7 +1473,7 @@ $('cm').onclick=()=>{if(!cur)return;const id=cur.id,g=cur.type==='group',ad=g&&(
   const r=[[g?'Group info':'Friend info',()=>$('hd').onclick()],[lset('mut').has(id)?'Unmute notifications':'Mute notifications',()=>{tog('mut',id);renderList()}],['Photos & videos · save',mediaGallery],['Auto-delete · '+expName(cur),timerM],[lset('pin').has(id)?'Unpin chat':'Pin chat',()=>{tog('pin',id);renderList()}],[lset('lck').has(id)?'Unlock chat':'Lock chat',()=>lockChat(id)],
   ['More…',()=>{const m=[['Clear chat',()=>{put('clr_'+id,Date.now());renderM()}]];if(g){if(ad)m.push(['Add participants',addM],['Change group name',renG],['Change group photo',()=>{pt='g';$('pf').click()}]);m.push(['Exit group',()=>leaveG()])}else m.push([lset('blk').has(o)?'Unblock':'Block',()=>{setBlock(o)}],['Report',()=>reportIt(o)],['Unfriend',()=>unfriend(o)]);sheet(m,'pop')}]];
   sheet(r,'pop')};
-$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addC();return}if(n==='prof'){openProfile();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
+$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addC();return}if(n==='prof'){openProfile();return}if(n==='loc'){locOpen();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
 let bioShown='';
 const lockRows=()=>{bioShown=bioK+'|'+bioWhy;bioKind().then(k=>{if(k+'|'+bioWhy!==bioShown){bioK=k;if(cp2==='priv')drawPanel('priv')}});
   const bioOn=!!bioK&&lockOn()&&bioPref();
@@ -1496,13 +1620,13 @@ $('file').onchange=async e=>{
 };
 function openSet(){$('sn').value=me.name;$('hv').textContent='VText version '+verLabel()+' · messages expire automatically.';$('su').textContent='@'+me.username;av($('sav'),me.name,false,me.photo);
   $('th').value=get('th2','dark');$('fs').value=get('fs','16');$('ex').value=['read','86400000','604800000'].includes(get('exp','86400000'))?get('exp','86400000'):'86400000';$('en').checked=get('enter','1')==='1';$('nt').checked=get('notif','1')==='1';$('wp').value=get('wp','');$('tc').value=get('ac','n');$('sd').checked=get('snd','1')==='1';$('rr').checked=get('rr','1')==='1';$('pr').checked=!!me.private;$('sname').textContent=me.name;closeP();
-  $('rows').innerHTML=[['acc','key','Account','Password, email, login PIN'],['priv','lock','Safety & Visibility','Profile photo, private account, app lock, blocked'],['chats','chat','Chat Style','Auto-delete, wallpaper, enter key'],['app','palette','Appearance','Chat theme, app theme'],['notif','bell','Notifications','Messages, sounds, background'],['acs','access','Accessibility','Font size'],['pp','lock','Privacy policy','How your data is used'],['tc','help','Terms & community rules','Rules for using VText'],['upd','refresh','App update','Version '+verLabel()+' · tap to check for updates'],['help','help','About VText','Privacy policy, terms, version'],['inv','com','Share VText','Share your VText link'],['out','out','Log out','']].map(a=>'<div class="rw" data-p="'+a[0]+'" data-t="'+a[2]+'">'+ic(a[1])+'<div>'+a[2]+(a[3]?'<small>'+a[3]+'</small>':'')+'</div></div>').join('');
+  $('rows').innerHTML=[['acc','key','Account','Password, email, login PIN'],['priv','lock','Safety & Visibility','Profile photo, private account, app lock, blocked'],['perm','cam','App permissions','Camera, gallery and location'],['chats','chat','Chat Style','Auto-delete, wallpaper, enter key'],['app','palette','Appearance','Chat theme, app theme'],['notif','bell','Notifications','Messages, sounds, background'],['acs','access','Accessibility','Font size'],['pp','lock','Privacy policy','How your data is used'],['tc','help','Terms & community rules','Rules for using VText'],['upd','refresh','App update','Version '+verLabel()+' · tap to check for updates'],['help','help','About VText','Privacy policy, terms, version'],['inv','com','Share VText','Share your VText link'],['out','out','Log out','']].map(a=>'<div class="rw" data-p="'+a[0]+'" data-t="'+a[2]+'">'+ic(a[1])+'<div>'+a[2]+(a[3]?'<small>'+a[3]+'</small>':'')+'</div></div>').join('');
   paintCard();$('ssr').value='';$('scard').style.display='';$('set').style.display='flex'}
 let cp2=null;
 function openP(p,t){cp2=p;$('sm').style.display='none';document.querySelectorAll('.ps').forEach(x=>x.style.display=x.id==='p-'+p?'block':'none');$('stt').textContent=t;$('spe').style.display=p==='prof'?'none':'none';drawPanel(p)}
 function closeP(){cp2=null;$('sm').style.display='block';document.querySelectorAll('.ps').forEach(x=>x.style.display='none');$('stt').textContent='Settings';$('spe').style.display=''}
 $('sx').onclick=()=>{if(cp2)closeP();else $('set').style.display='none'};$('spe').onclick=()=>openP('prof','Edit profile');
-$('rows').onclick=async e=>{const r=e.target.closest('[data-p]');if(!r)return;const p=r.dataset.p;if(p==='pp'||p==='tc'){openDoc(p==='pp'?'privacy':'terms');return}if(p==='upd'){checkUpdate();return}if(p==='inv'){shareLink();return}if(p==='out'){if(await confirmD('Log out of VText?')){$('set').style.display='none';logout()}return}openP(p,r.dataset.t)};
+$('rows').onclick=async e=>{const r=e.target.closest('[data-p]');if(!r)return;const p=r.dataset.p;if(p==='pp'||p==='tc'){openDoc(p==='pp'?'privacy':'terms');return}if(p==='perm'){permShow();return}if(p==='upd'){checkUpdate();return}if(p==='inv'){shareLink();return}if(p==='out'){if(await confirmD('Log out of VText?')){$('set').style.display='none';logout()}return}openP(p,r.dataset.t)};
 $('th').onchange=e=>{put('th2',e.target.value);look()};$('fs').onchange=e=>{put('fs',e.target.value);look()};
 $('ex').onchange=e=>put('exp',e.target.value);$('en').onchange=e=>put('enter',e.target.checked?'1':'0');
 $('nt').onchange=e=>{if(!e.target.checked){put('notif','0');return}put('notif','1');setupNotif()};
@@ -1519,8 +1643,8 @@ $('wp').onchange=e=>{put('wp',e.target.value);look()};$('sd').onchange=e=>put('s
 $('pw').onclick=()=>auth.sendPasswordResetEmail(auth.currentUser.email).then(()=>toast('Reset email sent')).catch(e=>toast(e.message));
 $('bk').onclick=()=>{const b=lset('blk'),r=[];chats.forEach(c=>{if(c.type==='dm'){const o=c.members.find(x=>x!==me.uid);if(b.has(o))r.push(['✅ Unblock: '+title(c),()=>setBlock(o)])}});sheet(r.length?r:[['No blocked contacts']])};
 $('da').onclick=async()=>{if(!(await confirmD('Your account will be deleted permanently. Are you sure?')))return;const pw=await ask('Enter your password to confirm','',false,true);if(!pw)return;
-  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));const b=db.batch();b.delete(db.doc('users/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/pin'));b.delete(db.doc('usernames/'+me.username));await b.commit();await u.delete();$('set').style.display='none'}catch(e){toast(E[e.code]||'Wrong password or error: '+e.message)}};
-$('at').onclick=()=>cur&&sheet([['📸 Camera',()=>openCamera({to:cur.id})],['🖼 Photo / Video',()=>{$('file').accept='image/*,video/*';$('file').click()}],['📄 Document (up to 600 KB)',()=>{$('file').accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip';$('file').click()}],['📍 Location',sendLoc]]);
+  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));delAcc=true;manual=true;const b=db.batch();b.delete(db.doc('users/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/pin'));b.delete(db.doc('usernames/'+me.username));b.delete(db.doc('locs/'+me.uid));await b.commit();await u.delete();$('set').style.display='none';$('prf').style.display='none';goLogin(true);toast('Your account was deleted')}catch(e){delAcc=false;manual=false;toast(E[e.code]||'Wrong password or error: '+e.message)}};
+$('at').onclick=()=>cur&&sheet([['📸 Camera',()=>openCamera({to:cur.id})],['🖼 Photo / Video',()=>{$('file').accept='image/*,video/*';$('file').click()}],['📄 Document (up to 600 KB)',()=>{$('file').accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip';$('file').click()}]]);
 function sendLoc(){navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>post({type:'loc',lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)},'📍 Location').catch(e=>toast(e.message)),()=>toast('Location permission denied')):toast('Location is not supported')}
 /* ---- chat timer: After seen (direct chats) / Today (24 h) / 7 days ---- */
 const AR_MS=10000;
@@ -1537,9 +1661,10 @@ function timerM(){const g=cur.type==='group';let now=expVal(cur);if(g&&now==='re
 /* "right after reading": the person who receives the message deletes it ~10 s after it was shown on screen */
 const arSeen=new Map();let arT=null;
 function arTick(){clearTimeout(arT);if(!cur||cur.type!=='dm'||document.hidden||!active)return;
-  const now=Date.now(),hide=lset('hid');let next=1e9,gone=false;
+  const now=Date.now(),hide=lset('hid'),newest=docs.length?docs[docs.length-1].id:null;let next=1e9,gone=false,clrLast=false;
   docs.forEach(x=>{if(!x.ar||x.from===me.uid||hide.has(x.id))return;if(!arSeen.has(x.id))arSeen.set(x.id,now);const left=arSeen.get(x.id)+AR_MS-now;
-    if(left<=0){tog('hid',x.id);gone=true;arSeen.delete(x.id);col2().doc(x.id).delete().catch(()=>{})}else next=Math.min(next,left)});
+    if(left<=0){tog('hid',x.id);gone=true;if(x.id===newest)clrLast=true;arSeen.delete(x.id);col2().doc(x.id).delete().catch(()=>{})}else next=Math.min(next,left)});
+  if(clrLast&&cur)db.doc('chats/'+cur.id).update({last:''}).catch(()=>{});
   if(gone){renderM();return}
   if(next<1e9)arT=setTimeout(arTick,next+30)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){arSeen.clear();clearTimeout(arT)}else arTick()});
@@ -1601,10 +1726,13 @@ $('ssr').oninput=()=>{const q=$('ssr').value.trim().toLowerCase();document.query
 $('scard').onclick=()=>openProfile();
 function paintCard(){av($('sav2'),me.name,false,me.photo);$('sname2').textContent=me.name;$('su2').textContent='@'+me.username}
 /* profile page */
-function paintProfile(){if(!me)return;av($('sav'),me.name,false,me.photo);$('sname').textContent=me.name;$('su').textContent='@'+me.username;
+function paintProfile(){if(!me)return;av($('sav'),me.name,false,me.photo);$('sname').textContent=me.name;$('su').textContent='@'+me.username;$('sun').value='@'+me.username;
   $('ps1').textContent=chats.filter(c=>c.type==='dm').length;$('ps2').textContent=chats.filter(c=>c.type==='group').length;$('ps3').textContent=reqs.length;paintCover()}
-$('pset').innerHTML='<span>Settings</span><i>›</i>';$('pcam').innerHTML=ic('cam');$('pbg').innerHTML=ic('img')+'<span>Background</span>';
-$('pset').onclick=()=>{$('prf').style.display='none';openSet()};
+$('pcam').innerHTML=ic('cam');$('pbg').innerHTML=ic('img')+'<span>Background</span>';
+/* profile layout: avatar, then the Name / Username / Save card, then the numbers, Edit profile, Account and Settings */
+(function(){const c=$('p-prof');$('prb').insertBefore(c,$('prb').querySelector('.pstats'));
+  const l=document.createElement('label');l.textContent='Username';const i=document.createElement('input');i.id='sun';i.readOnly=true;i.setAttribute('aria-label','Username (tap to change)');i.onclick=()=>changeUsername();
+  c.insertBefore(l,$('ss'));c.insertBefore(i,$('ss'))})();
 $('pcam').onclick=()=>{pt='me';$('pf').click()};
 $('pedit').onclick=()=>{const i=$('sn');i.focus();try{i.scrollIntoView({block:'center',behavior:'smooth'})}catch(e){}};
 /* chat: the other person's avatar next to their bubbles */
@@ -1657,6 +1785,230 @@ pcf.onchange=async()=>{const f=pcf.files&&pcf.files[0];pcf.value='';if(!f)return
     await setCover(d)}catch(e){toast(e.message)}};
 $('pbg').onclick=()=>{const cur0=me&&me.cover,own=typeof cur0==='string'&&COVER_IMG.test(cur0)?'photo':(COVERS[cur0]?cur0:'neon');
   sheet([['Profile background'],[(own==='photo'?'✓  ':'      ')+'Choose a photo from your gallery',()=>pcf.click()]].concat(Object.keys(COVERS).map(k=>[(own===k?'✓  ':'      ')+COVERS[k][0]+(k==='neon'?' (default)':''),()=>setCover(k==='neon'?null:k)])))};
+/* the round camera button repairs itself if the phone dropped it while the app stayed open for hours */
+function fabFix(){const f=$('fab');if(!f)return;if(!f.firstElementChild)f.innerHTML=ic('cam');f.style.display=tab==='chats'?'':'none'}
+['visibilitychange','focus','pageshow','resize','online'].forEach(e=>window.addEventListener(e,fabFix));setInterval(fabFix,30000);
+/* ===== tiny slippy-map engine (no library): tiles, markers, drag, pinch, wheel, double-tap, fly-to ===== */
+const VM_TS=256,VM_MAXLAT=85.0511;
+const vmProj=(lat,lng,z)=>{const s=VM_TS*Math.pow(2,z),sn=Math.sin(Math.max(-VM_MAXLAT,Math.min(VM_MAXLAT,lat))*Math.PI/180);return{x:(lng+180)/360*s,y:(.5-Math.log((1+sn)/(1-sn))/(4*Math.PI))*s}};
+const vmUnproj=(x,y,z)=>{const s=VM_TS*Math.pow(2,z),n=Math.PI-2*Math.PI*y/s;return{lat:180/Math.PI*Math.atan(.5*(Math.exp(n)-Math.exp(-n))),lng:x/s*360-180}};
+class VMap{
+  constructor(el,o){o=o||{};this.el=el;this.lat=o.lat==null?20:o.lat;this.lng=o.lng==null?0:o.lng;this.z=o.zoom==null?2:o.zoom;this.minZ=o.minZoom==null?2:o.minZoom;this.maxZ=o.maxZoom==null?18:o.maxZoom;
+    this.url=o.url||(()=>'');this.tiles=new Map();this.marks=new Map();this.anim=null;this.w=0;this.h=0;this.ps=new Map();this.g=null;this.moved=false;this.ro=null;this.cl=null;
+    el.classList.add('vmap');el.innerHTML='';this.tl=document.createElement('div');this.tl.className='vm-t';this.ml=document.createElement('div');this.ml.className='vm-m';
+    const at=document.createElement('div');at.className='vm-a';at.textContent='© OpenStreetMap contributors © CARTO';el.append(this.tl,this.ml,at);
+    this.size();this.bind();try{this.ro=new ResizeObserver(()=>this.size());this.ro.observe(el)}catch(e){}}
+  size(){const w=this.el.clientWidth,h=this.el.clientHeight;if(w===this.w&&h===this.h)return;this.w=w;this.h=h;this.render()}
+  setUrl(fn){this.url=fn;this.tiles.forEach(t=>t.remove());this.tiles.clear();this.render()}
+  /* screen position (px, relative to the map) of a lat/lng at the current view */
+  toScreen(lat,lng){const c=vmProj(this.lat,this.lng,this.z),m=vmProj(lat,lng,this.z),W=VM_TS*Math.pow(2,this.z);let dx=m.x-c.x;if(dx>W/2)dx-=W;else if(dx<-W/2)dx+=W;return{x:this.w/2+dx,y:this.h/2+m.y-c.y}}
+  fromScreen(x,y){const c=vmProj(this.lat,this.lng,this.z);return vmUnproj(c.x+x-this.w/2,c.y+y-this.h/2,this.z)}
+  clampView(){this.z=Math.max(this.minZ,Math.min(this.maxZ,this.z));this.lat=Math.max(-VM_MAXLAT,Math.min(VM_MAXLAT,this.lat));while(this.lng>180)this.lng-=360;while(this.lng<-180)this.lng+=360}
+  setView(lat,lng,z){this.stopAnim();this.lat=lat;this.lng=lng;if(z!=null)this.z=z;this.clampView();this.render()}
+  /* zoom to z keeping the point under screen position (px,py) fixed */
+  zoomAt(px,py,z){z=Math.max(this.minZ,Math.min(this.maxZ,z));const g=this.fromScreen(px,py),p=vmProj(g.lat,g.lng,z),c=vmUnproj(p.x-(px-this.w/2),p.y-(py-this.h/2),z);this.z=z;this.lat=c.lat;this.lng=c.lng;this.clampView();this.render()}
+  stopAnim(){if(this.anim){cancelAnimationFrame(this.anim.id);this.anim=null}}
+  flyTo(lat,lng,z,ms){this.stopAnim();ms=ms==null?600:ms;if(!ms||!this.w){this.setView(lat,lng,z);return}
+    const a={lat:this.lat,lng:this.lng,z:this.z},zt=z==null?this.z:Math.max(this.minZ,Math.min(this.maxZ,z));let dl=lng-a.lng;if(dl>180)dl-=360;if(dl<-180)dl+=360;const t0=performance.now();
+    const step=t=>{const k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;this.lat=a.lat+(lat-a.lat)*e;this.lng=a.lng+dl*e;this.z=a.z+(zt-a.z)*e;this.clampView();this.render();if(k<1)this.anim={id:requestAnimationFrame(step)};else this.anim=null};
+    this.anim={id:requestAnimationFrame(step)}}
+  /* choose centre + zoom so that all points are visible */
+  fit(pts,pad,maxZ,ms){pts=pts.filter(p=>p&&isFinite(p.lat)&&isFinite(p.lng));if(!pts.length)return;pad=pad==null?60:pad;
+    if(pts.length===1){this.flyTo(pts[0].lat,pts[0].lng,Math.min(maxZ||15,15),ms);return}
+    const aw=Math.max(40,this.w-2*pad),ah=Math.max(40,this.h-2*pad);let z=this.minZ;
+    for(let t=Math.min(maxZ||15,this.maxZ);t>=this.minZ;t-=.25){const ps=pts.map(p=>vmProj(p.lat,p.lng,t)),xs=ps.map(p=>p.x),ys=ps.map(p=>p.y);
+      if(Math.max(...xs)-Math.min(...xs)<=aw&&Math.max(...ys)-Math.min(...ys)<=ah){z=t;break}z=t}
+    const ps=pts.map(p=>vmProj(p.lat,p.lng,z)),xs=ps.map(p=>p.x),ys=ps.map(p=>p.y),c=vmUnproj((Math.max(...xs)+Math.min(...xs))/2,(Math.max(...ys)+Math.min(...ys))/2,z);this.flyTo(c.lat,c.lng,z,ms)}
+  /* markers: el is a DOM element; (ax,ay) = the point of the element that sits on the position (0..1) */
+  setMarker(id,lat,lng,el,o){o=o||{};let m=this.marks.get(id);if(m&&el&&m.el!==el){m.el.remove();m=null;this.marks.delete(id)}
+    if(!m){m={el,lat,lng,ax:o.ax==null?.5:o.ax,ay:o.ay==null?.5:o.ay,z:o.z||0};el.classList.add('vm-k');this.ml.appendChild(el);this.marks.set(id,m)}else{m.lat=lat;m.lng=lng;if(o.z!=null)m.z=o.z}
+    this.placeMarks()}
+  removeMarker(id){const m=this.marks.get(id);if(m){m.el.remove();this.marks.delete(id)}}
+  clearMarkers(){this.marks.forEach(m=>m.el.remove());this.marks.clear()}
+  placeMarks(){this.marks.forEach(m=>{const p=this.toScreen(m.lat,m.lng);m.el.style.transform='translate('+Math.round(p.x)+'px,'+Math.round(p.y)+'px)';m.el.style.zIndex=String(m.z*10000+Math.max(0,Math.min(9999,Math.round(p.y))))})}
+  render(){const w=this.w,h=this.h;if(!w||!h)return;const zt=Math.max(0,Math.min(18,Math.round(this.z))),s=Math.pow(2,this.z-zt),c=vmProj(this.lat,this.lng,zt),n=Math.pow(2,zt);
+    const x0=Math.floor((c.x-w/2/s)/VM_TS),x1=Math.floor((c.x+w/2/s)/VM_TS),y0=Math.max(0,Math.floor((c.y-h/2/s)/VM_TS)),y1=Math.min(n-1,Math.floor((c.y+h/2/s)/VM_TS));
+    const keep=new Set();
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const xw=((x%n)+n)%n,k=zt+'/'+x+'/'+y;keep.add(k);let t=this.tiles.get(k);
+      if(!t){t=new Image();t.className='vm-i';t.alt='';t.draggable=false;t.decoding='async';t._z=zt;t._x=x;t._y=y;t.style.zIndex=zt;t.onload=()=>{t.classList.add('ld');this.sweep()};t.onerror=()=>{t.classList.add('bad');this.sweep()};t.src=this.url(zt,xw,y);this.tl.appendChild(t);this.tiles.set(k,t)}}
+    this.keep=keep;this.zt=zt;
+    /* tiles of the same zoom level that are off screen go away at once; other zoom levels stay (scaled) until the new ones are loaded */
+    this.tiles.forEach((t,k)=>{if(!keep.has(k)&&t._z===zt){t.remove();this.tiles.delete(k)}});
+    this.tiles.forEach(t=>{const sc=Math.pow(2,this.z-t._z),cc=t._z===zt?c:vmProj(this.lat,this.lng,t._z),tx=w/2+(t._x*VM_TS-cc.x)*sc,ty=h/2+(t._y*VM_TS-cc.y)*sc;
+      t.style.transform=sc===1?'translate('+Math.round(tx)+'px,'+Math.round(ty)+'px)':'translate('+tx+'px,'+ty+'px) scale('+sc+')'});
+    this.sweep();this.placeMarks()}
+  sweep(){if(!this.keep)return;clearTimeout(this.sw);this.sw=setTimeout(()=>{let ready=true;this.keep.forEach(k=>{const t=this.tiles.get(k);if(t&&!t.classList.contains('ld')&&!t.classList.contains('bad'))ready=false});
+    if(!ready)return;this.tiles.forEach((t,k)=>{if(!this.keep.has(k)){t.remove();this.tiles.delete(k)}})},120)}
+  /* ---------- gestures ---------- */
+  bind(){const el=this.el;el.style.touchAction='none';
+    const pt=e=>{const r=el.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}};
+    el.addEventListener('pointerdown',e=>{if(e.button>0&&e.pointerType==='mouse')return;this.stopAnim();this.ps.set(e.pointerId,pt(e));this.moved=this.ps.size>1?true:false;this.g=this.startG()});
+    el.addEventListener('pointermove',e=>{if(!this.ps.has(e.pointerId))return;const p=pt(e),prev=this.ps.get(e.pointerId);this.ps.set(e.pointerId,p);
+      if(this.ps.size===1){if(!this.moved){if(Math.hypot(p.x-this.g.x0,p.y-this.g.y0)<5)return;this.moved=true;try{el.setPointerCapture(e.pointerId)}catch(x){}}
+        const c=vmProj(this.lat,this.lng,this.z),n=vmUnproj(c.x-(p.x-prev.x),c.y-(p.y-prev.y),this.z);this.lat=n.lat;this.lng=n.lng;this.clampView();this.render()}
+      else if(this.ps.size>=2){const a=[...this.ps.values()],d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1,m={x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2},g=this.g;
+        if(!g.pinch){g.pinch=true;g.d0=d;g.z0=this.z;g.geo=this.fromScreen(m.x,m.y)}
+        const z=Math.max(this.minZ,Math.min(this.maxZ,g.z0+Math.log2(d/g.d0))),pp=vmProj(g.geo.lat,g.geo.lng,z),c=vmUnproj(pp.x-(m.x-this.w/2),pp.y-(m.y-this.h/2),z);
+        this.z=z;this.lat=c.lat;this.lng=c.lng;this.clampView();this.render()}});
+    const up=e=>{if(!this.ps.has(e.pointerId))return;const was=this.moved,p=this.ps.get(e.pointerId);this.ps.delete(e.pointerId);try{el.releasePointerCapture(e.pointerId)}catch(x){}
+      if(this.ps.size===0){if(!was&&e.type==='pointerup'){const now=Date.now();if(this.lastTap&&now-this.lastTap.t<320&&Math.hypot(p.x-this.lastTap.x,p.y-this.lastTap.y)<28){this.zoomAt(p.x,p.y,Math.round(this.z)+1);this.lastTap=null}else this.lastTap={t:now,x:p.x,y:p.y}}this.g=null}
+      else this.g=this.startG()};
+    el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+    el.addEventListener('wheel',e=>{e.preventDefault();const p=pt(e);this.stopAnim();this.zoomAt(p.x,p.y,this.z+(e.deltaY<0?.5:-.5))},{passive:false})}
+  startG(){const a=[...this.ps.values()][0]||{x:0,y:0};return{x0:a.x,y0:a.y,pinch:false}}
+  destroy(){this.stopAnim();try{this.ro&&this.ro.disconnect()}catch(e){}this.el.innerHTML=''}
+}
+/* ===== "Allow VText to use…" screen: camera, gallery, location ===== */
+const PERMS=[['camera','Camera','Take photos and videos inside chats.','cam'],['media','Gallery','Choose photos and videos to send, and save them to your phone.','img'],['location','Location','See where your friends are and who is nearby. Nothing is shared until you turn sharing on.','mappin']];
+const PSTAT={granted:['Allowed','ok'],denied:['Not allowed','no'],na:['Asked when you use it','na'],prompt:['Not asked yet','na']};
+let permDone=false,permBusy=false;
+/* current state without asking */
+async function permNow(){const V=plug('VTextBg');if(V&&V.permStatus){try{return await V.permStatus()}catch(e){}}
+  const o={media:'na'},q=async(k,n)=>{try{if(navigator.permissions){const c=await navigator.permissions.query({name:n});o[k]=c.state==='granted'?'granted':c.state==='denied'?'denied':'prompt'}}catch(e){}};
+  await q('camera','camera');await q('location','geolocation');return o}
+/* ask for one permission. kind: camera | media | location. Returns granted | denied | na */
+async function permReq(kind){if(typeof lockGrace==='function')lockGrace(45000);
+  const V=plug('VTextBg');
+  if(V&&V.askPerms){try{const o={camera:false,location:false,media:false};o[kind]=true;const r=await V.askPerms(o);return r&&r[kind]==='granted'?'granted':'denied'}catch(e){}}
+  if(kind==='camera'){try{const s=await navigator.mediaDevices.getUserMedia({video:true});s.getTracks().forEach(t=>t.stop());return'granted'}catch(e){return'denied'}}
+  if(kind==='location'){try{await geoOnce();return'granted'}catch(e){return e&&e.code===1?'denied':'granted'}}
+  return'na'}
+function permPaint(st){PERMS.forEach(p=>{const s=$('perm').querySelector('[data-k="'+p[0]+'"] .pms'),v=PSTAT[(st&&st[p[0]])||'prompt']||PSTAT.prompt;s.textContent=v[0];s.className='pms '+v[1]})}
+async function permShow(){permDone=false;$('pm1').textContent='Allow';$('pm1').disabled=false;$('pm0').style.display='';$('pm-note').textContent='';$('perm').style.display='flex';permPaint(await permNow())}
+function permHide(){$('perm').style.display='none';put('perm','1')}
+$('pm1').onclick=async()=>{if(permDone){permHide();return}if(permBusy)return;permBusy=true;$('pm1').disabled=true;const st={};
+  for(const p of PERMS){st[p[0]]=await permReq(p[0]);permPaint(st)}
+  permBusy=false;$('pm1').disabled=false;permDone=true;put('perm','1');$('pm1').textContent='Continue';$('pm0').style.display='none';
+  $('pm-note').textContent=PERMS.some(p=>st[p[0]]==='denied')?'Some access is off. You can turn it on in your phone Settings > Apps > VText > Permissions.':''};
+$('pm0').onclick=()=>permHide();
+PERMS.forEach(p=>{$('perm').querySelector('[data-k="'+p[0]+'"] i').innerHTML=ic(p[3])});
+/* shown once after sign-in (also for people who already had an account), as soon as the app is on screen and unlocked */
+function permAsk(){if(get('perm','')==='1')return;let n=0;const t=setInterval(()=>{n++;const c=document.documentElement.classList;
+  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&!$('anim').classList.contains('show')){clearInterval(t);if(get('perm','')!=='1')permShow()}else if(n>80)clearInterval(t)},700)}
+/* ===== Friends map: opt-in location sharing, map, nearby list ===== */
+Object.assign(IC,{locate:'<circle cx="12" cy="12" r="3.5"/><circle cx="12" cy="12" r="8"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3"/>',people:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><circle cx="17.5" cy="9" r="2.6"/><path d="M17 14.4a5 5 0 014.5 5"/>',userplus:'<circle cx="10" cy="8" r="4"/><path d="M2.5 21a7.5 7.5 0 0115 0"/><path d="M19 8v6M16 11h6"/>'});
+const LOC={watch:null,pos:null,map:null,fr:new Map(),mk:new Map(),unsub:null,tick:null,open:false,warned:false,lerr:'',lastPub:{t:0,la:0,lo:0,sig:''},fitted:false,touched:false,syncT:null};
+const locOn=()=>get('locshare','0')==='1';
+const locAcc=()=>get('locacc','x');                       /* 'x' exact, 'a' about 1 km */
+const locSel=()=>{try{const a=JSON.parse(get('locto','null'));return Array.isArray(a)?a:null}catch(e){return null}};   /* null = all friends */
+const lcRad=x=>x*Math.PI/180;
+function lcDist(a,b,c,d){const x=Math.pow(Math.sin(lcRad(c-a)/2),2)+Math.cos(lcRad(a))*Math.cos(lcRad(c))*Math.pow(Math.sin(lcRad(d-b)/2),2);return 12742000*Math.asin(Math.min(1,Math.sqrt(x)))}
+const lcFmt=m=>m<50?'Less than 50 m':m<1000?Math.round(m/10)*10+' m':(m<10000?(m/1000).toFixed(1):Math.round(m/1000))+' km';
+const lcAgo=ms=>{const s=Math.max(0,Math.round((Date.now()-ms)/1000));return s<90?'just now':s<3600?Math.round(s/60)+' min ago':s<86400?Math.round(s/3600)+' h ago':Math.round(s/86400)+' d ago'};
+const lcRound=v=>locAcc()==='a'?Math.round(v*100)/100:Math.round(v*1e5)/1e5;
+/* ---- who is a friend / who may see me ---- */
+function locFriends(){const out=[];if(!me)return out;chats.forEach(c=>{if(c.type!=='dm')return;const u=peerOf(c);if(u&&!out.includes(u))out.push(u)});return out}
+const locBlocked=u=>lset('blk').has(u)||blockedBy.has(u);
+function locTo(){const sel=locSel();return locFriends().filter(u=>!locBlocked(u)&&(!sel||sel.includes(u)))}
+const locSig=()=>locTo().join(',')+'|'+locAcc();
+const locChat=u=>chats.find(c=>c.type==='dm'&&c.members.includes(u));
+const locName=u=>{const c=locChat(u);return c?((c.names||{})[u]||'Friend'):'Friend'};
+const locPhoto=u=>{const c=locChat(u);return c&&!blockedBy.has(u)?(c.photos||{})[u]:null};
+/* ---- phone position ---- */
+const geoOk=()=>!!(navigator.geolocation&&navigator.geolocation.getCurrentPosition);
+function geoOnce(){return new Promise((res,rej)=>{if(!geoOk())return rej({code:0,message:'Location is not supported'});navigator.geolocation.getCurrentPosition(p=>{onPos(p);res(p)},rej,{enableHighAccuracy:false,timeout:20000,maximumAge:60000})})}
+function onPos(p){if(!me)return;LOC.pos={la:p.coords.latitude,lo:p.coords.longitude,ac:p.coords.accuracy||0,t:Date.now()};pubPos();if(LOC.open)locDraw()}
+function onPosErr(e){if(e&&e.code===1){LOC.lerr='perm';if(locOn()){put('locshare','0');locUnpub();toast('Location is blocked for VText. Allow it in your phone Settings to share.')}locWatchStop();if(LOC.open)locDraw()}}
+function locWatchStart(){if(LOC.watch!=null||!geoOk()||!me)return;if(typeof lockGrace==='function')lockGrace(30000);try{LOC.watch=navigator.geolocation.watchPosition(onPos,onPosErr,{enableHighAccuracy:false,maximumAge:30000,timeout:30000})}catch(e){LOC.watch=null}}
+function locWatchStop(){if(LOC.watch!=null){try{navigator.geolocation.clearWatch(LOC.watch)}catch(e){}LOC.watch=null}}
+const locWanted=()=>!!me&&!document.hidden&&(locOn()||LOC.open)&&LOC.lerr!=='perm';
+function locWatchSync(){locWanted()?locWatchStart():locWatchStop()}
+document.addEventListener('visibilitychange',()=>{locWatchSync();if(!document.hidden&&locOn())pubPos(true)});
+/* ---- publishing my position (only while sharing is on; at most about once a minute) ---- */
+function pubPos(force){if(!locOn()||!me||!LOC.pos)return;const to=locTo();
+  if(!to.length){if(LOC.lastPub.t||force)locUnpub(locSig());return}
+  const la=lcRound(LOC.pos.la),lo=lcRound(LOC.pos.lo),sig=locSig(),lp=LOC.lastPub,age=Date.now()-lp.t,moved=lp.t?lcDist(lp.la,lp.lo,la,lo):1e9;
+  if(!force&&lp.t&&sig===lp.sig&&age<3e5&&!(moved>=80&&age>=3e4))return;
+  LOC.lastPub={t:Date.now(),la,lo,sig};
+  db.doc('locs/'+me.uid).set({u:me.uid,la,lo,ac:Math.round(LOC.pos.ac||0),ts:SV(),to}).catch(locFail)}
+function locUnpub(sig){LOC.lastPub={t:0,la:0,lo:0,sig:sig||''};if(me)return db.doc('locs/'+me.uid).delete().catch(()=>{})}
+function locFail(e){if(LOC.warned)return;LOC.warned=true;toast(e&&e.code==='permission-denied'?'Couldn’t share your location. Please publish the latest Firestore rules.':'Couldn’t share your location: '+((e&&e.message)||'error'))}
+function locSync(){if(!me||!locOn()||!LOC.pos)return;if(locSig()===LOC.lastPub.sig)return;clearTimeout(LOC.syncT);LOC.syncT=setTimeout(()=>pubPos(true),900)}
+/* ---- sharing on / off ---- */
+async function locEnable(){
+  if(!geoOk())return msgD('Location is not supported on this phone or browser.');
+  const st=await permReq('location');
+  if(st==='denied'){LOC.lerr='perm';locDraw();return msgD('VText cannot see your location. Allow Location for VText in your phone Settings > Apps > VText > Permissions, then try again.')}
+  LOC.lerr='';put('locshare','1');LOC.warned=false;LOC.lastPub={t:0,la:0,lo:0,sig:''};locWatchSync();pubPos(true);locDraw();toast('Location sharing is on')}
+function locStop(){put('locshare','0');locUnpub();locWatchSync();locDraw();toast('You stopped sharing your location')}
+function locMenu(){const sel=locSel(),acc=locAcc(),n=locTo().length,mk=(on,t)=>(on?'✓  ':'      ')+t;
+  sheet([['Location sharing is on · '+n+' friend'+(n===1?'':'s')+' can see you'],
+    [mk(!sel,'Share with all my friends'),()=>{put('locto','null');pubPos(true);locDraw();toast('Sharing with all your friends')}],
+    [mk(!!sel,'Share with selected friends…'),locPick],
+    [mk(acc==='x','Exact location'),()=>{put('locacc','x');LOC.lastPub.sig='';pubPos(true);locDraw();toast('Sharing your exact location')}],
+    [mk(acc==='a','Approximate location (about 1 km)'),()=>{put('locacc','a');LOC.lastPub.sig='';pubPos(true);locDraw();toast('Sharing an approximate location')}],
+    ['Stop sharing',locStop]])}
+function locPick(){const ids=locFriends().filter(u=>!lset('blk').has(u));if(!ids.length)return toast('You have no friends yet');
+  const sel=new Set(locSel()||ids),box=$('lpkl');box.innerHTML='';
+  ids.forEach(u=>{const r=document.createElement('div');r.className='st lpr';const a=document.createElement('div');a.className='av';av(a,locName(u),false,locPhoto(u));const t=document.createElement('b');t.textContent=locName(u);const k=document.createElement('i');k.className='lck';
+    const paint=()=>{k.textContent=sel.has(u)?'✓':'';k.classList.toggle('on',sel.has(u))};paint();r.append(a,t,k);r.onclick=()=>{sel.has(u)?sel.delete(u):sel.add(u);paint()};box.appendChild(r)});
+  $('lpkd').onclick=()=>{put('locto',JSON.stringify([...sel]));$('lpick').style.display='none';LOC.lastPub.sig='';pubPos(true);locDraw();toast(sel.size?'Sharing with '+sel.size+' friend'+(sel.size===1?'':'s'):'You are sharing with nobody yet')};
+  $('lpick').style.display='flex'}
+/* ---- friends' positions ---- */
+function locListen(){if(LOC.unsub||!me)return;
+  LOC.unsub=db.collection('locs').where('to','array-contains',me.uid).onSnapshot(q=>{const m=new Map();
+    q.docs.forEach(d=>{const x=d.data({serverTimestamps:'estimate'})||{};if(d.id!==me.uid&&typeof x.la==='number'&&typeof x.lo==='number')m.set(d.id,{la:x.la,lo:x.lo,ac:x.ac||0,ts:M(x.ts)||Date.now()})});
+    LOC.fr=m;LOC.lerr=LOC.lerr==='rules'||LOC.lerr==='net'?'':LOC.lerr;locDraw()},e=>{LOC.lerr=e&&e.code==='permission-denied'?'rules':'net';locDraw()})}
+function locUnlisten(){if(LOC.unsub){LOC.unsub();LOC.unsub=null}}
+function locVisible(){const fs=new Set(locFriends()),out=[];
+  LOC.fr.forEach((v,u)=>{if(!fs.has(u)||locBlocked(u))return;const age=Date.now()-v.ts;if(age>864e5)return;
+    out.push({u,la:v.la,lo:v.lo,ts:v.ts,age,name:locName(u),photo:locPhoto(u),d:LOC.pos?lcDist(LOC.pos.la,LOC.pos.lo,v.la,v.lo):null})});
+  out.sort((a,b)=>(a.d==null?1e12:a.d)-(b.d==null?1e12:b.d)||a.name.localeCompare(b.name));return out}
+/* ---- map page ---- */
+const locTile=(z,x,y)=>{const dk=document.documentElement.classList.contains('dk'),r=(window.devicePixelRatio||1)>1.5?'@2x':'';return'https://'+'abcd'[(x+y)%4]+'.basemaps.cartocdn.com/'+(dk?'dark_all':'rastertiles/voyager')+'/'+z+'/'+x+'/'+y+r+'.png'};
+function mkEl(name,photo,mine,old){const d=document.createElement('div');d.className='lmk'+(mine?' me':'')+(old?' old':'');const a=document.createElement('div');a.className='av';av(a,name,false,photo);const l=document.createElement('span');l.textContent=mine?'You':String(name||'?').split(' ')[0];d.append(a,l);return d}
+function locMarkers(vis){const m=LOC.map;if(!m)return;const seen=new Set();
+  vis.forEach(f=>{const id='f_'+f.u;seen.add(id);const old=f.age>9e5,sig=f.name+'|'+(f.photo?f.photo.length:0)+'|'+(old?1:0);let mk=LOC.mk.get(id);
+    if(!mk||mk.sig!==sig){const el=mkEl(f.name,f.photo,false,old);el.onclick=()=>locFocus(f.u);mk={sig,el};LOC.mk.set(id,mk)}m.setMarker(id,f.la,f.lo,mk.el,{z:1})});
+  if(LOC.pos&&me){seen.add('me');const sig=me.name+'|'+(me.photo?me.photo.length:0);let mk=LOC.mk.get('me');if(!mk||mk.sig!==sig){const el=mkEl(me.name,me.photo,true,false);el.onclick=()=>locMe();mk={sig,el};LOC.mk.set('me',mk)}m.setMarker('me',LOC.pos.la,LOC.pos.lo,mk.el,{z:2})}
+  [...LOC.mk.keys()].forEach(k=>{if(!seen.has(k)){m.removeMarker(k);LOC.mk.delete(k)}})}
+function locFitAll(ms){if(!LOC.map)return;let vis=locVisible();if(LOC.pos)vis=vis.filter(f=>f.d!=null&&f.d<=5e4);   /* start around me and the friends within 50 km; far friends are reached from the list */
+  const pts=vis.map(f=>({lat:f.la,lng:f.lo}));if(LOC.pos)pts.push({lat:LOC.pos.la,lng:LOC.pos.lo});if(!pts.length)return;LOC.fitted=true;LOC.map.fit(pts,95,15,ms==null?500:ms)}
+function locDraw(){if(!LOC.open||!me)return;const on=locOn(),vis=locVisible(),to=locTo().length,sel=locSel();
+  locMarkers(vis);
+  const fs=vis.map(f=>f.u).join(',')+(LOC.pos?'|p':'');if(fs!==LOC.fitSig&&(LOC.pos||vis.length)&&(!LOC.touched||!LOC.fitted)){LOC.fitSig=fs;locFitAll(LOC.fitted?500:0)}
+  $('lsh').classList.toggle('on',on);$('lsh').innerHTML=ic('mappin');
+  const tip=$('ltip');tip.textContent=on?(to?'Sharing with '+(sel?to+' friend'+(to===1?'':'s'):to===1?'1 friend':'all friends'):'Sharing is on · no friends yet'):'Not sharing location';tip.classList.toggle('on',on);
+  $('lban').style.display=on?'none':'flex';
+  let note='';if(LOC.lerr==='rules')note='Couldn’t load friends’ locations. Please publish the latest Firestore rules.';else if(LOC.lerr==='net')note='Couldn’t load friends’ locations. Check your internet connection.';
+  else if(LOC.lerr==='perm')note='Location is off for VText. Allow it in your phone Settings > Apps > VText > Permissions.';else if(on&&!LOC.pos)note='Finding your position…';
+  const ln=$('lnote');ln.textContent=note;ln.style.display=note?'block':'none';
+  if($('lpn').classList.contains('show'))locPanel(vis)}
+function locFocus(u){const f=LOC.fr.get(u);if(!f||!LOC.map)return;LOC.touched=true;$('lpn').classList.remove('show');LOC.map.flyTo(f.la,f.lo,16,700)}
+async function locMe(){if(!LOC.map)return;LOC.touched=true;if(LOC.pos){LOC.map.flyTo(LOC.pos.la,LOC.pos.lo,16,600);return}
+  const st=await permReq('location');if(st==='denied'){LOC.lerr='perm';locDraw();return toast('Allow Location for VText in your phone settings')}
+  try{await geoOnce();LOC.map.flyTo(LOC.pos.la,LOC.pos.lo,16,600)}catch(e){toast('Couldn’t find your position yet. Try again in a moment.')}}
+function locPanel(vis){vis=vis||locVisible();const box=$('lpl2');box.innerHTML='';
+  const h=t=>{const e=document.createElement('h4');e.className='h2l';e.textContent=t;box.appendChild(e)},p=t=>{const e=document.createElement('div');e.className='empty';e.textContent=t;box.appendChild(e)};
+  const row=f=>{const fresh=f.age<9e5,d=urow(f.photo,f.name,(f.d==null?'':lcFmt(f.d)+' away · ')+(fresh?'updated '+lcAgo(f.ts):'last seen '+lcAgo(f.ts)),[]);d.classList.add('lfr');d.onclick=()=>locFocus(f.u);box.appendChild(d)};
+  if(!LOC.pos)p('Turn on your location to see how far away your friends are.');
+  const near=vis.filter(f=>f.d!=null&&f.d<=5000),far=vis.filter(f=>!(f.d!=null&&f.d<=5000));
+  if(near.length){h('Nearby · within 5 km');near.forEach(row)}
+  if(far.length){h(near.length?'Farther away':'Friends sharing their location');far.forEach(row)}
+  if(!vis.length)p('None of your friends are sharing their location right now. They show up here when they turn on sharing.');
+  const ns=locFriends().filter(u=>!locBlocked(u)).length-vis.length;if(ns>0&&vis.length)p(ns+' friend'+(ns===1?' is':'s are')+' not sharing their location with you.')}
+function locOpen(){if(!me)return;const el=$('loc');el.style.display='flex';LOC.open=true;LOC.fitted=false;LOC.touched=false;LOC.fitSig='';if(LOC.lerr==='perm')LOC.lerr='';
+  if(!LOC.map){LOC.map=new VMap($('lmap'),{lat:20,lng:10,zoom:2,url:locTile});$('lmap').addEventListener('pointerdown',()=>{LOC.touched=true})}else{LOC.map.setUrl(locTile);LOC.map.size()}
+  locListen();locWatchSync();clearInterval(LOC.tick);LOC.tick=setInterval(locDraw,6e4);locDraw()}
+function locClose(){$('loc').style.display='none';$('lpn').classList.remove('show');$('lcon').style.display='none';$('lpick').style.display='none';LOC.open=false;clearInterval(LOC.tick);LOC.tick=null;locUnlisten();locWatchSync()}
+function locBack(){if($('lpick').style.display==='flex'){$('lpick').style.display='none'}else if($('lcon').style.display==='flex'){$('lcon').style.display='none'}else if($('lpn').classList.contains('show')){$('lpn').classList.remove('show')}else locClose()}
+/* called when the user logs out / the account is gone: stop everything and forget the sharing choice on this phone */
+function locReset(){put('locshare','0');put('locto','null');LOC.pos=null;LOC.fr=new Map();LOC.lerr='';LOC.warned=false;LOC.lastPub={t:0,la:0,lo:0,sig:''};locWatchStop();locUnlisten();clearInterval(LOC.tick);LOC.open=false;try{$('loc').style.display='none';$('lcon').style.display='none';$('lpick').style.display='none';$('lpn').classList.remove('show')}catch(e){}if(LOC.map){LOC.map.clearMarkers();LOC.mk.clear()}}
+async function locLogout(){if(!me)return;try{await Promise.race([db.doc('locs/'+me.uid).delete(),new Promise(r=>setTimeout(r,2500))])}catch(e){}locReset()}
+/* sharing was on when the app was closed: carry on while the app is open */
+function locInit(){if(locOn()){LOC.lerr='';locWatchSync()}}
+/* ---- controls ---- */
+$('lx').onclick=()=>locClose();
+$('lsh').onclick=()=>locOn()?locMenu():($('lcon').style.display='flex');
+$('lban1').onclick=()=>{$('lcon').style.display='flex'};
+$('lcno').onclick=()=>{$('lcon').style.display='none'};
+$('lcok').onclick=async()=>{$('lcon').style.display='none';await locEnable()};
+$('lme').innerHTML=ic('locate');$('lme').onclick=locMe;
+$('lpl').innerHTML=ic('people');$('lpl').onclick=()=>{const p=$('lpn');p.classList.toggle('show');if(p.classList.contains('show'))locPanel()};
+$('lpx').onclick=()=>$('lpn').classList.remove('show');
+$('lad').innerHTML=ic('userplus')+'<span>Add friends</span>';$('lad').onclick=()=>addC();
+$('lpkx').onclick=()=>{$('lpick').style.display='none'};
+setInterval(()=>{if(LOC.open&&!document.hidden)locDraw()},2e4);
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=128;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);res(cv.toDataURL('image/jpeg',.7))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
@@ -1665,6 +2017,6 @@ $('pf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)ret
 async function reportIt(uid,mid,txt){if(!(await confirmD('Report this user / message?')))return;db.collection('reports').add({by:me.uid,against:uid,chat:cur?cur.id:null,msg:mid||null,text:(txt||'').slice(0,200),ts:SV()}).then(()=>toast('Report sent. Thank you.')).catch(e=>toast(e.message))}
 const AP=plug('App');
 if(AP)AP.addListener('appStateChange',s=>{active=s.isActive;if(!s.isActive){if(!lockBusy)hiddenAt=Date.now()}else onResume()});
-if(AP)AP.addListener('backButton',()=>{if($('dlg').style.display==='flex')$('dc').onclick();else if(window.camBack&&camBack());else if($('avt').style.display==='flex')$('avt').style.display='none';else if($('prf').style.display==='flex')$('prf').style.display='none';else if($('doc').style.display==='flex')$('doc').style.display='none';else if($('sheet').style.display==='flex')$('sheet').style.display='none';else if($('pv').style.display==='flex')$('pv').style.display='none';else if($('vw').style.display==='flex')$('vw').style.display='none';else if($('set').style.display==='flex')$('sx').onclick();else if($('app').classList.contains('open'))$('back').onclick();else AP.exitApp()});
+if(AP)AP.addListener('backButton',()=>{if($('dlg').style.display==='flex')$('dc').onclick();else if($('perm').style.display==='flex')permHide();else if($('lpick').style.display==='flex'||($('loc').style.display==='flex'&&$('sheet').style.display!=='flex'))locBack();else if(window.camBack&&camBack());else if($('avt').style.display==='flex')$('avt').style.display='none';else if($('prf').style.display==='flex')$('prf').style.display='none';else if($('doc').style.display==='flex')$('doc').style.display='none';else if($('sheet').style.display==='flex')$('sheet').style.display='none';else if($('pv').style.display==='flex')$('pv').style.display='none';else if($('vw').style.display==='flex')$('vw').style.display='none';else if($('set').style.display==='flex')$('sx').onclick();else if($('app').classList.contains('open'))$('back').onclick();else AP.exitApp()});
 }
 </script></body></html>

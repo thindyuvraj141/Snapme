@@ -6,7 +6,7 @@ A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub
 1. **Firebase** (console.firebase.google.com)
    - Build > Authentication > Sign-in method: turn **Email/Password** on.
    - Build > Firestore Database > Create database (production mode).
-   - Firestore > **Rules**: paste the whole content of `firestore.rules` and press **Publish**. (Do this again whenever `firestore.rules` changes. The friend-request, private-account, unfriend and username rules live there.)
+   - Firestore > **Rules**: paste the whole content of `firestore.rules` and press **Publish**. (Do this again whenever `firestore.rules` changes. The friend-request, private-account, unfriend, username and **location-sharing** rules live there.)
    - Project settings > Your apps > Web: the config is already inside `index.html` for project `vtext-506f7`. If you use another project, replace the `FIREBASE_CONFIG` block in `index.html`.
    - Auto-delete: Firestore > **TTL** > create a policy for collection group `messages` on field `expireAt`, and another for `parts` on `expireAt`. The app hides expired messages immediately; TTL removes them from the database.
 2. **GitHub**: put all files in the repo (branch `main`). Repo > Settings > Pages > Source = **GitHub Actions**. The workflow `Deploy VText` publishes `https://USERNAME.github.io/REPO/`.
@@ -21,10 +21,14 @@ A WhatsApp-style chat app. Frontend: GitHub Pages (`index.html`). Deploy: GitHub
 - You can change your username once in a while; the old one is retired forever.
 - Messages are deleted automatically. Set it per chat from the chat's ⋮ menu > **Auto-delete**: **After seen** (one-to-one chats only: the message is deleted about 10 seconds after the other person sees it), **Today** (24 hours) or **7 days**. The default for new chats is in Settings > Chat Style. There is no backup.
 - Photos and videos can be saved to the phone: open one and tap **Save**, or use the chat's ⋮ menu > **Photos & videos · save**. (The Android app saves into the gallery; the website downloads the file.)
-- Re-publish `firestore.rules` after this update: it adds the unread counters and the delete-after-seen rule.
+- **Re-publish `firestore.rules` after this update.** It adds the `locs` rule used by the Friends map. Until it is published, turning on location sharing shows “Please publish the latest Firestore rules”.
 - The round neon button on the Chats tab opens the camera directly. New group is in the ⋮ menu.
 - Settings > **Share VText** shares the GitHub Releases page `https://github.com/thindyuvraj141/VText/releases` (where the APK is published) with your username.
-- Profile page: the **Background** button puts a gallery photo or a colour style behind your profile photo (saved on your profile, only you see it). **Settings** is the row right under your @username on the Profile tab.
+- Profile page: the **Background** button puts a gallery photo or a colour style behind your profile photo (saved on your profile, only you see it). **Settings** is the last section of the Profile tab (below Account). Under your photo the Name / Username / Save card edits your name; tap Username to change it.
+- **Friends page = Friends + Requests.** The bottom bar is Friends · Chats · + · Location · Profile. “My friends” is on top, then a divider, then “Friend requests” (Accept / Decline) and “Sent requests” (Cancel). The red request counter sits on the Friends button.
+- **Location page (Friends map)** — the pin button in the bottom bar. A dark neon map shows your friends who share their location, with their photo, how far away they are and when they were last seen; the people-button opens the “Friends nearby” list (within 5 km first). Sharing is **off by default** and is only started after a consent card. You can share with all friends or selected friends, exact or approximate (about 1 km), and stop any time. People you blocked or unfriended never see you. Your position is saved in the Firestore collection `locs` (one document per person, deleted when you stop sharing, log out or delete the account). Location is updated **only while VText is open** (no background tracking, so no “always allow” permission is needed). Map tiles come from CARTO / OpenStreetMap (free, needs internet; the credit is shown on the map).
+- **Permission screen:** after sign-in VText asks once for Camera, Gallery (photos/videos) and Location. It can be opened again from Settings > **App permissions**. The Android permission dialogs need the **new APK** (the website alone only asks for camera and location through the browser).
+- Deleting your account goes back to the Welcome page and also removes your shared location.
 
 ## Updating the website app
 Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the app. On the phone open **Settings > App update**; the app only updates when you tap it, and the visible version changes.
@@ -32,7 +36,7 @@ Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the 
 ## Android APK
 1. The repo must contain `package.json`, `capacitor.config.json`, `scripts/` (including `vtext-debug.keystore.b64`), `assets/` and `.github/workflows/android.yml`.
 2. Actions > **Build APK (test)** > Run workflow. After about 10 minutes `VText.apk` is in the repo's **Releases** (right side) and in the run's Artifacts.
-3. The APK loads the website, so changing `index.html` does **not** need a new APK. Build a new APK only when native things change (fingerprint, background service, icons).
+3. The APK loads the website, so changing `index.html` does **not** need a new APK. Build a new APK only when native things change (fingerprint, background service, permission dialogs, icons).
 4. Every APK has an increasing version code and is signed with the same key, so a new APK installs over the old one. **If you installed an APK built before this key was added, uninstall it once** (the signing key changed), then install the new one.
 5. The build tries the full app first; if an optional part (fingerprint plugin or background service) fails, it builds a simpler APK and says so in the release notes.
 
