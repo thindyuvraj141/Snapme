@@ -19,6 +19,12 @@ perms = ['RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS', 'ACCESS_FINE_LOCATION', 'ACCES
 if native == 'full':
     perms += ['FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_SPECIAL_USE', 'REQUEST_IGNORE_BATTERY_OPTIMIZATIONS']
 add = ''.join('    <uses-permission android:name="android.permission.%s"/>\n' % x for x in perms if ('android.permission.%s"' % x) not in s)
+if native == 'full':  # gallery permission (photos / videos): asked once on the "Allow VText to..." screen
+    for x in ('READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO'):
+        if ('android.permission.%s"' % x) not in s:
+            add += '    <uses-permission android:name="android.permission.%s"/>\n' % x
+    if 'READ_EXTERNAL_STORAGE' not in s:
+        add += '    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n'
 if 'WRITE_EXTERNAL_STORAGE' not in s:  # only needed on Android 9 and older, to save photos/videos into the gallery
     add += '    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>\n'
 for f in ('camera', 'microphone', 'location', 'fingerprint'):
