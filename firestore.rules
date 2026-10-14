@@ -80,6 +80,21 @@ service cloud.firestore {
       allow delete: if request.auth != null && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
     }
 
+    // Shared position (Friends map). One document per person, written only by that person and only while
+    // they have sharing turned on. `to` lists the friends who may see it; only those people can read it.
+    match /locs/{u} {
+      allow get: if request.auth != null && (request.auth.uid == u || request.auth.uid in resource.data.to);
+      allow list: if request.auth != null && request.auth.uid in resource.data.to;
+      allow create, update: if request.auth != null && request.auth.uid == u
+        && request.resource.data.keys().hasOnly(['u', 'la', 'lo', 'ac', 'ts', 'to'])
+        && request.resource.data.u == u
+        && request.resource.data.la is number && request.resource.data.la >= -90 && request.resource.data.la <= 90
+        && request.resource.data.lo is number && request.resource.data.lo >= -180 && request.resource.data.lo <= 180
+        && request.resource.data.ts is timestamp
+        && request.resource.data.to is list && request.resource.data.to.size() <= 500;
+      allow delete: if request.auth != null && request.auth.uid == u;
+    }
+
     match /chats/{c} {
       allow read: if request.auth != null && request.auth.uid in resource.data.members;
       allow create: if request.auth != null && request.auth.uid in request.resource.data.members
