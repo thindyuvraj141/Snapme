@@ -15,4 +15,4 @@ window.FIREBASE_CONFIG = {
 window.VT_VAPID = '';
 // Set to true ONLY after you deployed the Cloud Function from the "functions" folder (needs the Firebase Blaze plan).
 // Then the server sends the message notifications and the app stops showing its own copy, so you never get two.
-window.VT_PUSH_SERVER = false;
+window.VT_PUSH_SERVER = true;
