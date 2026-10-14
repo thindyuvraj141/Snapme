@@ -4,12 +4,15 @@ Environment:
   VERSION_CODE   integer, becomes versionCode (and versionName 1.0.<n>)
   VT_NATIVE      "full" (default) = background service + keep-alive MainActivity + battery helper
                  "none"           = plain Capacitor project (only permissions, version, signing)
+  VT_PUSH_PLUGIN "1" (default) = the push-notification plugin is part of this build: add the Firebase settings
+                 "0"           = no push plugin: leave all Firebase settings out
 """
 import base64, glob, json, os, pathlib, re, sys
 
 root = pathlib.Path('android')
 app_id = json.load(open('capacitor.config.json'))['appId']
 native = os.environ.get('VT_NATIVE', 'full')
+push_on = os.environ.get('VT_PUSH_PLUGIN', '1') == '1'
 
 # ---------------- manifest ----------------
 mp = root / 'app/src/main/AndroidManifest.xml'
@@ -41,7 +44,7 @@ if native == 'full' and 'VTextService' not in s:
     s = s.replace('</application>', svc + '    </application>', 1)
 # push notifications (Firebase Cloud Messaging): which channel / icon notifications use when the app is closed.
 # Harmless when the push plugin or google-services.json is not part of the build.
-if 'default_notification_channel_id' not in s:
+if push_on and 'default_notification_channel_id' not in s:
     meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="messages"/>\n'
             '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
     s = s.replace('</application>', meta + '    </application>', 1)
@@ -80,7 +83,13 @@ def firebase_config():
         a_txt += "\ntry {\n    def servicesJSON = file('google-services.json')\n    if (servicesJSON.text) {\n        apply plugin: 'com.google.gms.google-services'\n    }\n} catch(Exception e) {\n    logger.info(\"google-services.json not found\")\n}\n"
         ab.write_text(a_txt)
     print('push: Firebase configuration added (project %s)' % j.get('project_info', {}).get('project_id', '?'))
-firebase_config()
+if push_on:
+    try:
+        firebase_config()
+    except Exception as e:  # push is optional - never fail the build because of it
+        print('WARNING: push configuration skipped:', e)
+else:
+    print('push: plugin is not part of this build - Firebase settings left out')
 
 # ---------------- version ----------------
 vc = os.environ.get('VERSION_CODE')
