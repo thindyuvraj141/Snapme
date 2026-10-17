@@ -23,6 +23,22 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid in get(/databases/$(db)/documents/chats/$(c)).data.members;
     }
 
+    // ---- Admin panel (a separate website, see ADMIN-SITE-README.txt) ----
+    // An admin is a person whose user id has a document in the `admins` collection. The first (owner) document is created
+    // once by hand in the Firebase console (see the admin site's README); after that the owner can add admins from the panel.
+    //   role 'owner': everything.   role 'mod': users (ban / unban) and reports only.
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(db)/documents/admins/$(request.auth.uid));
+    }
+    function isOwner() {
+      return request.auth != null && exists(/databases/$(db)/documents/admins/$(request.auth.uid))
+          && get(/databases/$(db)/documents/admins/$(request.auth.uid)).data.get('role', 'mod') == 'owner';
+    }
+    // A banned person can still log in (to be told why) but cannot send messages, create chats or send friend requests.
+    function notBanned() {
+      return !exists(/databases/$(db)/documents/bans/$(request.auth.uid));
+    }
+
     match /users/{u} {
       allow read: if request.auth != null;
       allow write: if request.auth != null && request.auth.uid == u;
@@ -33,15 +49,46 @@ service cloud.firestore {
     match /usernames/{n} {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-      allow update: if request.auth != null && resource.data.uid == request.auth.uid
+      allow update: if request.auth != null && (resource.data.uid == request.auth.uid || isOwner())
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retired'])
         && request.resource.data.get('retired', false) == true;
-      allow delete: if request.auth != null && resource.data.uid == request.auth.uid
-        && !resource.data.get('retired', false);
+      allow delete: if request.auth != null && ((resource.data.uid == request.auth.uid
+        && !resource.data.get('retired', false)) || isOwner());
     }
 
     match /reports/{r} {
       allow create: if request.auth != null && request.resource.data.by == request.auth.uid;
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'handledBy', 'handledTs']);
+    }
+
+    // Who is an admin. Read: yourself, or any admin. Only the owner can add / change / remove admins (never himself).
+    match /admins/{a} {
+      allow get: if request.auth != null && (request.auth.uid == a || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isOwner() && a != request.auth.uid && request.resource.data.role in ['owner', 'mod'];
+      allow delete: if isOwner() && a != request.auth.uid;
+    }
+
+    // Suspended accounts. You can read your own record (the app shows the reason and logs you out); admins manage them.
+    match /bans/{b} {
+      allow get: if request.auth != null && (request.auth.uid == b || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && !exists(/databases/$(db)/documents/admins/$(b));
+      allow delete: if isAdmin();
+    }
+
+    // App settings, switches and the current announcement. Everybody may read them (they are needed before login too);
+    // only the owner may change them.
+    match /config/{d} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Log of what the admins did. Nobody can change or delete an entry.
+    match /adminlog/{l} {
+      allow read: if isAdmin();
+      allow create: if isAdmin() && request.resource.data.by == request.auth.uid;
     }
 
     match /users/{u}/sessions/{s} {
@@ -73,7 +120,8 @@ service cloud.firestore {
       allow read: if request.auth != null && (resource == null || resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.from == request.auth.uid
         && request.resource.data.status == 'pending'
-        && r == request.resource.data.from + '_' + request.resource.data.to;
+        && r == request.resource.data.from + '_' + request.resource.data.to
+        && notBanned();
       allow update: if request.auth != null && resource.data.to == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         && request.resource.data.status in ['accepted', 'declined'];
@@ -98,8 +146,10 @@ service cloud.firestore {
     match /chats/{c} {
       allow read: if request.auth != null && request.auth.uid in resource.data.members;
       allow create: if request.auth != null && request.auth.uid in request.resource.data.members
-        && (request.resource.data.type != 'dm' || (request.resource.data.members.size() == 2 && dmAllowed()));
-      allow delete: if request.auth != null && request.auth.uid in resource.data.members && resource.data.type == 'dm';
+        && (request.resource.data.type != 'dm' || (request.resource.data.members.size() == 2 && dmAllowed()))
+        && notBanned();
+      // members can remove a 1-to-1 chat (unfriend); an admin can remove any chat (from a report)
+      allow delete: if request.auth != null && ((request.auth.uid in resource.data.members && resource.data.type == 'dm') || isAdmin());
       allow update: if request.auth != null && request.auth.uid in resource.data.members && (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames','un'])
         || (resource.data.type == 'group' && request.auth.uid in resource.data.get('admins', [])
@@ -110,20 +160,25 @@ service cloud.firestore {
             && request.resource.data.members.size() == resource.data.members.size() - 1));
     }
     match /chats/{c}/messages/{m} {
-      allow read: if member(c);
+      // Members read their chat. An admin can open ONE message when he knows its id (it comes from a report) but cannot list a chat.
+      allow get: if member(c) || isAdmin();
+      allow list: if member(c);
       allow create: if member(c) && request.resource.data.from == request.auth.uid
-        && request.resource.data.expireAt is timestamp;
+        && request.resource.data.expireAt is timestamp
+        && notBanned();
       allow update: if member(c) && (
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
         || (resource.data.from == request.auth.uid
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['text','edited'])));
       // The sender can always delete a message. In "disappear right after reading" chats the flag `ar` is set
       // on the message and the person who received it deletes it a few seconds after reading.
-      allow delete: if member(c) && (resource.data.from == request.auth.uid || resource.data.get('ar', false) == true);
+      allow delete: if (member(c) && (resource.data.from == request.auth.uid || resource.data.get('ar', false) == true)) || isAdmin();
     }
     match /chats/{c}/messages/{m}/parts/{p} {
-      allow read: if member(c);
-      allow create: if member(c);
+      allow get: if member(c) || isAdmin();
+      allow list: if member(c);
+      allow create: if member(c) && notBanned();
+      allow delete: if isAdmin();
     }
   }
 }
