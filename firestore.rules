@@ -26,7 +26,7 @@ service cloud.firestore {
     // ---- Admin panel (a separate website, see ADMIN-SITE-README.txt) ----
     // An admin is a person whose user id has a document in the `admins` collection. The first (owner) document is created
     // once by hand in the Firebase console (see the admin site's README); after that the owner can add admins from the panel.
-    //   role 'owner': everything.   role 'mod': users (ban / unban) and reports only.
+    //   role 'owner': everything.   role 'mod': users (suspend / warn / clean-up), appeals, reports and notes only.
     function isAdmin() {
       return request.auth != null && exists(/databases/$(db)/documents/admins/$(request.auth.uid));
     }
@@ -35,21 +35,38 @@ service cloud.firestore {
           && get(/databases/$(db)/documents/admins/$(request.auth.uid)).data.get('role', 'mod') == 'owner';
     }
     // A banned person can still log in (to be told why) but cannot send messages, create chats or send friend requests.
+    // A suspension can have an end time (`until`): after that time the person is free again, even before an admin removes the record.
     function notBanned() {
-      return !exists(/databases/$(db)/documents/bans/$(request.auth.uid));
+      let p = /databases/$(db)/documents/bans/$(request.auth.uid);
+      return !exists(p) || (get(p).data.get('until', null) != null && get(p).data.until < request.time);
     }
 
     match /users/{u} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == u;
+      // You write your own profile, but you cannot give yourself the verified badge or touch `modAt` (set by admins).
+      allow create: if request.auth != null && request.auth.uid == u
+        && !('verified' in request.resource.data) && !('modAt' in request.resource.data);
+      allow update: if request.auth != null && request.auth.uid == u
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['verified', 'modAt']);
+      allow delete: if request.auth != null && request.auth.uid == u;
+      // The owner gives or takes away the verified badge.
+      allow update: if isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['verified']);
+      // Any admin can clean up a bad name, username or photo (the person's app then fixes the copies in his chats).
+      // Only the owner can do this to another admin.
+      allow update: if isAdmin() && request.auth.uid != u && (isOwner() || !exists(/databases/$(db)/documents/admins/$(u)))
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'username', 'photo', 'cover', 'modAt']);
     }
 
     // A username is claimed once. When its owner changes it, the old one is marked "retired"
     // and nobody (including the owner) can use it again.
     match /usernames/{n} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
-      allow update: if request.auth != null && (resource.data.uid == request.auth.uid || isOwner())
+      allow create: if request.auth != null && (request.resource.data.uid == request.auth.uid
+        || (isAdmin() && n.matches('user[0-9]{6}') && request.resource.data.keys().hasOnly(['uid'])
+            && (isOwner() || !exists(/databases/$(db)/documents/admins/$(request.resource.data.uid)))));
+      allow update: if request.auth != null && (resource.data.uid == request.auth.uid
+        || (isAdmin() && (isOwner() || !exists(/databases/$(db)/documents/admins/$(resource.data.uid)))))
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retired'])
         && request.resource.data.get('retired', false) == true;
       allow delete: if request.auth != null && ((resource.data.uid == request.auth.uid
@@ -74,8 +91,46 @@ service cloud.firestore {
     match /bans/{b} {
       allow get: if request.auth != null && (request.auth.uid == b || isAdmin());
       allow list: if isAdmin();
-      allow create, update: if isAdmin() && !exists(/databases/$(db)/documents/admins/$(b));
+      allow create, update: if isAdmin() && !exists(/databases/$(db)/documents/admins/$(b))
+        && (!('until' in request.resource.data) || request.resource.data.until is timestamp);
       allow delete: if isAdmin();
+    }
+
+    // Appeals: a suspended person can send ONE message to the admins (and send a new one only after it was answered).
+    match /appeals/{a} {
+      allow get: if request.auth != null && (request.auth.uid == a || isAdmin());
+      allow list: if isAdmin();
+      allow create: if request.auth != null && request.auth.uid == a
+        && exists(/databases/$(db)/documents/bans/$(a))
+        && request.resource.data.keys().hasOnly(['text', 'ts', 'status'])
+        && request.resource.data.status == 'new'
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 600
+        && request.resource.data.ts == request.time;
+      allow update: if request.auth != null && request.auth.uid == a
+        && exists(/databases/$(db)/documents/bans/$(a))
+        && resource.data.status != 'new'
+        && request.resource.data.keys().hasOnly(['text', 'ts', 'status'])
+        && request.resource.data.status == 'new'
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 600
+        && request.resource.data.ts == request.time;
+      allow update: if isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'note', 'handledBy', 'handledTs']);
+      allow delete: if isAdmin();
+    }
+
+    // A warning from the admins to one person (the newest one replaces the old one). The person can only read it.
+    // Only the owner can warn another admin.
+    match /warnings/{w} {
+      allow get: if request.auth != null && (request.auth.uid == w || isAdmin());
+      allow list: if isAdmin();
+      allow create, update: if isAdmin() && w != request.auth.uid && (isOwner() || !exists(/databases/$(db)/documents/admins/$(w)))
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 400;
+      allow delete: if isAdmin();
+    }
+
+    // Private notes of the admins about a person. Only admins can read or write them.
+    match /adminnotes/{n} {
+      allow get, list, delete: if isAdmin();
+      allow create, update: if isAdmin() && request.resource.data.text is string && request.resource.data.text.size() <= 1000;
     }
 
     // App settings, switches and the current announcement. Everybody may read them (they are needed before login too);
