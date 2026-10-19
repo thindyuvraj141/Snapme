@@ -5,6 +5,7 @@
 #   VT_TASK     assembleDebug (default) or bundleRelease
 #   VT_BG       1 = include the background-service helpers (default), 0 = plain Capacitor
 #   VT_BUNDLE   0 = the app loads the website (default), 1 = web files are bundled inside the app (Play Store)
+#   VT_HEADLESS 1 = background service runs the page in a hidden WebView when the app screen is closed (default), 0 = leave it out.
 #   VT_PUSH     1 = add the Capacitor push-notification plugin (default), 0 = leave it out.
 #               Push only works if scripts/google-services.json (from the Firebase console) is in the repo.
 #   VERSION_CODE, GITHUB_SHA, GITHUB_RUN_NUMBER are read from the environment (set by GitHub Actions)
@@ -16,6 +17,7 @@ TASK=${VT_TASK:-assembleDebug}
 BG=${VT_BG:-1}
 BUNDLE=${VT_BUNDLE:-0}
 PUSH=${VT_PUSH:-1}
+HL=${VT_HEADLESS:-1}
 SHA=${GITHUB_SHA:-dev}
 RUN=${GITHUB_RUN_NUMBER:-0}
 PLUG_CAPGO="@capgo/capacitor-native-biometric@^8"
@@ -99,6 +101,7 @@ attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = background 
   npx cap add android || return 1
   if [ "$bg" = "1" ]; then export VT_NATIVE=full; else export VT_NATIVE=none; fi
   export VT_PUSH_PLUGIN="$push"
+  export VT_HEADLESS="$HL"
   echo "--- patch android project"
   python3 scripts/patch_android.py || return 1
   python3 scripts/make_icons.py || return 1
@@ -135,10 +138,10 @@ while [ ${#Q[@]} -gt 0 ]; do
   lv=${Q[0]}; Q=(${Q[@]+"${Q[@]:1}"})
   plug=${lv%%:*}; rest=${lv#*:}; bg=${rest%%:*}; push=${rest##*:}
   if [ "$DROP_PUSH" = "1" ]; then push=0; fi
-  case "$TRIED" in *" $plug:$bg:$push "*) continue ;; esac
-  TRIED="$TRIED$plug:$bg:$push "
+  case "$TRIED" in *" $plug:$bg:$push:$HL "*) continue ;; esac
+  TRIED="$TRIED$plug:$bg:$push:$HL "
   n=$((n+1))
-  echo "::group::Build attempt $n (fingerprint plugin: $plug, background helpers: $bg, push plugin: $push)"
+  echo "::group::Build attempt $n (fingerprint plugin: $plug, background helpers: $bg, push plugin: $push, hidden background page: $HL)"
   attempt "$plug" "$bg" "$push" 2>&1 | tee "$LOGDIR/attempt-$n.log"
   rc=${PIPESTATUS[0]}
   if [ "$rc" = "0" ]; then
@@ -149,6 +152,10 @@ while [ ${#Q[@]} -gt 0 ]; do
       if [ "$plug" = "none" ]; then echo "- Fingerprint plugin: NOT included (the app uses the account-password lock instead)"; else echo "- Fingerprint plugin: included ($plug)"; fi
       if [ "$BG" = "1" ]; then
         if [ "$bg" = "1" ]; then echo "- Background service for message notifications: included"; else echo "- Background service for message notifications: NOT included (build fell back to a plain app)"; fi
+        if [ "$bg" = "1" ]; then
+          if find android/app/src/main/java -name VTextHeadless.java 2>/dev/null | grep -q .; then echo "- Hidden background page (notifications keep coming after the app is swiped away or the phone restarts): included"
+          else echo "- Hidden background page (notifications after the app is swiped away / after a restart): NOT included in this build"; fi
+        fi
       fi
       if [ "$push" = "1" ]; then
         if [ "$HAS_FCM" = "1" ]; then echo "- Push notifications (Firebase): included"; else echo "- Push notifications (Firebase): plugin included but OFF - add scripts/google-services.json to the repo and build again"; fi
@@ -168,6 +175,13 @@ while [ ${#Q[@]} -gt 0 ]; do
   echo "::warning::Build attempt $n failed (fingerprint plugin: $plug, background helpers: $bg, push plugin: $push). Reason: $why"
   SUMMARY="$SUMMARY
 - Attempt $n ($plug / background $bg / push $push): $why"
+  if [ "$HL" = "1" ] && grep -qE '(VTextHeadless|VTextBoot|VTextService|MainActivity)\.java:[0-9]+: error' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
+    HL=0
+    Q=("$plug:$bg:$push" ${Q[@]+"${Q[@]}"})   # same build again, without the hidden background page
+    SUMMARY="$SUMMARY
+- (the hidden background page did not compile; the next attempt leaves it out)"
+    echo "The Java code of the hidden background page failed to compile - the next attempt is the same build without it."
+  fi
   if [ "$push" = "1" ] && printf '%s' "$why" | grep -qiE 'push-notifications|firebase|google-services|gms'; then
     DROP_PUSH=1
     Q=("$plug:$bg:0" ${Q[@]+"${Q[@]}"})   # same build again, but without the push plugin

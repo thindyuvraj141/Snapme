@@ -6,6 +6,9 @@ Environment:
                  "none"           = plain Capacitor project (only permissions, version, signing)
   VT_PUSH_PLUGIN "1" (default) = the push-notification plugin is part of this build: add the Firebase settings
                  "0"           = no push plugin: leave all Firebase settings out
+  VT_HEADLESS    "1" (default) = the background service can run the VText page in a hidden WebView while the app screen is closed
+                                 (needs VT_NATIVE=full and an app that loads the website, i.e. server.url in capacitor.config.json)
+                 "0"           = leave that part out (the build script retries like this if that part does not compile)
 """
 import base64, glob, json, os, pathlib, re, sys
 
@@ -13,6 +16,11 @@ root = pathlib.Path('android')
 app_id = json.load(open('capacitor.config.json'))['appId']
 native = os.environ.get('VT_NATIVE', 'full')
 push_on = os.environ.get('VT_PUSH_PLUGIN', '1') == '1'
+try:
+    site = (json.load(open('capacitor.config.json')).get('server') or {}).get('url', '') or ''
+except Exception:
+    site = ''
+headless = os.environ.get('VT_HEADLESS', '1') == '1' and native == 'full' and site.startswith('https://')
 
 # ---------------- manifest ----------------
 mp = root / 'app/src/main/AndroidManifest.xml'
@@ -21,6 +29,8 @@ perms = ['RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS', 'ACCESS_FINE_LOCATION', 'ACCES
          'POST_NOTIFICATIONS', 'USE_BIOMETRIC', 'USE_FINGERPRINT', 'VIBRATE']
 if native == 'full':
     perms += ['FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_SPECIAL_USE', 'REQUEST_IGNORE_BATTERY_OPTIMIZATIONS']
+    if headless:
+        perms += ['RECEIVE_BOOT_COMPLETED']
 add = ''.join('    <uses-permission android:name="android.permission.%s"/>\n' % x for x in perms if ('android.permission.%s"' % x) not in s)
 if native == 'full':  # gallery permission (photos / videos): asked once on the "Allow VText to..." screen
     for x in ('READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO'):
@@ -42,6 +52,14 @@ if native == 'full' and 'VTextService' not in s:
            '        </service>\n')
     assert '</application>' in s
     s = s.replace('</application>', svc + '    </application>', 1)
+if headless and 'VTextBoot' not in s:  # starts the background service again after the phone restarts or VText is updated
+    rcv = ('        <receiver android:name=".VTextBoot" android:exported="true">\n'
+           '            <intent-filter>\n'
+           '                <action android:name="android.intent.action.BOOT_COMPLETED"/>\n'
+           '                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>\n'
+           '            </intent-filter>\n'
+           '        </receiver>\n')
+    s = s.replace('</application>', rcv + '    </application>', 1)
 # push notifications (Firebase Cloud Messaging): which channel / icon notifications use when the app is closed.
 # Harmless when the push plugin or google-services.json is not part of the build.
 if push_on and 'default_notification_channel_id' not in s:
@@ -125,10 +143,15 @@ if native == 'full':
     if not mains:
         print('ERROR: MainActivity.java not found'); sys.exit(1)
     jdir = pathlib.Path(mains[0]).parent
-    for name in ('MainActivity', 'VTextService', 'VTextBgPlugin'):
-        src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id)
+    hl_block = re.compile(r'[ \t]*/\*HL\*/.*?/\*END_HL\*/\n', re.S)   # code between /*HL*/ and /*END_HL*/ belongs to the hidden background page
+    names = ['MainActivity', 'VTextService', 'VTextBgPlugin'] + (['VTextHeadless', 'VTextBoot'] if headless else [])
+    for name in names:
+        src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site)
+        if not headless:
+            src = hl_block.sub('', src)
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
+    print('hidden background page (keeps listening after the app is swiped away): ' + ('included, site ' + site if headless else 'NOT included'))
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- dark look (matches the neon-dark app: no white flash, dark system bars) ----------------
