@@ -124,6 +124,7 @@ public class VTextBgPlugin extends Plugin {
     public void start(PluginCall call) {
         try {
             Context c = getContext();
+            c.getSharedPreferences("vtext", Context.MODE_PRIVATE).edit().putBoolean("bg", true).apply();   // remembered for restarts
             ContextCompat.startForegroundService(c, new Intent(c, VTextService.class));
             call.resolve();
         } catch (Exception e) {
@@ -135,6 +136,7 @@ public class VTextBgPlugin extends Plugin {
     public void stop(PluginCall call) {
         try {
             Context c = getContext();
+            c.getSharedPreferences("vtext", Context.MODE_PRIVATE).edit().putBoolean("bg", false).apply();
             c.stopService(new Intent(c, VTextService.class));
             call.resolve();
         } catch (Exception e) {

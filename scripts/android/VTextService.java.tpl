@@ -15,10 +15,55 @@ import androidx.core.app.NotificationCompat;
 /**
  * Keeps the VText process in the foreground so Android does not freeze it while the app is in the
  * background. This lets the chat connection keep delivering new-message notifications.
+ * (HL = the hidden background page: when the app screen is gone, the service runs the page itself.)
  */
 public class VTextService extends Service {
     static final String CHANNEL = "vtext_bg";
     static final int NOTE_ID = 7001;
+    /*HL*/
+    static final String SITE = "__SITE_URL__";
+    private static VTextService inst;
+    private VTextHeadless headless;
+
+    /** The app screen is open again: the hidden page is not needed (and must not run twice). */
+    static void activityUp() {
+        VTextService s = inst;
+        if (s != null) s.headlessOff();
+    }
+
+    /** The app screen is gone (swiped away, backed out or closed by Android): the hidden page takes over. */
+    static void activityGone() {
+        VTextService s = inst;
+        if (s != null) s.headlessOn();
+    }
+
+    private void headlessOn() {
+        if (headless != null || SITE.length() == 0) return;
+        if (!getSharedPreferences("vtext", MODE_PRIVATE).getBoolean("bg", false)) return;
+        try {
+            headless = new VTextHeadless(this, SITE);
+            headless.start();
+        } catch (Throwable t) {
+            headless = null;
+        }
+    }
+
+    private void headlessOff() {
+        if (headless == null) return;
+        try {
+            headless.stop();
+        } catch (Throwable t) {
+            // ignore
+        }
+        headless = null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        inst = this;
+    }
+    /*END_HL*/
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -61,11 +106,19 @@ public class VTextService extends Service {
             stopSelf();
             return START_NOT_STICKY;
         }
+        /*HL*/
+        // started with no app screen (after a restart, or Android restarted the service): run the hidden page
+        if (!MainActivity.isUp()) headlessOn();
+        /*END_HL*/
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        /*HL*/
+        headlessOff();
+        inst = null;
+        /*END_HL*/
         stopForeground(true);
         super.onDestroy();
     }
