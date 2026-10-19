@@ -63,8 +63,14 @@ Push to `main`: `Deploy VText` stamps the version (`1.0.<run number>`) into the 
 4. Every APK has an increasing version code and is signed with the same key, so a new APK installs over the old one. **If you installed an APK built before this key was added, uninstall it once** (the signing key changed), then install the new one.
 5. The build tries the full app first; if an optional part (fingerprint plugin or background service) fails, it builds a simpler APK and says so in the release notes.
 
-### Notifications in the background (free plan)
-VText keeps a small "running" notification and asks Android to exclude it from battery optimisation, so messages reach you while the app is in the background. Real push notifications for a **force-stopped** app need Firebase Cloud Messaging with a server (Firebase Blaze plan), which is not free, so VText does not use it.
+### Notifications in the background (free plan, no server, no Google push)
+VText shows a small "running" notification and asks Android to exclude it from battery optimisation. While the app screen exists (even in the background) the normal chat connection delivers the notifications.
+
+**Hidden background page.** When the app screen is gone (you swipe it away, press Back until it closes, or Android closes it to save memory) the background service opens the same VText page in a hidden WebView (the address ends with `?bg=1`). That page keeps listening to your chats and asks the service to show the notification; tapping it opens the app on that chat. The hidden page never marks you online, never shows the lock screen and never asks for permissions. It stops by itself when you log out, and it is also started again after the phone restarts or VText is updated (only if "Keep running in the background" was on). The code is in `scripts/android/VTextHeadless.java.tpl` and `VTextBoot.java.tpl`.
+
+If this part ever fails to compile, the build script builds the APK again without it and says so in the release notes ("Hidden background page ... NOT included"); everything else still works.
+
+Honest limits (this is true for every app that does not use Google's push): **Force stop** (Settings > Apps > VText > Force stop) stops it until you open VText once; some phones (Xiaomi, Oppo, Vivo, Realme, Samsung "sleeping apps") close background apps on their own, so allow VText in the battery / autostart settings of the phone; with the screen off for a long time Android can delay the connection (usually seconds to a few minutes). Real push for a force-stopped app needs Firebase Cloud Messaging with a server, which VText does not use.
 
 ## Play Store
 See `PLAY-STORE.md`.

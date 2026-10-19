@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8">
-<script>try{var _c=document.documentElement.classList;_c.add("boot");if(localStorage.getItem("vt_lock")==="1")_c.add("locked")}catch(e){}</script>
+<script>try{var _c=document.documentElement.classList;_c.add("boot");if(localStorage.getItem("vt_lock")==="1"&&!/[?&]bg=1(&|$)/.test(location.search))_c.add("locked")}catch(e){}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>VText</title>
@@ -664,6 +664,8 @@ let reqs=[],sent=[],unsubR,unsubQ,unsubB1,unsubB2,blockedBy=new Set(),curInList=
 let tab='chats',pt='me',fl='all',lsg='',first=true,me=null,chats=[],cur=null,peer=null,docs=[],reply=null,unsubM,unsubC,unsubP,unsubS,rec=null,chunks=[],rt;const vids=new Map(),PART=700000,MAXV=3*1024*1024;
 let justAuthed=false,creating=false,holdAuth=false,creds=null;
 const FAST0=get('fast','')==='1';
+/* true only in the hidden page that the Android background service runs while the app screen is closed (address ends with ?bg=1) */
+const BGM=/[?&]bg=1(&|$)/.test(location.search);
 const APP_BUILD={v:'dev',n:'0'};
 const _pl={};const plug=n=>{if(_pl[n])return _pl[n];try{const C=window.Capacitor;if(!C)return null;if(C.Plugins&&C.Plugins[n])return(_pl[n]=C.Plugins[n]);if(C.registerPlugin&&C.isPluginAvailable&&C.isPluginAvailable(n))return(_pl[n]=C.registerPlugin(n))}catch(e){}return null};
 const isNative=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
@@ -712,7 +714,7 @@ const SHARE_URL='https://github.com/thindyuvraj141/VText/releases';
 const APP_URL='https://thindyuvraj141.github.io/VText/';
 try{const _a=new URLSearchParams(location.search).get('add');if(_a)localStorage.setItem('vt_add',_a.toLowerCase().replace(/[^a-z0-9_]/g,''))}catch(e){}
 let hiddenAt=0,lockBusy=false,lastUnlock=0,bioFails=0;
-const lockOn=()=>get('lock','0')==='1';
+const lockOn=()=>!BGM&&get('lock','0')==='1';
 const lockPw=()=>{try{return JSON.parse(get('lockpw','null'))}catch(e){return null}};
 const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
 async function pbk(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:100000,hash:'SHA-256'},k,256))}
@@ -1401,16 +1403,19 @@ async function mkProfile(u){hideSplash();const name=((await ask('Welcome! Enter 
   const bad=m=>{pendErr=m;manual=true;auth.signOut()};
   if(!name||!/^[a-z0-9_]{3,20}$/.test(un))return bad('A name and a valid username are required. Please log in again.');
   try{const b=db.batch();b.set(db.doc('usernames/'+un),{uid:u.uid});b.set(db.doc('users/'+u.uid),{name,username:un,created:SV()});await b.commit()}catch(e){bad('That username is taken. Log in again and choose another.')}}
-let active=true,nid=1;const LN=()=>plug('LocalNotifications');
+let active=!BGM,nid=1;const LN=()=>plug('LocalNotifications');
 async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'messages',name:'Messages',importance:5,sound:'vtext_msg.wav',vibration:true,visibility:1})}catch(e){}}else if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
   try{pushInit()}catch(e){}}
-function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;const L=LN();
+function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;
+  if(BGM&&window.VTBg&&VTBg.notify){try{VTBg.notify(String(t||'VText'),String(b||'New message'),String(chat||''))}catch(e){}return}   /* hidden background page: the Android service shows it */
+  const L=LN();
   if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'messages',sound:'vtext_msg.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
   else if(window.Notification&&Notification.permission==='granted'){try{const n=new Notification(t,{body:b,icon:'logo.svg'});n.onclick=()=>{window.focus();if(chat)openChatById(chat)}}catch(e){}}}
 function openChatById(id){const c=chats.find(x=>x.id===id);if(c){showLock=lset('lck').has(id);tab='chats';[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));openChat(c)}}
 try{const L=LN();if(L&&L.addListener)L.addListener('localNotificationActionPerformed',e=>{const id=e&&e.notification&&e.notification.extra&&e.notification.extra.chat;if(id)setTimeout(()=>openChatById(id),400)})}catch(e){}
 let batIgn=null;
-async function keepAlive(on){const F=plug('VTextBg');if(!F)return false;
+async function keepAlive(on){if(BGM&&!on&&window.VTBg&&VTBg.stop){try{VTBg.stop()}catch(e){}return true}   /* hidden background page: the person is logged out, stop the service */
+  const F=plug('VTextBg');if(!F)return false;
   try{if(on){put('fgs_try',String(Date.now()));await F.start();setTimeout(()=>put('fgs_try',''),5000);setTimeout(()=>batteryAsk(false),6000)}else{await F.stop();put('fgs_try','')}return true}catch(e){put('fgs_try','');return false}}
 async function batRefresh(){const F=plug('VTextBg');if(!F)return;try{const r=await F.batteryStatus();if(r.ignoring!==batIgn){batIgn=r.ignoring;if(cp2==='notif')drawPanel('notif')}}catch(e){}}
 async function batteryAsk(force){const F=plug('VTextBg');if(!F)return;
@@ -1421,9 +1426,9 @@ const title=c=>c.type==='group'?c.name:(c.names[c.members.find(x=>x!==me.uid)]||
 function start(){
   const first=justAuthed;justAuthed=false;
   $('app').classList.remove('open');beat();setupNotif();put('in','1');startReqs();startBlocks();startSession().catch(()=>{});keepAlive(get('keep','1')==='1');
-  const gate=(me.pinOn&&get('pinok','')!==me.uid)?pinGate():Promise.resolve();
+  const gate=(!BGM&&me.pinOn&&get('pinok','')!==me.uid)?pinGate():Promise.resolve();
   const pa=localStorage.getItem('vt_add');if(pa){localStorage.removeItem('vt_add');setTimeout(()=>addC(pa),1500)}
-  gate.then(()=>{if(first)postAuth();else{showApp();hideSplash()}permAsk()});try{locInit()}catch(e){}
+  gate.then(()=>{if(first)postAuth();else{showApp();hideSplash()}if(!BGM)permAsk()});try{if(!BGM)locInit()}catch(e){}
   const ln={};unsubC=db.collection('chats').where('members','array-contains',me.uid).onSnapshot(q=>{
     q.docs.forEach(d=>{const c=d.data();if((c.emails||{})[me.uid]!==auth.currentUser.email||(c.unames||{})[me.uid]!==me.username)db.doc('chats/'+d.id).update({['emails.'+me.uid]:auth.currentUser.email,['unames.'+me.uid]:me.username}).catch(()=>{})});
     q.docChanges().forEach(ch=>{const c=ch.doc.data(),id=ch.doc.id,t=M(c.lastTs);
@@ -2061,6 +2066,7 @@ function pushPrefs(){if(!me||!PUSH.tok)return;pushDoc().set({mut:[...lset('mut')
 /* a tapped notification opens its chat (waits until the app is unlocked and the chat list is loaded) */
 function pushOpen(id){if(!id)return;let n=0;const t=setInterval(()=>{n++;const c=document.documentElement.classList;
   if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&chats.some(x=>x.id===id)){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
+window.__vtOpen=pushOpen;                                                   /* the Android service calls it when a notification it showed is tapped */
 /* ---- Android app ---- */
 async function pushNative(){const P=PN();
   if(!P){PUSH.state=plug('VTextBg')?'oldapk':'';return}                       /* this APK was built without the push plugin */
