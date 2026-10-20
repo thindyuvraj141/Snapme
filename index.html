@@ -231,11 +231,11 @@ a{color:var(--acc)}
 #pg-w .sub{text-align:center}
 .fpi{background:var(--pill);color:var(--acc)}
 #splash,#lock{background:var(--bg)}
-#splash .vm,#lock .vm{filter:drop-shadow(0 8px 30px #7c3aed88)}
+#splash .vm,#lock .vm{filter:none}
 .sp{border-color:var(--line);border-top-color:var(--g2)}
 #lock h2{font-size:1.5rem;font-weight:800}
 #anim{background:radial-gradient(circle at 50% 40%,#3b2a8c 0%,#0a0a1c 55%,#000 100%);color:#fff}
-#anim .vm{width:128px;height:128px;animation:pop 1s ease both,pulse 1.6s ease-in-out 1s infinite;filter:drop-shadow(0 10px 40px #7c3aedaa)}
+#anim .vm{width:128px;height:128px;animation:pop 1s ease both,pulse 1.6s ease-in-out 1s infinite}
 #anim b{font-family:inherit;font-weight:700;font-size:2.4rem;letter-spacing:-.4px}
 
 /* ---------- top bars ---------- */
@@ -580,11 +580,52 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 .vb{display:inline-flex;vertical-align:-3px;margin-left:5px;color:var(--acc,#4a63ff)}
 .vb svg{display:block}
 
+/* ===== round 8: Snapchat-like chat screen ===== */
+#chat>.top{gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px 6px;border-bottom:1px solid var(--line)}
+#back{width:40px;height:40px;padding:0;display:flex;align-items:center;justify-content:center;font-size:0;flex:none;color:var(--txt)}
+#back svg{width:30px;height:30px;stroke-width:2.2}
+#hd{min-width:0}
+#hd b{font-size:1.3rem;font-weight:800;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cmu{display:none;align-items:center;justify-content:center;width:32px;height:32px;color:var(--sub);flex:none}
+#cmu svg{width:24px;height:24px}
+.dt{background:none;border:0;border-radius:0;padding:4px 8px;color:var(--sub);font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;text-align:center}
+#bar{background:var(--bg);padding:10px 10px calc(10px + env(safe-area-inset-bottom));gap:8px;align-items:center;border-top:1px solid var(--line)}
+#bcam{width:48px;height:48px;border-radius:50%;border:0;background:var(--txt);color:var(--bg);display:flex;align-items:center;justify-content:center;flex:none;padding:0;font-size:0}
+#bcam svg{width:26px;height:26px;stroke-width:2.3}
+#bar .in{flex:1;min-width:0;display:flex;align-items:center;background:transparent;border:1.5px solid var(--sub);border-radius:28px;padding:0 5px 0 6px;min-height:48px;gap:0}
+@supports (color:color-mix(in srgb,red,blue)){#bar .in{border-color:color-mix(in srgb,var(--txt) 70%,transparent)}}
+#bar .in:focus-within{border-color:var(--txt)}
+#bar .in input{flex:1;min-width:0;padding:12px 8px;font-size:1rem;background:none;border:0;box-shadow:none;border-radius:0}
+#bar .in input::placeholder{color:var(--sub)}
+#bar .in input:focus{box-shadow:none;border:0}
+#bar #eb,#bar #at{width:38px;height:38px;border:0;background:none;color:var(--txt);display:flex;align-items:center;justify-content:center;flex:none;padding:0;font-size:0}
+#bar #eb svg,#bar #at svg{width:29px;height:29px}
+#bar #snd{width:40px;height:40px;border-radius:50%;background:none;color:var(--txt);box-shadow:none;display:flex;align-items:center;justify-content:center;flex:none;padding:0;border:0;font-size:0}
+#bar #snd svg{width:26px;height:26px}
+#bar #snd[data-k=send]{background:var(--grad);color:#fff;box-shadow:var(--glow)}
+#bar #snd[data-k=send] svg{width:22px;height:22px}
+#bar #snd.rc{background:#ef4444;color:#fff;box-shadow:0 6px 18px -6px #ef4444}
+/* offline note */
+#offb{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:#000c;color:#fff;border:1px solid #ffffff30;border-radius:20px;padding:7px 14px;font-size:.78rem;font-weight:600;z-index:400;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#offb.on{opacity:1;transform:translate(-50%,0)}
+/* friend suggestions */
+.sgr{display:flex;gap:10px;overflow-x:auto;padding:4px 18px 16px;scroll-snap-type:x proximity;scroll-padding:0 18px;-webkit-overflow-scrolling:touch}
+.sgc{position:relative;flex:none;width:148px;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:18px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;scroll-snap-align:start;text-align:center}
+.sgc .av{width:64px;height:64px;font-size:1.5rem;margin-bottom:6px}
+.sgc b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.98rem;color:var(--txt)}
+.sgc small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub);font-size:.78rem}
+.sgc .sgj{font-size:.72rem;opacity:.85}
+.sgc .btn{width:100%!important;margin:10px 0 0!important;padding:9px 0!important;font-size:.9rem}
+.sgx{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--sub);font-size:1rem;padding:4px 6px;line-height:1}
+
+#splash .vm{width:150px;height:150px}
+#dt{white-space:pre-line}
+
 </style></head><body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><symbol id="vm" viewBox="96 108 320 288"><polygon points="104,122 200,122 306,394 216,394" fill="url(#vga)"/><polygon points="312,122 408,122 300,394 210,394" fill="url(#vgb)"/><polygon points="257,268 210,394 306,394" fill="url(#vgc)"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">VText is locked</h2><p class="sub" id="lkm"></p>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><linearGradient id="nvg" gradientUnits="userSpaceOnUse" x1="104" y1="0" x2="408" y2="0"><stop offset="0" stop-color="#22e5ff"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ff3df2"/></linearGradient><filter id="nvf" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur in="SourceGraphic" stdDeviation="11" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><symbol id="vm" viewBox="84 98 344 308" overflow="visible"><path d="M104 116H200L256 262L312 116H408L298 388H214Z" fill="#7c3aed" fill-opacity=".14" stroke="url(#nvg)" stroke-width="17" stroke-linejoin="round" filter="url(#nvf)"/><path d="M104 116H200L256 262L312 116H408L298 388H214Z" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="5" stroke-linejoin="round"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">VText is locked</h2><p class="sub" id="lkm"></p>
 <div id="lk-pw" style="display:none;width:100%;max-width:320px;padding:0 20px"><div class="pw"><input id="lkp" type="password" placeholder="Account password" autocomplete="current-password"><button type="button" class="eye" data-eye="lkp">Show</button></div><div class="er" id="lke"></div><button class="btn" id="lku" style="width:100%">Unlock</button></div>
 <button class="btn" id="unl">Use fingerprint</button><button class="link" id="lkpw">Use account password</button><button class="link" id="lklo" style="color:var(--sub)">Log out</button></div>
-<div id="splash"><svg class="vm"><use href="#vm"/></svg><div class="sp"></div></div>
+<div id="splash"><svg class="vm"><use href="#vm"/></svg></div>
 <div id="auth"><div class="card">
 <div class="pg cur" id="pg-w"><svg class="wv" viewBox="0 0 400 800" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="wa" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2563eb" stop-opacity=".9"/><stop offset="1" stop-color="#7c3aed" stop-opacity=".2"/></linearGradient><linearGradient id="wb" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#d946ef" stop-opacity=".95"/><stop offset="1" stop-color="#4f46e5" stop-opacity=".3"/></linearGradient></defs><path d="M0 0H290C250 80 160 80 100 170S30 320 0 350Z" fill="url(#wa)"/><path d="M0 330C50 300 120 240 160 150" fill="none" stroke="#8fb0ff" stroke-opacity=".55" stroke-width="1.4"/><path d="M400 450C330 500 300 630 220 690S70 770 0 800H400Z" fill="url(#wb)"/><path d="M400 505C340 545 300 645 230 705S90 785 10 800" fill="none" stroke="#f5b8ff" stroke-opacity=".6" stroke-width="1.4"/><path d="M0 610C60 630 110 720 190 770" fill="none" stroke="#8b5cf6" stroke-opacity=".6" stroke-width="1.4"/></svg><div class="wmid"><svg class="vm big"><use href="#vm"/></svg><h1>V Text</h1><p class="tag">Connect<i></i>Chat<i></i>Share<i></i>Be You</p></div><div class="wbot"><button class="btn" id="ws">Get Started</button><button class="link" id="wl">I already have an account · Log in</button><div class="er" id="e-w"></div><div class="sub legal"><a href="#" data-doc="privacy">Privacy Policy</a> · <a href="#" data-doc="terms">Terms</a> · <a href="#" data-doc="delete">Delete account</a></div></div></div>
 <div class="pg" id="pg-l1"><button class="bk" data-bk="pg-w" aria-label="Back">←</button><h2>Log in</h2><p class="sub">Enter the email address of your account.</p>
@@ -602,9 +643,9 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 <div id="app">
 <div id="side"><div class="top w c"><button class="ib" id="pbtn" aria-label="Profile"><div class="av" id="pav"></div></button><b class="g" id="ttl">Messages</b><button class="ib" id="mm" aria-label="Menu">⋮</button></div>
 <div id="sw2"><input id="search" placeholder="Search chats…" autocomplete="off"></div><div id="chips"><span class="on" data-f="all">All</span><span data-f="un">Unread</span><span data-f="gr">Groups</span></div><div id="list"></div><button id="fab" aria-label="Camera"></button><div id="nav"></div></div>
-<div id="chat"><div class="top"><button class="ib" id="back">←</button><div class="av" id="cav"></div><div class="g" id="hd" style="cursor:pointer"><b id="cname"></b><small id="cst"></small></div><button class="ib" id="cm">⋮</button></div>
+<div id="chat"><div class="top"><button class="ib" id="back" aria-label="Back"></button><div class="av" id="cav"></div><div class="g" id="hd" style="cursor:pointer"><b id="cname"></b><small id="cst"></small></div><i id="cmu" aria-hidden="true"></i><button class="ib" id="cm" aria-label="Menu">⋮</button></div>
 <div id="msgs"></div><button id="dn">↓</button><div id="rp"></div><div id="emo"></div>
-<div id="bar"><div class="in"><button id="eb" aria-label="Emoji"></button><input id="txt" placeholder="Type a message…" autocomplete="off"><button id="at" type="button" aria-label="Attach"></button><button id="bcam" type="button" aria-label="Camera"></button><input id="file" type="file" hidden></div><button class="rb" id="snd" aria-label="Voice message"></button></div></div>
+<div id="bar"><button id="bcam" type="button" aria-label="Camera"></button><div class="in"><input id="txt" placeholder="Send chat" autocomplete="off"><button class="rb" id="snd" aria-label="Voice message"></button></div><button id="eb" aria-label="Emoji"></button><button id="at" type="button" aria-label="Attach"></button><input id="file" type="file" hidden></div></div>
 </div>
 <div id="set"><div class="top w"><button class="ib" id="sx">←</button><b id="stt" style="flex:1">Settings</b><button class="ib" id="spe">✎</button></div>
 <div class="sc"><div id="sm"><div class="sin"><input id="ssr" placeholder="Search settings…" autocomplete="off"></div><div class="scard" id="scard"><div class="rng"><div class="av" id="sav2"></div></div><div class="sct"><b id="sname2"></b><small id="su2"></small></div><i class="chv">›</i></div><div id="rows"></div></div>
@@ -770,8 +811,9 @@ async function unlockFlow(){
       lockUI('bio','Touch the fingerprint sensor to unlock VText.');
       try{await bioVerify('Unlock VText');unlocked();return}
       catch(e){if(!cancelled(e))bioFails++;
-        if(bioFails>=2){lockUI('pw','Fingerprint was not recognized. Enter your account password to unlock.');return}
-        lockUI('bio',bioFails?'Fingerprint not recognized. Try again or use your account password.':'Unlock with your fingerprint or use your account password.');return}}
+        const why=cancelled(e)?'':String(e&&(e.message||e.errorMessage||e)||'').slice(0,90);
+        if(bioFails>=2){lockUI('pw','Fingerprint was not recognized. Enter your account password to unlock.');if(why)$('lke').textContent='('+why+')';return}
+        lockUI('bio',bioFails?'Fingerprint not recognized. Try again or use your account password.':'Unlock with your fingerprint or use your account password.');if(why)$('lke').textContent='('+why+')';return}}
     lockUI('pw','Enter your account password to unlock VText.')
   }finally{lockBusy=false}}
 /* the lock follows the real app lifecycle: Android pause/resume (when available), otherwise the page visibility.
@@ -794,6 +836,18 @@ $('unl').onclick=unlockFlow;$('lkpw').onclick=()=>lockUI('pw','Enter your accoun
 let pwTry=0;$('lku').onclick=async()=>{const p=$('lkp').value;if(!p){$('lke').textContent='Enter your password.';return}$('lku').disabled=true;const ok=await pwOk(p);$('lku').disabled=false;if(ok){pwTry=0;unlocked()}else{pwTry++;$('lke').textContent=pwTry>=5?'Wrong password. Forgot it? Log out below and use “Forgot password”.':'Wrong password. Try again.'}};
 $('lklo').onclick=async()=>{if(await confirmD('Log out of VText? The lock will be turned off.')&&window.__logout)window.__logout()};
 let bioK='';bioKind().then(k=>{bioK=k});
+
+/* Settings > Safety > "Check app lock": says what this phone / this app can do, and tests the fingerprint */
+async function lockCheck(){
+  const V=plug('VTextBg');let ph='unknown';
+  if(V&&V.bioStatus){try{const a=await V.bioStatus();ph=a&&a.available?'ready':'not ready (code '+(a&&a.code)+'): '+(BIO_WHY[a&&a.code]||'Fingerprint is not available on this phone.')}catch(e){ph='error: '+String(e&&(e.message||e)).slice(0,80)}}
+  const L=['Android app: '+(isNative()?'yes':'no, this is a browser'),
+    'Fingerprint part in this app: '+(V&&V.bioStatus?'found':'MISSING. Install the newest VText APK'),
+    'Phone fingerprint: '+ph,
+    'App lock: '+(lockOn()?'on':'off')+'. Fingerprint unlock: '+(bioPref()?'on':'off'),
+    'Leaving and coming back to VText detected: '+(nativeLife?'yes':'not yet. Open another app, come back, then check again')];
+  const t=await ask(L.join('\n'),'',true,false,['Close','Test fingerprint']);
+  if(t){try{await bioVerify('Test the fingerprint');await msgD('Fingerprint works.')}catch(e){await msgD(cancelled(e)?'Cancelled.':'Fingerprint failed: '+String(e&&(e.message||e.errorMessage||e)).slice(0,120))}}}
 const AVS={
  skin:['#fde3cf','#f9d3b4','#f1c27d','#e0ac69','#c68642','#a86b3c','#8d5524','#5c3a21'],
  shade:['#efc4a8','#e8b995','#dba85f','#c8914f','#ad6f2f','#8f5629','#744218','#432712'],
@@ -893,14 +947,14 @@ function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/j
 const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
-privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while VText is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the VText admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
+privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while VText is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Friend suggestions: accounts that joined recently and are not private can be suggested to other people on their Friends page (name, username and, if your photo is visible to everyone, your photo). Turn on Private account in Settings to not be suggested.</li><li>Copy on your phone: so VText also opens without internet, a copy of your chats, friends and loaded messages is kept on your phone until you clear VText’s data or uninstall the app.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the VText admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
 terms:['Terms & community rules','<p>By using VText you agree to these rules.</p><ul><li>No harassment, threats, hate speech or bullying.</li><li>No sexual content involving minors and no sexually explicit content.</li><li>No violence, illegal activity, scams, spam or impersonation.</li><li>Do not share other people’s private information.</li><li>You are responsible for what you send.</li></ul><p>You can block and report any user or message in the app. We may remove content or suspend accounts that break these rules.</p>'+mail],
 delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>What is deleted</h4><p>Your login, profile (name, username, photo, about) and username are deleted. Messages you sent may remain in other people’s chats until they expire (default 24 hours).</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
 bg:['Background notifications','<p>On the Android app, VText keeps running in the background with a small “VText is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Settings &gt; Notifications: keep “Keep running in the background” turned on.</li><li>Settings &gt; Notifications &gt; Battery optimisation: tap and choose Allow, so Android does not pause VText when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock VText in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe VText away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open VText again.</p>']};
 function openDoc(k){const d=DOCS[k];if(!d)return;$('dct').textContent=d[0];$('dcb').innerHTML=d[1];$('doc').style.display='flex'}
 $('dcx').onclick=()=>$('doc').style.display='none';
 document.addEventListener('click',e=>{const a=e.target.closest('[data-doc]');if(a){e.preventDefault();openDoc(a.dataset.doc)}});
-const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
+const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'){try{snapMute()}catch(e){}}if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
 function linkify(e,t){t.split(/(https?:\/\/\S+)/g).forEach(p=>{if(/^https?:\/\//.test(p)){const a=document.createElement('a');a.href=p;a.target='_blank';a.rel='noopener';a.textContent=p;a.style.color='var(--acc)';a.onclick=ev=>ev.stopPropagation();e.appendChild(a)}else e.appendChild(document.createTextNode(p))})}
 function beep(){if(get('snd','1')!=='1')return;try{const a=new(window.AudioContext||window.webkitAudioContext)(),t=a.currentTime;[[880,0],[1318,.14]].forEach(([f,d])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.2,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.4);o.start(t+d);o.stop(t+d+.45)})}catch(e){}}
 if(typeof firebase==='undefined'){$('e-w').textContent='Firebase failed to load. Check your internet, VPN or ad-blocker.';$('wl').disabled=true;$('ws').disabled=true}
@@ -908,7 +962,7 @@ else if(!window.FIREBASE_CONFIG||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){$('e-w
 else{
 firebase.initializeApp(FIREBASE_CONFIG);
 const auth=firebase.auth(),db=firebase.firestore(),TS=firebase.firestore.Timestamp,SV=()=>firebase.firestore.FieldValue.serverTimestamp(),ex=()=>TS.fromMillis(Date.now()+ expMs(cur));
-try{db.settings({experimentalAutoDetectLongPolling:true})}catch(e){}
+try{db.settings({experimentalAutoDetectLongPolling:true,cacheSizeBytes:(firebase.firestore.CACHE_SIZE_UNLIMITED||-1)})}catch(e){}
 try{if(db.enablePersistence)db.enablePersistence({synchronizeTabs:true}).catch(()=>{})}catch(e){}
 const E={'auth/invalid-credential':'Wrong email or password','auth/wrong-password':'Wrong password','auth/user-not-found':'No account found with this email','auth/email-already-in-use':'This email is already registered. Try logging in instead.','auth/weak-password':'Password must be at least 6 characters','auth/invalid-email':'Invalid email address','auth/too-many-requests':'Too many attempts. Please wait a while, or reset your password.','auth/network-request-failed':'No internet connection','auth/user-disabled':'This account has been disabled','auth/requires-recent-login':'Please log in again and retry'};
 const aerr=(id,m,ok)=>{const e=$(id);if(!e)return;e.classList.toggle('ok',!!ok);e.textContent=m||''};
@@ -988,7 +1042,7 @@ async function acceptReq(r){try{
   if(!chats.some(c=>c.type==='dm'&&c.members.includes(r.from))){const ref=db.collection('chats').doc();
     await ref.set({type:'dm',members:[me.uid,r.from],names:{[me.uid]:me.name,[r.from]:r.fromName},photos:{...(me.photo&&me.pv_photo!=='nobody'?{[me.uid]:me.photo}:{}),...(r.fromPhoto?{[r.from]:r.fromPhoto}:{})},unames:{[me.uid]:me.username,[r.from]:r.fromUsername},emails:{[me.uid]:auth.currentUser.email}})}
   await db.doc('requests/'+r.id).update({status:'accepted'});db.doc('unfriends/'+pairId(r.from)).delete().catch(()=>{});toast('You are now friends with '+r.fromName)}catch(e){toast(e.message)}}
-async function declineReq(r){reqs=reqs.filter(x=>x.id!==r.id);renderList();const ref=db.doc('requests/'+r.id);
+async function declineReq(r){if(!lset('sgx').has(r.from))tog('sgx',r.from);reqs=reqs.filter(x=>x.id!==r.id);renderList();const ref=db.doc('requests/'+r.id);
   try{await ref.update({status:'declined'});toast('Request declined')}
   catch(e){try{await ref.delete();toast('Request declined')}
     catch(e2){if(!reqs.some(x=>x.id===r.id)){reqs.push(r);renderList()}toast('Couldn’t decline the request: '+(e2.code==='permission-denied'?'permission denied. Please publish the latest Firestore rules.':e2.message))}}}
@@ -1053,7 +1107,7 @@ function openProfile(){$('sn').value=me.name;drawProfileRows();$('prf').style.di
 const rid=()=>Math.random().toString(36).slice(2,12)+Date.now().toString(36);
 function deviceName(){const ua=navigator.userAgent,os=/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/Linux/.test(ua)?'Linux':'Device',br=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'Browser';return(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?'VText app on '+os:br+' on '+os}
 function sessRef(id){return db.doc('users/'+me.uid+'/sessions/'+id)}
-async function startSession(){const K='vt_sid_'+me.uid;let sid=localStorage.getItem(K),x=null;if(sid){try{x=await sessRef(sid).get()}catch(e){}}
+async function startSession(){const K='vt_sid_'+me.uid;let sid=localStorage.getItem(K),x=null;if(sid){try{x=await sessRef(sid).get()}catch(e){if(navigator.onLine===false){addEventListener('online',()=>{if(me&&me.uid)startSession().catch(()=>{})},{once:true});return}}}
   if(!sid||!x||!x.exists||x.data().logoutAt){sid=rid();localStorage.setItem(K,sid);await sessRef(sid).set({device:deviceName(),loginAt:SV(),lastActive:SV(),logoutAt:null,rl:false})}else await sessRef(sid).set({lastActive:SV()},{merge:true});
   mySid=sid;unsubSo=sessRef(sid).onSnapshot(y=>{if(y.exists&&y.data().rl){toast('You were logged out from another device');logout()}});
   let f=true;unsubSe=db.collection('users/'+me.uid+'/sessions').onSnapshot(q=>{q.docChanges().forEach(ch=>{if(ch.type==='removed')return;const d=ch.doc.data(),id=ch.doc.id;if(id===sid)return;const was=seState[id];seState[id]=!!d.logoutAt;if(f||me.actOn===false)return;
@@ -1483,7 +1537,7 @@ function renderReqs(l,q){const has=(a,b)=>!q||(a||'').toLowerCase().includes(q)|
   hd2(l,'Friend requests ('+reqs.length+')');
   if(!rq.length)emp(l,q&&reqs.length?'No requests found.':'No pending requests. Requests sent to you appear here when your account is private.');
   rq.forEach(r=>l.appendChild(urow(r.fromPhoto,r.fromName,'@'+r.fromUsername,[btn('Accept',()=>acceptReq(r)),btn('Decline',()=>declineReq(r),1)])));
-  if(sent.length){hd2(l,'Sent requests ('+sent.length+')');sn.forEach(r=>l.appendChild(urow(null,r.toName||('@'+r.toUsername),'Waiting to be accepted',[btn('Cancel request',()=>cancelReq(r.id),1)])))}}
+  if(sent.length){hd2(l,'Sent requests ('+sent.length+')');sn.forEach(r=>l.appendChild(urow(null,r.toName||('@'+r.toUsername),'Waiting to be accepted',[btn('Cancel request',()=>cancelReq(r.id),1)])))}if(!q)renderSugg(l)}
 function stat(){if(!cur)return;let t='',k='';const tp=Object.entries(cur.typing||{}).filter(a=>a[0]!==me.uid&&!blockedBy.has(a[0])&&Date.now()-M(a[1])<6000).map(a=>cur.names[a[0]]||'');
   if(tp.length){t=cur.type==='group'?tp.join(', ')+' typing…':'Typing…';k='ty'}else if(cur.type==='group')t=Object.values(cur.names).join(', ');else if(isOnline(peerOf(cur))){t='Online';k='on'}$('cst').textContent=t;$('cst').dataset.s=k}
 async function showProfile(uid){const cs=(u,k)=>{const v=u['pv_'+k]||'everyone';return v==='everyone'||(v==='contacts'&&hasDm(uid))};const c=cur,nm=c.names[uid]||'User',bb=blockedBy.has(uid),un=()=>bb?null:(c.unames||{})[uid],em=()=>bb?'—':(c.emails||{})[uid]||'—';
@@ -1502,6 +1556,7 @@ const lockRows=()=>{bioShown=bioK+'|'+bioWhy;bioKind().then(k=>{if(k+'|'+bioWhy!
   const bioOn=!!bioK&&lockOn()&&bioPref();
   const r=[{t:'App lock',s:lockOn()?'On. VText asks for '+(bioOn?'your fingerprint (or your account password)':'your account password')+' every time you open it.':'Ask for your account password every time VText is opened.',sw:1,on:lockOn(),set:v=>(v?enableLock():disableLock()).then(()=>drawPanel('priv'))},
     {t:'Fingerprint unlock',s:bioK?(bioOn?'On. Touch the sensor to open VText. Your account password is the backup.':'Use your fingerprint instead of typing the password.'):(bioWhy||'Checking your phone…'),sw:1,on:bioOn,set:v=>setBio(v).then(()=>drawPanel('priv'))}];
+  r.push({t:'Check app lock',s:'Shows what works on this phone and lets you test the fingerprint.',tap:lockCheck});
   if(lockOn())r.push({t:'Lock now',s:'Lock VText right away',tap:lockNow});
   r.push({t:'Lock after',s:({'0':'Immediately','60000':'1 minute','300000':'5 minutes','1800000':'30 minutes'})[get('lockdelay','0')],tap:()=>choose('Lock after',[['0','Immediately'],['60000','1 minute'],['300000','5 minutes'],['1800000','30 minutes']],get('lockdelay','0'),v=>{put('lockdelay',v);drawPanel('priv')})},
     {t:'Locked chats',s:lset('lck').size+' chat(s) locked. Long-press a chat, or use ⋮ > Lock chat inside a chat.'});
@@ -1545,7 +1600,7 @@ const col2=()=>db.collection('chats/'+cur.id+'/messages');
 setInterval(()=>cur&&stat(),3000);
 function openChat(c){
   cur=c;lsg='';first=true;reply=null;rp();unsubM&&unsubM();unsubS&&unsubS();docs=[];
-  $('cname').textContent=title(c);vbHead(c);av($('cav'),title(c),c.type==='group',cp(c),c.type==='dm'&&isOnline(peerOf(c)));$('cst').textContent='';$('emo').style.display='none';
+  $('cname').textContent=title(c);vbHead(c);snapMute();av($('cav'),title(c),c.type==='group',cp(c),c.type==='dm'&&isOnline(peerOf(c)));$('cst').textContent='';$('emo').style.display='none';
   $('app').classList.add('open');$('msgs').innerHTML='';renderList();
   stat();
   unsubM=col2().orderBy('ts').limitToLast(50).onSnapshot(s=>{if(!first&&s.docChanges().some(c=>c.type==='added'&&!c.doc.metadata.hasPendingWrites&&c.doc.data().from!==me.uid))beep();first=false;docs=s.docs.map(d=>({id:d.id,...d.data({serverTimestamps:'estimate'})}));docs.forEach(x=>{if(x.from===me.uid&&x.expireAt&&M(x.expireAt)<Date.now())col2().doc(x.id).delete().catch(()=>{})});renderM();seen();clearUn(cur)},()=>{$('msgs').innerHTML='<div class="empty">Couldn’t load messages. Check Firestore rules.</div>'});
@@ -1736,7 +1791,7 @@ function mediaGallery(){if(!cur)return;
   $('doc').style.display='flex'}
 /* ===== V Text neon theme: runtime pieces ===== */
 let recT0=0;
-function setSnd(k){const b=$('snd');b.dataset.k=k;b.innerHTML=ic(k==='send'?'send':k==='stop'?'stop':'mic')}
+function setSnd(k){const b=$('snd');b.dataset.k=k;b.innerHTML=ic(k==='send'?'send':k==='stop'?'stop':'wave')}
 $('eb').innerHTML=ic('smile');$('at').innerHTML=ic('clip');$('bcam').innerHTML=ic('cam');
 $('bcam').onclick=()=>{if(cur&&window.openCamera)openCamera({to:cur.id})};
 setSnd('mic');
@@ -2221,6 +2276,63 @@ function admHealCheck(){try{if(me)vbPut($('sname'),me.uid)}catch(e){}   /* the t
           if(Object.keys(o).length){b.update(db.doc('chats/'+c.id),o);n++}});
         if(n)await b.commit()}
       put('healed',k)}catch(e){}},4000)}
+/* ---------- round 8: Snapchat-like chat screen, offline strip ---------- */
+Object.assign(IC,{chev:'<path d="M15 5l-7 7 7 7"/>',wave:'<path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/>',stk:'<path d="M4 6a3 3 0 013-3h8l5 5v9a3 3 0 01-3 3H7a3 3 0 01-3-3z"/><path d="M15 3v4a1 1 0 001 1h4"/><path d="M9 14a3.5 3.5 0 006 0"/>'});
+$('back').innerHTML=ic('chev');$('bcam').innerHTML=ic('cam');$('eb').innerHTML=ic('smile');$('at').innerHTML=ic('stk');
+$('bcam').onclick=()=>{if(cur&&window.openCamera)openCamera({to:cur.id})};
+setSnd('mic');
+/* the bell next to the name when the chat is muted */
+function snapMute(){const m=$('cmu');if(!m)return;const on=!!(cur&&lset('mut').has(cur.id));m.innerHTML=on?ic('bellx'):'';m.style.display=on?'flex':'none'}
+/* a small note while the phone has no internet: the chats and messages already loaded stay on the phone */
+(function(){const b=document.createElement('div');b.id='offb';b.textContent='Offline · showing saved chats';document.body.appendChild(b);
+  const f=()=>{const off=navigator.onLine===false;b.classList.toggle('on',off);document.documentElement.classList.toggle('offl',off)};
+  addEventListener('online',f);addEventListener('offline',f);f()})();
+/* ---------- friend suggestions: the newest accounts that are not your friends yet (Friends page) ---------- */
+const SUG={list:[],at:0,busy:false,err:false,sx:0,uid:''};
+async function sugLoad(force){
+  if(!me||BGM||SUG.busy)return;
+  if(SUG.uid!==me.uid){SUG.uid=me.uid;SUG.list=[];SUG.at=0;SUG.err=false;SUG.sx=0}
+  if(!force&&SUG.at&&Date.now()-SUG.at<20*60*1000)return;
+  if(navigator.onLine===false&&!force)return;
+  SUG.busy=true;
+  try{const q=await db.collection('users').orderBy('created','desc').limit(30).get();SUG.list=q.docs.map(x=>({uid:x.id,...x.data()}));SUG.at=Date.now();SUG.err=false}
+  catch(e){SUG.err=true;SUG.at=Date.now()-19*60*1000}
+  SUG.busy=false;if(tab==='fr'&&me)renderList()}
+function sugItems(){
+  const skip=new Set([me.uid]);chats.forEach(c=>{if(c.type==='dm')(c.members||[]).forEach(m=>skip.add(m))});
+  reqs.forEach(r=>skip.add(r.from));sent.forEach(r=>skip.add(r.to));
+  const blk=lset('blk'),hid=lset('sgx');
+  return SUG.list.filter(u=>!skip.has(u.uid)&&!blk.has(u.uid)&&!blockedBy.has(u.uid)&&!hid.has(u.uid)&&!u.private&&u.name&&u.username).slice(0,12)}
+function renderSugg(l){
+  if(!me||BGM)return;
+  sugLoad();
+  const it=sugItems();
+  hd2(l,'Find friends');
+  if(!it.length){emp(l,SUG.busy&&!SUG.at?'Looking for people…':SUG.err?'Couldn’t load suggestions. Check your internet connection.':'No new people to suggest right now.');return}
+  const row=document.createElement('div');row.className='sgr';
+  it.forEach(u=>{const c=document.createElement('div');c.className='sgc';
+    const x=document.createElement('button');x.className='sgx';x.type='button';x.setAttribute('aria-label','Hide');x.textContent='✕';x.onclick=e=>{e.stopPropagation();tog('sgx',u.uid);renderList()};
+    const a=document.createElement('div');a.className='av';av(a,u.name,false,u.pv_photo==='nobody'?null:u.photo);
+    const n=document.createElement('b');n.textContent=u.name;
+    const s=document.createElement('small');s.textContent='@'+u.username;
+    const j=document.createElement('small');j.className='sgj';j.textContent='Recently joined';
+    const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='Add';b.onclick=e=>{e.stopPropagation();sugAdd(u,b)};
+    c.append(x,a,n,s,j,b);row.appendChild(c)});
+  row.onscroll=()=>{SUG.sx=row.scrollLeft};l.appendChild(row);row.scrollLeft=SUG.sx}
+async function sugAdd(u,b){
+  if(featBlock('friends'))return;
+  b.disabled=true;b.textContent='Adding…';
+  const drop=()=>{SUG.list=SUG.list.filter(x=>x.uid!==u.uid)};
+  try{const o=await find(u.username);
+    if(o.uid===me.uid){drop();return}
+    if(chats.some(c=>c.type==='dm'&&c.members.includes(o.uid))){drop();toast('You are already friends with '+o.name);return}
+    if(reqs.some(r=>r.from===o.uid)){toast(o.name+' already sent you a request. Accept it under Friend requests.');return}
+    const again=await wasUnfriended(o.uid);
+    if(o.private||again){await sendReq(o,again&&!o.private);return}
+    const ref=db.collection('chats').doc(),c={type:'dm',members:[me.uid,o.uid],names:{[me.uid]:me.name,[o.uid]:o.name},photos:{...(me.photo&&me.pv_photo!=='nobody'?{[me.uid]:me.photo}:{}),...(o.photo?{[o.uid]:o.photo}:{})},unames:{[me.uid]:me.username,[o.uid]:o.username},emails:{[me.uid]:auth.currentUser.email}};
+    await ref.set(c);drop();toast('You are now friends with '+o.name+'. Say hi from Chats.')}
+  catch(e){toast(e.message)}
+  finally{b.disabled=false;b.textContent='Add';if(tab==='fr')renderList()}}
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=128;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);res(cv.toDataURL('image/jpeg',.7))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
