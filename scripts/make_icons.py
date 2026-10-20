@@ -8,30 +8,59 @@ FORE = {'mdpi': 108, 'hdpi': 162, 'xhdpi': 216, 'xxhdpi': 324, 'xxxhdpi': 432}
 
 from PIL import ImageFilter, ImageOps
 
-ARMS = [([(104, 116), (200, 116), (306, 388), (216, 388)], (67, 214, 255), (58, 61, 240)),
-        ([(312, 116), (408, 116), (300, 388), (210, 388)], (127, 91, 255), (240, 70, 200)),
-        ([(257, 262), (210, 388), (306, 388)], (43, 47, 184), (138, 47, 208))]
+# The neon V: one glowing tube drawn along the outline of the V (cyan on the left, violet in the middle, magenta on the right).
+NEON = [(104, 116), (200, 116), (256, 262), (312, 116), (408, 116), (298, 388), (214, 388)]
+CYAN, VIOLET, MAGENTA = (34, 229, 255), (139, 92, 246), (255, 61, 242)
 
 
 def ribbon(n, k=1.0, white=False):
-    """The V Text ribbon-V logo on a transparent square (white=True gives a flat white silhouette)."""
-    S = 4
+    """The V Text neon-V logo on a transparent square (white=True gives a flat white silhouette for the status bar)."""
+    S = 3
     N = n * S
-    im = Image.new('RGBA', (N, N), (0, 0, 0, 0))
     f = N / 512 * k
     c = N / 2
-    for pts, c1, c2 in ARMS:
-        P = [(c + (x - 256) * f, c + (y - 252) * f) for x, y in pts]
+    P = [(c + (x - 256) * f, c + (y - 252) * f) for x, y in NEON]
+    if white:
+        im = Image.new('RGBA', (N, N), (0, 0, 0, 0))
         m = Image.new('L', (N, N), 0)
         ImageDraw.Draw(m).polygon(P, fill=255)
-        if white:
-            im.paste((255, 255, 255, 255), (0, 0), m)
-            continue
-        x0, y0 = int(min(p[0] for p in P)), int(min(p[1] for p in P))
-        x1, y1 = int(max(p[0] for p in P)) + 1, int(max(p[1] for p in P)) + 1
-        g = ImageOps.colorize(Image.linear_gradient('L').resize((x1 - x0, y1 - y0)), c1, c2).convert('RGBA')
-        im.paste(g, (x0, y0), m.crop((x0, y0, x1, y1)))
-    return im.resize((n, n), Image.LANCZOS)
+        im.paste((255, 255, 255, 255), (0, 0), m)
+        return im.resize((n, n), Image.LANCZOS)
+
+    def stroke(width):
+        m = Image.new('L', (N, N), 0)
+        d = ImageDraw.Draw(m)
+        w = max(1, int(width * f))
+        r = w / 2
+        for i in range(len(P)):
+            a, b = P[i], P[(i + 1) % len(P)]
+            d.line([a, b], fill=255, width=w)
+            d.ellipse([a[0] - r, a[1] - r, a[0] + r, a[1] + r], fill=255)
+        return m
+
+    x0, x1 = int(min(p[0] for p in P)), int(max(p[0] for p in P)) + 1
+    g = Image.new('RGB', (N, N), CYAN)
+    ramp = ImageOps.colorize(Image.linear_gradient("L").rotate(90).resize((x1 - x0, N)), CYAN, MAGENTA, mid=VIOLET)
+    g.paste(ramp, (x0, 0))
+    g.paste(Image.new('RGB', (N - x1, N), MAGENTA), (x1, 0))
+    g = g.convert('RGBA')
+    tube = stroke(17)
+    core = stroke(5)
+    out = Image.new('RGBA', (N, N), (0, 0, 0, 0))
+    fill = Image.new('L', (N, N), 0)
+    ImageDraw.Draw(fill).polygon(P, fill=34)
+    for blur, amt in ((26, .5), (11, .85)):
+        a = tube.filter(ImageFilter.GaussianBlur(blur * f)).point(lambda v, amt=amt: int(min(255, v * amt * 1.6)))
+        layer = g.copy(); layer.putalpha(a)
+        out.alpha_composite(layer)
+    layer = g.copy(); layer.putalpha(fill)
+    out.alpha_composite(layer)
+    layer = g.copy(); layer.putalpha(tube)
+    out.alpha_composite(layer)
+    hot = Image.new('RGBA', (N, N), (255, 255, 255, 0))
+    hot.putalpha(core.point(lambda v: int(v * .9)))
+    out.alpha_composite(hot)
+    return out.resize((n, n), Image.LANCZOS)
 
 
 def backdrop(n):
