@@ -62,6 +62,18 @@ if headless and 'VTextBoot' not in s:  # starts the background service again aft
     s = s.replace('</application>', rcv + '    </application>', 1)
 # push notifications (Firebase Cloud Messaging): which channel / icon notifications use when the app is closed.
 # Harmless when the push plugin or google-services.json is not part of the build.
+# Expo Push sends "data only" Android messages. Our own messaging service turns them into notifications and hands everything else
+# to Capacitor's push plugin; Capacitor's own service is removed from the merged manifest so only one service receives messages.
+if push_on and native == 'full' and 'VTextFcmService' not in s:
+    if 'xmlns:tools=' not in s:
+        s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
+    fcm = ('        <service android:name="com.capacitorjs.plugins.pushnotifications.MessagingService" tools:node="remove"/>\n'
+           '        <service android:name=".VTextFcmService" android:exported="false">\n'
+           '            <intent-filter android:priority="100">\n'
+           '                <action android:name="com.google.firebase.MESSAGING_EVENT"/>\n'
+           '            </intent-filter>\n'
+           '        </service>\n')
+    s = s.replace('</application>', fcm + '    </application>', 1)
 if push_on and 'default_notification_channel_id' not in s:
     meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="messages"/>\n'
             '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
@@ -145,6 +157,8 @@ if native == 'full':
     jdir = pathlib.Path(mains[0]).parent
     hl_block = re.compile(r'[ \t]*/\*HL\*/.*?/\*END_HL\*/\n', re.S)   # code between /*HL*/ and /*END_HL*/ belongs to the hidden background page
     names = ['MainActivity', 'VTextService', 'VTextBgPlugin'] + (['VTextHeadless', 'VTextBoot'] if headless else [])
+    if push_on:
+        names.append('VTextFcmService')
     for name in names:
         src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site)
         if not headless:
@@ -154,24 +168,63 @@ if native == 'full':
     print('hidden background page (keeps listening after the app is swiped away): ' + ('included, site ' + site if headless else 'NOT included'))
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
-# ---------------- dark look (matches the neon-dark app: no white flash, dark system bars) ----------------
+# ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------
+# The Android project from `npx cap add android` can come with a theme that has a title bar (ActionBar). That shows up as a
+# ~56dp strip at the top of the app with the app name ("VText") in it. This part makes the theme deterministic: whatever the
+# template looks like, the app themes below have NO title bar and a solid dark window. The page then repaints the window and the
+# bars in its own colour (light / dark) through the VTextBg plugin (setBars).
 try:
     vals = root / 'app/src/main/res/values'
     vals.mkdir(parents=True, exist_ok=True)
     cp = vals / 'colors.xml'
     c = cp.read_text() if cp.exists() else '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
-    if 'vt_bg' not in c:
-        c = c.replace('</resources>', '    <color name="vt_bg">#05060B</color>\n</resources>')
-        cp.write_text(c)
+    c = re.sub(r'[ \t]*<color name="vt_bg">[^<]*</color>\n?', '', c)
+    c = c.replace('</resources>', '    <color name="vt_bg">#000000</color>\n</resources>')
+    cp.write_text(c)
+
+    bars = ('        <item name="windowActionBar">false</item>\n'
+            '        <item name="windowNoTitle">true</item>\n'
+            '        <item name="android:windowBackground">@color/vt_bg</item>\n'
+            '        <item name="android:statusBarColor">@color/vt_bg</item>\n'
+            '        <item name="android:navigationBarColor">@color/vt_bg</item>\n'
+            '        <item name="android:windowLightStatusBar">false</item>\n')
+    base = '<?xml version="1.0" encoding="utf-8"?>\n<resources>\n</resources>\n'
     sp = vals / 'styles.xml'
-    if sp.exists():
-        st = sp.read_text()
-        st = st.replace('Theme.AppCompat.DayNight.NoActionBar', 'Theme.AppCompat.NoActionBar').replace('Theme.AppCompat.Light.NoActionBar', 'Theme.AppCompat.NoActionBar')
-        if 'android:statusBarColor' not in st:
-            st = re.sub(r'(<style name="AppTheme\.NoActionBar"[^>]*>)',
-                        r'\1\n        <item name="android:windowBackground">@color/vt_bg</item>\n        <item name="android:statusBarColor">@color/vt_bg</item>\n        <item name="android:navigationBarColor">@color/vt_bg</item>\n        <item name="android:windowLightStatusBar">false</item>',
-                        st, count=1)
-        sp.write_text(st)
-    print('dark theme applied')
+    st = sp.read_text() if sp.exists() else base
+
+    def put_style(txt, name, parent, body):
+        block = '    <style name="%s" parent="%s">\n%s    </style>' % (name, parent, body)
+        pat = re.compile(r'[ \t]*<style\s+name="%s"[^>]*?(?:/>|>.*?</style>)' % re.escape(name), re.S)
+        if pat.search(txt):
+            return pat.sub(lambda m: block, txt, count=1)
+        return txt.replace('</resources>', block + '\n</resources>')
+
+    st = put_style(st, 'AppTheme', 'Theme.AppCompat.NoActionBar', bars)
+    st = put_style(st, 'AppTheme.NoActionBar', 'AppTheme', '        <item name="android:background">@null</item>\n')
+    # launch theme (shown while the app starts): keep the template's one, but make its colours dark too
+    m = re.search(r'<style\s+name="AppTheme\.NoActionBarLaunch"\s+parent="([^"]*)"[^>]*>(.*?)</style>', st, re.S)
+    if m:
+        body = m.group(2).rstrip()
+        if 'SplashScreen' in m.group(1):
+            if 'windowSplashScreenBackground' not in body:
+                body += '\n        <item name="windowSplashScreenBackground">@color/vt_bg</item>'
+            if 'postSplashScreenTheme' not in body:
+                body += '\n        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>'
+        else:
+            body = re.sub(r'[ \t]*<item name="android:windowBackground">[^<]*</item>\n?', '', body)
+            body += '\n        <item name="android:windowBackground">@color/vt_bg</item>\n        <item name="windowActionBar">false</item>\n        <item name="windowNoTitle">true</item>'
+        st = st[:m.start(2)] + body + '\n    ' + st[m.end(2):]
+    else:
+        st = put_style(st, 'AppTheme.NoActionBarLaunch', 'AppTheme.NoActionBar', '        <item name="android:windowBackground">@color/vt_bg</item>\n')
+    sp.write_text(st)
+
+    # the manifest must use those themes (some templates point the activity at a theme with an ActionBar)
+    s2 = mp.read_text()
+    if re.search(r'<application\b[^>]*android:theme=', s2) is None:
+        s2 = re.sub(r'<application\b', '<application android:theme="@style/AppTheme"', s2, count=1)
+    s2 = re.sub(r'(<activity\b[^>]*?android:theme=")@style/[A-Za-z0-9_.]*(")',
+                lambda m: m.group(1) + ('@style/AppTheme.NoActionBarLaunch' if 'Launch' in m.group(0) else '@style/AppTheme.NoActionBar') + m.group(2), s2, count=1)
+    mp.write_text(s2)
+    print('window theme applied (no title bar, dark window)')
 except Exception as e:  # cosmetic only - never fail the build because of it
-    print('WARNING: dark theme not applied:', e)
+    print('WARNING: window theme not applied:', e)
