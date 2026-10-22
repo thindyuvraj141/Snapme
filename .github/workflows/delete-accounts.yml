@@ -1,0 +1,34 @@
+name: Delete accounts after 7 days
+# Runs every day (and when you press "Run workflow"). It deletes the accounts whose 7-day deletion period is over.
+# Needs the secret FIREBASE_SERVICE_ACCOUNT = the whole JSON key file of a Firebase service account
+# (Firebase console > Project settings > Service accounts > Generate new private key). See README > "Account deletion".
+on:
+  schedule:
+    - cron: '30 21 * * *'      # every day at 21:30 UTC = 03:00 in India
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Only list what would be deleted (1 = yes, 0 = really delete)'
+        default: '0'
+permissions:
+  contents: read
+concurrency:
+  group: delete-accounts
+  cancel-in-progress: false
+jobs:
+  purge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install firebase-admin
+        run: npm install --no-save --no-package-lock firebase-admin@12
+      - name: Delete expired accounts
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          if [ -z "$FIREBASE_SERVICE_ACCOUNT" ]; then echo "Secret FIREBASE_SERVICE_ACCOUNT is missing (repo Settings > Secrets and variables > Actions)."; exit 1; fi
+          node scripts/delete-expired-accounts.js
