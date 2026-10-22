@@ -98,6 +98,14 @@ public class MainActivity extends BridgeActivity {
         /*END_HL*/
         registerPlugin(VTextBgPlugin.class);
         super.onCreate(savedInstanceState);
+        // Never show the Android title bar (the "VText" strip at the top) and keep the window behind the page dark until the page paints.
+        try {
+            androidx.appcompat.app.ActionBar ab = getSupportActionBar();
+            if (ab != null) ab.hide();
+            getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFF000000));
+        } catch (Throwable t) {
+            // cosmetic only
+        }
         /*HL*/
         handleChatIntent(getIntent());
         /*END_HL*/
@@ -117,12 +125,14 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onPause() {
         super.onPause();
+        VTextBgPlugin.fg = false;
         life("pause");
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        VTextBgPlugin.fg = true;
         life("resume");
     }
 

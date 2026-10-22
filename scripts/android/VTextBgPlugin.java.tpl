@@ -48,6 +48,9 @@ import com.getcapacitor.annotation.PermissionCallback;
         })
 public class VTextBgPlugin extends Plugin {
 
+    /** True while the VText screen is in front (set by MainActivity); the Expo push service shows nothing then. */
+    static volatile boolean fg = false;
+
     // ---------- permissions: camera, gallery (photos / videos), location ----------
     private String stateOf(String alias) {
         try {
@@ -240,6 +243,33 @@ public class VTextBgPlugin extends Plugin {
                 }
             }
         });
+    }
+
+    /** Paints the window behind the page and the system bars with the page colour (the page calls this when the theme changes). */
+    @PluginMethod
+    public void setBars(final PluginCall call) {
+        final String c = call.getString("color", "#000000");
+        final boolean light = Boolean.TRUE.equals(call.getBoolean("light", false));
+        try {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        int col = android.graphics.Color.parseColor(c);
+                        android.view.Window w = getActivity().getWindow();
+                        w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(col));
+                        try { w.setStatusBarColor(col); w.setNavigationBarColor(col); } catch (Throwable t) { /* ignored on newer Android */ }
+                        androidx.core.view.WindowInsetsControllerCompat ic = androidx.core.view.WindowCompat.getInsetsController(w, w.getDecorView());
+                        if (ic != null) { ic.setAppearanceLightStatusBars(light); ic.setAppearanceLightNavigationBars(light); }
+                    } catch (Throwable t) {
+                        // cosmetic only
+                    }
+                }
+            });
+            call.resolve();
+        } catch (Throwable t) {
+            call.resolve();
+        }
     }
 
     /** Saves a photo / video / voice message / file into the phone's gallery or Downloads (folder "VText"). */
