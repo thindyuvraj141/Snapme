@@ -19,6 +19,17 @@ service cloud.firestore {
               && get(/databases/$(db)/documents/requests/$(o + '_' + request.auth.uid)).data.status == 'pending');
     }
 
+    // Expo Push: every member keeps ONLY their own push token in chats/<id>.xpt.<uid> = { t: token, l: 1 if the chat is locked }.
+    // Only members can read a chat, so only the people in a chat can see it (the sender's phone needs it to send the push).
+    function xptOk() {
+      let n = request.resource.data.get('xpt', {});
+      let o = resource.data.get('xpt', {});
+      return n.diff(o).affectedKeys().hasOnly([request.auth.uid])
+        && (!(request.auth.uid in n)
+            || (n[request.auth.uid].keys().hasOnly(['t', 'l'])
+                && n[request.auth.uid].t is string && n[request.auth.uid].t.size() < 200));
+    }
+
     function member(c) {
       return request.auth != null && request.auth.uid in get(/databases/$(db)/documents/chats/$(c)).data.members;
     }
@@ -153,6 +164,16 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == u;
     }
 
+    // Big (512px) copy of a profile picture, fetched only when somebody opens the photo full screen.
+    // Written by its owner only; an admin can remove it together with a bad photo.
+    match /photos/{u} {
+      allow read: if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == u
+        && request.resource.data.keys().hasOnly(['b', 'ts'])
+        && request.resource.data.b is string && request.resource.data.b.size() < 300000;
+      allow delete: if request.auth != null && (request.auth.uid == u || isAdmin());
+    }
+
     match /blocks/{b} {
       allow read: if request.auth != null && (resource == null || resource.data.by == request.auth.uid || resource.data.to == request.auth.uid);
       allow create: if request.auth != null && request.resource.data.by == request.auth.uid;
@@ -206,7 +227,8 @@ service cloud.firestore {
       // members can remove a 1-to-1 chat (unfriend); an admin can remove any chat (from a report)
       allow delete: if request.auth != null && ((request.auth.uid in resource.data.members && resource.data.type == 'dm') || isAdmin());
       allow update: if request.auth != null && request.auth.uid in resource.data.members && (
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames','un'])
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['last','lastTs','lastFrom','seen','deliv','typing','photos','names','exp','emails','unames','un','xpt'])
+          && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['xpt']) || xptOk()))
         || (resource.data.type == 'group' && request.auth.uid in resource.data.get('admins', [])
             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','members','names','photo','admins']))
         || (resource.data.type == 'group'

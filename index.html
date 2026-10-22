@@ -577,8 +577,8 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 #admov textarea{width:100%;min-height:96px;resize:vertical;background:var(--pill,#ffffff14);color:var(--txt);border:1px solid var(--line,#ffffff1f);border-radius:12px;padding:10px 12px;font:inherit;outline:none}
 #admov #admap{display:none;flex-direction:column;gap:10px;text-align:left}
 #admov #admam{font-size:.9rem}
-.vb{display:inline-flex;vertical-align:-3px;margin-left:5px;color:var(--acc,#4a63ff)}
-.vb svg{display:block}
+.vbd{display:inline-flex;vertical-align:-3px;margin-left:5px;flex:none;line-height:0}
+.vbd svg{display:block}
 
 /* ===== round 8: Snapchat-like chat screen ===== */
 #chat>.top{gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px 6px;border-bottom:1px solid var(--line)}
@@ -609,17 +609,36 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 #offb{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translate(-50%,12px);background:#000c;color:#fff;border:1px solid #ffffff30;border-radius:20px;padding:7px 14px;font-size:.78rem;font-weight:600;z-index:400;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #offb.on{opacity:1;transform:translate(-50%,0)}
 /* friend suggestions */
-.sgr{display:flex;gap:10px;overflow-x:auto;padding:4px 18px 16px;scroll-snap-type:x proximity;scroll-padding:0 18px;-webkit-overflow-scrolling:touch}
-.sgc{position:relative;flex:none;width:148px;border:1px solid var(--line);background:var(--card);border-radius:18px;padding:18px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:3px;scroll-snap-align:start;text-align:center}
-.sgc .av{width:64px;height:64px;font-size:1.5rem;margin-bottom:6px}
-.sgc b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.98rem;color:var(--txt)}
-.sgc small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub);font-size:.78rem}
-.sgc .sgj{font-size:.72rem;opacity:.85}
-.sgc .btn{width:100%!important;margin:10px 0 0!important;padding:9px 0!important;font-size:.9rem}
-.sgx{position:absolute;top:6px;right:8px;border:0;background:none;color:var(--sub);font-size:1rem;padding:4px 6px;line-height:1}
 
 #splash .vm{width:150px;height:150px}
 #dt{white-space:pre-line}
+
+/* Add friend page */
+#adf{position:fixed;inset:0;background:var(--bg);z-index:23;display:none;flex-direction:column}
+#adf .sc{flex:1;min-height:0;overflow-y:auto;padding:4px 0 calc(28px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+.adc{margin:6px 16px 0;padding:16px;border:1px solid var(--line);background:var(--card);border-radius:20px}
+.adc label{display:block;font-weight:700;margin-bottom:10px;color:var(--txt)}
+.adq{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg);border-radius:16px;padding:4px 4px 4px 14px}
+.adq>span{color:var(--sub);font-weight:700}
+.adq input{flex:1;min-width:0;border:0;background:none;color:var(--txt);font-size:1rem;padding:10px 0;outline:none}
+#adm{color:#e11d48;font-size:.88rem;margin-top:8px;line-height:1.35}#adm:empty{display:none}
+#adr{margin:12px 16px 0}
+#adr .adcard{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:12px 14px}
+#adl .u{padding:10px 16px}
+#adf .u .t{min-width:0}#adf .u .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#adf .u .t div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub);font-size:.85rem}
+.adb{flex:none;border:0;border-radius:999px;padding:9px 18px;font-weight:700;font-size:.9rem;background:var(--grad);color:#fff;cursor:pointer;margin:0}
+.adb.sec{background:transparent;color:var(--txt);border:1px solid var(--line)}
+.adb:disabled{opacity:.6}
+.adh{flex:none;border:0;background:none;color:var(--sub);font-size:1rem;padding:8px 6px;line-height:1;cursor:pointer}
+/* full-screen profile photo */
+#pph{position:fixed;inset:0;background:#000;z-index:35;display:none;flex-direction:column}
+#pph .pphb{display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px 8px;color:#fff;background:linear-gradient(#000a,#0000);position:absolute;left:0;right:0;top:0;z-index:1}
+#pph .pphb .ib{color:#fff}
+#pph .pphb b{font-size:1.1rem;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center}
+#pph .pphs{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0}
+#pphi{max-width:100%;max-height:100%;width:100%;object-fit:contain}
+#sav,#pva{cursor:pointer}
 
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><linearGradient id="nvg" gradientUnits="userSpaceOnUse" x1="104" y1="0" x2="408" y2="0"><stop offset="0" stop-color="#22e5ff"/><stop offset=".5" stop-color="#8b5cf6"/><stop offset="1" stop-color="#ff3df2"/></linearGradient><filter id="nvf" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur in="SourceGraphic" stdDeviation="11" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><symbol id="vm" viewBox="84 98 344 308" overflow="visible"><path d="M104 116H200L256 262L312 116H408L298 388H214Z" fill="#7c3aed" fill-opacity=".14" stroke="url(#nvg)" stroke-width="17" stroke-linejoin="round" filter="url(#nvf)"/><path d="M104 116H200L256 262L312 116H408L298 388H214Z" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="5" stroke-linejoin="round"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">VText is locked</h2><p class="sub" id="lkm"></p>
@@ -697,7 +716,7 @@ const $=id=>document.getElementById(id);
 window.onerror=m=>{const e=document.querySelector('.pg.cur .er')||document.getElementById('e-w');if(e){e.classList.remove('ok');e.textContent='Error: '+m}};
 const get=(k,d)=>{try{return localStorage.getItem('vt_'+k)||d}catch(e){return d}},put=(k,v)=>{try{localStorage.setItem('vt_'+k,v)}catch(e){}};
 const PAL={n:['#4f6bff','#7c3aed','#d946ef','#9aa5ff'],o:['#06b6d4','#3b82f6','#6366f1','#6fd3f2'],s:['#f97316','#ec4899','#a855f7','#ff8fb8'],m:['#10b981','#14b8a6','#3b82f6','#5eead4']},WPS=['','#0a1030','#150a2b','#06180f','#1b1c26','#eef0fb'];
-function look(){const t=get('th2','dark'),d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches),p=PAL[get('ac','n')]||PAL.n,r=document.documentElement,y=r.style;r.classList.toggle('dk',d);y.fontSize=get('fs','16')+'px';y.setProperty('--g1',p[0]);y.setProperty('--g2',p[1]);y.setProperty('--g3',p[2]);y.setProperty('--acc',d?p[3]:p[1]);y.setProperty('--me','linear-gradient(135deg,'+p[0]+','+p[1]+')');const w=get('wp','');$('msgs').style.backgroundColor=WPS.includes(w)?w:'';try{const m=document.querySelector('meta[name=theme-color]');if(m)m.content=d?'#000000':'#f5f6fc'}catch(e){}}look();
+function look(){const t=get('th2','dark'),d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme:dark)').matches),p=PAL[get('ac','n')]||PAL.n,r=document.documentElement,y=r.style;r.classList.toggle('dk',d);y.fontSize=get('fs','16')+'px';y.setProperty('--g1',p[0]);y.setProperty('--g2',p[1]);y.setProperty('--g3',p[2]);y.setProperty('--acc',d?p[3]:p[1]);y.setProperty('--me','linear-gradient(135deg,'+p[0]+','+p[1]+')');const w=get('wp','');$('msgs').style.backgroundColor=WPS.includes(w)?w:'';try{const m=document.querySelector('meta[name=theme-color]');if(m)m.content=d?'#000000':'#f5f6fc'}catch(e){}try{barsSync()}catch(e){}}look();
 const BUNDLED=!!(window.Capacitor&&location.hostname==='localhost');
 if('serviceWorker' in navigator){if(BUNDLED)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(x=>x.unregister())).catch(()=>{});else navigator.serviceWorker.register('sw.js').catch(()=>{})}
 let showLock=false,mySid=null,unsubSe,unsubSo,seState={};
@@ -713,6 +732,8 @@ const isNative=()=>!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.is
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 document.addEventListener('click',e=>{const b=e.target.closest('[data-eye]');if(b){const i=$(b.dataset.eye);i.type=i.type==='password'?'text':'password';b.textContent=i.type==='password'?'Show':'Hide'}});
 document.addEventListener('keydown',e=>{if(e.key!=='Enter')return;const m={n1:'l1n',lp:'go',nm:'s1n',un:'s1n',se:'go2',sp:'go2',lkp:'lku'}[e.target.id];if(m){e.preventDefault();$(m).click()}});
+/* Android: paint the window behind the page and the system bars in the page colour (no-op in a browser / old APK) */
+function barsSync(){try{const V=plug('VTextBg'),d=document.documentElement.classList.contains('dk');if(V&&V.setBars)V.setBars({color:d?'#000000':'#f5f6fc',light:!d}).catch(function(){})}catch(e){}}barsSync();
 const st=t=>{$('st').textContent=t;$('st').style.display=t?'block':'none'};
 const hm=d=>d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}),M=t=>t&&t.toMillis?t.toMillis():0;
 const day=d=>{const n=new Date(),y=new Date(Date.now()-864e5);return d.toDateString()===n.toDateString()?'Today':d.toDateString()===y.toDateString()?'Yesterday':d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})};
@@ -947,14 +968,14 @@ function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/j
 const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
-privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages, documents you send.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while VText is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Friend suggestions: accounts that joined recently and are not private can be suggested to other people on their Friends page (name, username and, if your photo is visible to everyone, your photo). Turn on Private account in Settings to not be suggested.</li><li>Copy on your phone: so VText also opens without internet, a copy of your chats, friends and loaded messages is kept on your phone until you clear VText’s data or uninstall the app.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the VText admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Messages you already sent may remain in other people’s chats until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
+privacy:['Privacy Policy','<p>Last updated: 1 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages. (Documents can no longer be sent; ones sent with older versions may still be in old chats.)</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while VText is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and VText is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. VText only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Friend suggestions: accounts that joined recently can be suggested to other people on the Add friend page (name, username and, if your photo is visible to everyone, your photo). Private accounts are suggested too, but adding one only sends a friend request. While an account is waiting to be deleted it is not suggested.</li><li>Copy on your phone: so VText also opens without internet, a copy of your chats, friends and loaded messages is kept on your phone until you clear VText’s data or uninstall the app.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the VText admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a photo, record a voice message, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Your account is deleted 7 days later; log in again before then to cancel. After that your profile, username, requests, one-to-one chats and shared location are removed. Messages you sent in groups may remain until they expire.</p><h4>Children</h4><p>VText is not for children under 13.</p>'+mail],
 terms:['Terms & community rules','<p>By using VText you agree to these rules.</p><ul><li>No harassment, threats, hate speech or bullying.</li><li>No sexual content involving minors and no sexually explicit content.</li><li>No violence, illegal activity, scams, spam or impersonation.</li><li>Do not share other people’s private information.</li><li>You are responsible for what you send.</li></ul><p>You can block and report any user or message in the app. We may remove content or suspend accounts that break these rules.</p>'+mail],
-delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>What is deleted</h4><p>Your login, profile (name, username, photo, about) and username are deleted. Messages you sent may remain in other people’s chats until they expire (default 24 hours).</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
+delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>7 days to change your mind</h4><p>Your account is deleted 7 days after you ask. You are logged out and the app shows the exact date. If you log in again before that date, the deletion is cancelled and nothing is lost. While it is pending, nobody can find you by username or in friend suggestions.</p><h4>What is deleted</h4><p>After the 7 days your login, profile (name, username, photo, about), username, friend requests, blocks, your shared location, your one-to-one chats and your place in groups are deleted. Messages you sent in groups may remain until they expire.</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
 bg:['Background notifications','<p>On the Android app, VText keeps running in the background with a small “VText is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Settings &gt; Notifications: keep “Keep running in the background” turned on.</li><li>Settings &gt; Notifications &gt; Battery optimisation: tap and choose Allow, so Android does not pause VText when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; VText &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock VText in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe VText away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open VText again.</p>']};
 function openDoc(k){const d=DOCS[k];if(!d)return;$('dct').textContent=d[0];$('dcb').innerHTML=d[1];$('doc').style.display='flex'}
 $('dcx').onclick=()=>$('doc').style.display='none';
 document.addEventListener('click',e=>{const a=e.target.closest('[data-doc]');if(a){e.preventDefault();openDoc(a.dataset.doc)}});
-const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'){try{snapMute()}catch(e){}}if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
+const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'){try{snapMute()}catch(e){}}if(k==='mut'||k==='lck'){try{xpSyncSoon()}catch(e){}}if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
 function linkify(e,t){t.split(/(https?:\/\/\S+)/g).forEach(p=>{if(/^https?:\/\//.test(p)){const a=document.createElement('a');a.href=p;a.target='_blank';a.rel='noopener';a.textContent=p;a.style.color='var(--acc)';a.onclick=ev=>ev.stopPropagation();e.appendChild(a)}else e.appendChild(document.createTextNode(p))})}
 function beep(){if(get('snd','1')!=='1')return;try{const a=new(window.AudioContext||window.webkitAudioContext)(),t=a.currentTime;[[880,0],[1318,.14]].forEach(([f,d])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.2,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.4);o.start(t+d);o.stop(t+d+.45)})}catch(e){}}
 if(typeof firebase==='undefined'){$('e-w').textContent='Firebase failed to load. Check your internet, VPN or ad-blocker.';$('wl').disabled=true;$('ws').disabled=true}
@@ -996,10 +1017,10 @@ const logout=async()=>{manual=true;try{await endSession()}catch(e){}try{await lo
 let presUnsubs=[],presU=[],presence={},onSig='',prevIds=null;const justRemoved=new Set();
 function stop(){[unsubM,unsubC,unsubP,unsubS,unsubR,unsubQ,unsubB1,unsubB2].forEach(f=>f&&f());unsubM=unsubC=unsubP=unsubS=unsubR=unsubQ=unsubB1=unsubB2=null;reqs=[];sent=[];blockedBy=new Set();[unsubSe,unsubSo].forEach(f=>f&&f());unsubSe=unsubSo=null;presUnsubs.forEach(f=>f());presUnsubs=[];presU=[];presence={};onSig='';prevIds=null;mySid=null;seState={};cur=null;chats=[];vids.clear()}
 const beat=()=>{if(!me||document.hidden||!active)return;if(me.actOn!==false){db.doc('users/'+me.uid).set({seen:SV()},{merge:true}).catch(()=>{});if(mySid)sessRef(mySid).set({lastActive:SV()},{merge:true}).catch(()=>{})}};setInterval(beat,6e4);document.addEventListener('visibilitychange',()=>{if(!document.hidden)beat()});
-let lo,manual=false,delAcc=false;
+let lo,manual=false,delAcc=false,delSched=false;
 function showApp(){$('auth').style.display='none';$('app').style.display='flex'}
 let pendErr='';
-const goLogin=reset=>{stop();try{locReset()}catch(e){}try{PUSH.state='';PUSH.tok=''}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
+const goLogin=reset=>{stop();delSched=false;try{$('adf').style.display='none'}catch(e){}try{locReset()}catch(e){}try{PUSH.state='';PUSH.tok=''}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
 function showAnim(ms){return new Promise(res=>{const a=$('anim');a.classList.add('show');setTimeout(()=>{a.classList.add('out');setTimeout(()=>{a.classList.remove('show','out');res()},350)},FAST0?250:ms)})}
 async function postAuth(){hideSplash();
   if(!lockOn()&&await bioKind()){step('pg-bio');await new Promise(res=>{$('bio0').onclick=res;$('bio1').onclick=async()=>{$('bio1').disabled=true;aerr('e-bio','');let ok=false;try{ok=await enableLock(creds)}catch(e){}$('bio1').disabled=false;if(ok)res();else aerr('e-bio','Couldn’t turn on the fingerprint. Try again or tap “Not now”.')}})}
@@ -1013,7 +1034,7 @@ auth.onAuthStateChanged(u=>{
   const reset=!!me||manual;manual=false;stop();me=null;
   if(!u){goLogin(reset);return}
   let asked=false;setTimeout(()=>{if(!me&&auth.currentUser&&$('auth').style.display!=='none'){hideSplash();aerr('e-w','Couldn’t load your profile. Check your internet connection and reopen the app.')}},10000);
-  unsubP=db.doc('users/'+u.uid).onSnapshot(s=>{if(!s.exists){if(!asked&&!creating&&!delAcc){asked=true;mkProfile(u)}return}const f=!me;me={uid:u.uid,...s.data()};av($('pav'),me.name,false,me.photo);admHealCheck();if(f)start();else refreshDots()},()=>{});
+  unsubP=db.doc('users/'+u.uid).onSnapshot(s=>{if(!s.exists){if(!asked&&!creating&&!delAcc){asked=true;mkProfile(u)}return}const f=!me;me={uid:u.uid,...s.data()};if(delGate(f))return;av($('pav'),me.name,false,me.photo);admHealCheck();if(f)start();else refreshDots()},()=>{});
 });
 const peerOf=c=>c.members.find(x=>x!==me.uid);
 function isOnline(uid){if(!uid||!me||me.actOn===false||blockedBy.has(uid))return false;const p=presence[uid];return !!(p&&p.act&&Date.now()-p.seen<130000)}
@@ -1054,7 +1075,7 @@ async function unfriend(uid){const c=chats.find(x=>x.type==='dm'&&x.members.incl
     await db.doc('chats/'+c.id).delete();
     clearLocal(c.id);if(cur&&cur.id===c.id)$('back').onclick();$('pv').style.display='none';toast(nm+' was removed from your friends')
   }catch(e){justRemoved.delete(c.id);toast(e.code==='permission-denied'?'Permission denied. Please publish the latest Firestore rules.':e.message)}}
-async function find(un){const u=await db.doc('usernames/'+un).get();if(!u.exists||u.data().retired)throw Error('@'+un+' not found');const uid=u.data().uid;const o=(await db.doc('users/'+uid).get()).data();if(!o)throw Error('@'+un+' not found');return{uid,name:o.name,photo:o.photo,username:o.username,private:!!o.private,pv_groups:o.pv_groups||'everyone'}}
+async function find(un){const u=await db.doc('usernames/'+un).get();if(!u.exists||u.data().retired)throw Error('@'+un+' not found');const uid=u.data().uid;const o=(await db.doc('users/'+uid).get()).data();if(!o||o.delAt)throw Error('@'+un+' not found');return{uid,name:o.name,photo:o.photo,pv_photo:o.pv_photo,username:o.username,private:!!o.private,verified:o.verified===true,pv_groups:o.pv_groups||'everyone'}}
 async function addC(pre){
   if(featBlock('friends'))return;
   const un=typeof pre==='string'?clean(pre):clean((await ask('Enter your friend’s username'))||'');if(!un)return;
@@ -1122,7 +1143,7 @@ async function drawSessions(){const host=$('p-sess');host.innerHTML='<div class=
   if(mine)secs.push(['This device',[{t:mine.device+' (this device)',s:lines(mine),ok:act(mine)}]]);
   secs.push(['Recent logins and logouts',others.length?others.map(x=>({t:x.device,s:lines(x),ok:act(x),tap:x.logoutAt?null:()=>sheet([[x.device],['Log out this device',()=>sessRef(x.id).set({rl:true},{merge:true}).then(()=>toast('Logout requested'))]])})):[{t:'No other sessions yet',s:'When someone logs in or out of your account, it appears here.'}]]);
   if(cp2==='sess')stRows(host,secs)}
-async function applyPhoto(p){await setU({photo:p});if(me.pv_photo!=='nobody'){const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:p}));await b.commit()}av($('sav'),me.name,false,p);av($('pav'),me.name,false,p)}
+async function applyPhoto(p,big){await setU({photo:p});savePhotoBig(big||'');if(me.pv_photo!=='nobody'){const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:p}));await b.commit()}av($('sav'),me.name,false,p);av($('pav'),me.name,false,p)}
 function avMig(c){if(!c||typeof c!=='object')return{};if('topc' in c||'face' in c)return c;const m=(a,i)=>a[i]!=null?a[i]:0;return{skin:m([1,2,3,4,6,7],c.skin),hair:m([0,5,3,4,9,2],c.hair),hairc:m([0,1,2,4,5,6,8],c.hairc),eyes:c.eyes||0,mouth:c.mouth||0,glasses:m([0,1,3],c.glasses),topc:c.top||0,bg:c.bg||0}}
 function myAvCfg(){let c={};try{c=me.avatar?JSON.parse(me.avatar):{}}catch(e){}return Object.assign({},AV0,avMig(c))}
 let acfg=null,avTab=0;
@@ -1156,7 +1177,7 @@ $('avx').onclick=()=>$('avt').style.display='none';
 $('avr').onclick=avRand;
 $('avz').onclick=()=>{acfg=Object.assign({},AV0);avPrev();avOpts(true)};
 $('avs').onclick=async()=>{await setU({avatar:JSON.stringify(acfg)});toast('Avatar saved')};
-$('avu').onclick=async()=>{try{const p=await cropSquare(await svgToPng(avatarSVG(acfg),256),128);await setU({avatar:JSON.stringify(acfg)});await applyPhoto(p);toast('Profile picture updated');$('avt').style.display='none'}catch(e){toast(e.message)}};
+$('avu').onclick=async()=>{try{const p=await cropSquare(await svgToPng(avatarSVG(acfg),256),128),big=await cropSquare(await svgToPng(avatarSVG(acfg),512),512);await setU({avatar:JSON.stringify(acfg)});await applyPhoto(p,big);toast('Profile picture updated');$('avt').style.display='none'}catch(e){toast(e.message)}};
 (()=>{
 const LENS=[
  {n:'Normal',e:'📷',f:'none'},
@@ -1381,7 +1402,7 @@ function sendBtn(){const b=$('csgo');b.disabled=!sendSel.size;b.textContent=send
 $('csd').onclick=async()=>{try{const c=await flatten();sendData=shrinkCanvas(c);sendSel=new Set();if(camTo&&chats.some(z=>z.id===camTo&&canSendTo(z)))sendSel.add(camTo);hideOver();sendRows();$('csend').style.display='flex'}catch(e){toast(e.message||'Something went wrong')}};
 $('csx').onclick=()=>{$('csend').style.display='none'};
 $('csgo').onclick=async()=>{if(!sendSel.size||!sendData)return;const b=$('csgo');b.disabled=true;b.textContent='Sending…';let ok=0,last='';
-  for(const id of sendSel){const c=chats.find(z=>z.id===id);if(!c||!canSendTo(c))continue;try{await db.collection('chats/'+c.id+'/messages').add({from:me.uid,fromName:me.name,ts:SV(),expireAt:TS.fromMillis(Date.now()+expMs(c)),...arOf(c),type:'img',data:sendData});await db.doc('chats/'+c.id).update({last:'📷 Photo',lastTs:SV(),lastFrom:me.uid});bumpUn(c);ok++;last=title(c)}catch(e){toast(e.message)}}
+  for(const id of sendSel){const c=chats.find(z=>z.id===id);if(!c||!canSendTo(c))continue;try{await db.collection('chats/'+c.id+'/messages').add({from:me.uid,fromName:me.name,ts:SV(),expireAt:TS.fromMillis(Date.now()+expMs(c)),...arOf(c),type:'img',data:sendData});await db.doc('chats/'+c.id).update({last:'📷 Photo',lastTs:SV(),lastFrom:me.uid});bumpUn(c,'📷 Photo');ok++;last=title(c)}catch(e){toast(e.message)}}
   if(ok){toast(ok===1?'Sent to '+last+' ✅':'Sent to '+ok+' chats ✅');closeCamera()}else sendBtn()};
 $('csv').onclick=async()=>{try{const c=await flatten(),d=shrinkCanvas(c);try{const bl=await (await fetch(d)).blob(),f=new File([bl],'vtext-'+Date.now()+'.jpg',{type:'image/jpeg'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}
   const a=document.createElement('a');a.href=d;a.download='vtext-photo.jpg';document.body.appendChild(a);a.click();a.remove();toast('Photo saved')}catch(e){toast(e.message||'Couldn’t save the photo')}};
@@ -1395,7 +1416,7 @@ crv.addEventListener('pointermove',e=>{if(!cpn)return;cr.ox+=e.clientX-cpn.x;cr.
 crv.addEventListener('pointerup',()=>{cpn=null});crv.addEventListener('pointercancel',()=>{cpn=null});
 $('crz').oninput=()=>{cr.z=+$('crz').value;crDraw()};
 $('crc').onclick=()=>{$('ccrop').style.display='none'};
-$('cro').onclick=async()=>{try{const g=crDraw(),o=document.createElement('canvas');o.width=o.height=128;const k=128/CS;o.getContext('2d').drawImage(cr.im,((CS-g.w)/2+cr.ox)*k,((CS-g.h)/2+cr.oy)*k,g.w*k,g.h*k);await applyPhoto(o.toDataURL('image/jpeg',.8));toast('Profile picture updated');closeCamera()}catch(e){toast(e.message)}};
+$('cro').onclick=async()=>{try{const g=crDraw(),o=document.createElement('canvas');o.width=o.height=128;const k=128/CS;o.getContext('2d').drawImage(cr.im,((CS-g.w)/2+cr.ox)*k,((CS-g.h)/2+cr.oy)*k,g.w*k,g.h*k);const B=document.createElement('canvas');B.width=B.height=512;const kb=512/CS;B.getContext('2d').drawImage(cr.im,((CS-g.w)/2+cr.ox)*kb,((CS-g.h)/2+cr.oy)*kb,g.w*kb,g.h*kb);await applyPhoto(o.toDataURL('image/jpeg',.8),B.toDataURL('image/jpeg',.82));toast('Profile picture updated');closeCamera()}catch(e){toast(e.message)}};
 /* back button */
 window.camBack=()=>{
   if($('ccrop').style.display==='flex'){$('ccrop').style.display='none';return true}
@@ -1481,7 +1502,7 @@ function start(){
   const first=justAuthed;justAuthed=false;
   $('app').classList.remove('open');beat();setupNotif();put('in','1');startReqs();startBlocks();startSession().catch(()=>{});keepAlive(get('keep','1')==='1');
   const gate=(!BGM&&me.pinOn&&get('pinok','')!==me.uid)?pinGate():Promise.resolve();
-  const pa=localStorage.getItem('vt_add');if(pa){localStorage.removeItem('vt_add');setTimeout(()=>addC(pa),1500)}
+  const pa=localStorage.getItem('vt_add');if(pa){localStorage.removeItem('vt_add');setTimeout(()=>addOpen(pa),1500)}
   gate.then(()=>{if(first)postAuth();else{showApp();hideSplash()}if(!BGM)permAsk()});try{if(!BGM)locInit()}catch(e){}
   const ln={};unsubC=db.collection('chats').where('members','array-contains',me.uid).onSnapshot(q=>{
     q.docs.forEach(d=>{const c=d.data();if((c.emails||{})[me.uid]!==auth.currentUser.email||(c.unames||{})[me.uid]!==me.username)db.doc('chats/'+d.id).update({['emails.'+me.uid]:auth.currentUser.email,['unames.'+me.uid]:me.username}).catch(()=>{})});
@@ -1492,7 +1513,7 @@ function start(){
     const ids=new Set(q.docs.map(d=>d.id));if(prevIds&&!q.metadata.fromCache)prevIds.forEach(id=>{if(!ids.has(id))clearLocal(id)});prevIds=ids;
     chats=q.docs.map(d=>({id:d.id,...d.data({serverTimestamps:'estimate'})}));
     if(cur){const n=chats.find(c=>c.id===cur.id);if(!n&&curInList){curInList=false;const gone=cur.id;$('back').onclick();if(!justRemoved.has(gone))toast('This chat was deleted because your friend removed you.')}if(n){curInList=true;const sg=JSON.stringify([n.seen,n.deliv,n.exp,n.admins]);cur=n;$('cname').textContent=title(n);av($('cav'),title(n),n.type==='group',cp(n),n.type==='dm'&&isOnline(peerOf(n)));stat();if(sg!==lsg){lsg=sg;renderM()}}}
-    renderList();syncPresence();
+    renderList();syncPresence();try{xpSyncSoon()}catch(e){}
   },()=>{$('list').innerHTML='<div class="empty">Couldn’t load chats. Check Firestore rules.</div>'});
 }
 let typT=null;
@@ -1501,7 +1522,7 @@ function hdr(){const T={chats:'Messages',fr:'Friends'};$('ttl').textContent=T[ta
 /* the preview line must not show a message that was deleted (after seen) or has expired (Today / 7 days) */
 function previewGone(c){if(!c.lastTs)return false;if(c.last==='')return true;const t=M(c.lastTs);return t>0&&Date.now()>t+expMs(c)}
 function renderList(){
-  try{locSync()}catch(e){}hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='fr')return renderFriends(l,q);
+  try{locSync()}catch(e){}try{adRefresh()}catch(e){}hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='fr')return renderFriends(l,q);
   const pn=lset('pin'),mu=lset('mut'),lk=lset('lck');
   const f=chats.filter(c=>title(c).toLowerCase().includes(q)&&(showLock?lk.has(c.id):!lk.has(c.id))&&(fl==='all'||(fl==='gr'?c.type==='group':c.lastFrom&&c.lastFrom!==me.uid&&M(c.lastTs)>M(c.seen&&c.seen[me.uid])))).sort((a,b)=>(pn.has(b.id)-pn.has(a.id))||M(b.lastTs)-M(a.lastTs));
   lrow(l);let anyTyping=false;
@@ -1522,12 +1543,12 @@ function renderList(){
     if(pn.has(c.id)){const k=document.createElement('span');k.className='ricon';k.innerHTML=ic('pin');row2.appendChild(k)}
     if(un){const b=document.createElement('span');b.className='bdg'+(cnt>0?'':' mini');b.textContent=cnt>0?(cnt>99?'99+':cnt):'';row2.appendChild(b);tm.classList.add('hot');n.style.fontWeight='800'}
     r.appendChild(row2);
-    d.append(a,t,r);d.onclick=()=>openChat(c);l.appendChild(d)});
+    d.append(a,t,r);avTap(a,c.type==='dm'?peerOf(c):null,title(c));d.onclick=()=>openChat(c);l.appendChild(d)});
   if(anyTyping)typT=setTimeout(renderList,6100);
 }
 function renderFriends(l,q){l.innerHTML='';const fr=chats.filter(c=>c.type==='dm').map(c=>{const u=peerOf(c);return{c,u,n:c.names[u]||'User'}}).filter(x=>x.n.toLowerCase().includes(q)).sort((a,b)=>a.n.localeCompare(b.n));
   hd2(l,'My friends ('+fr.length+')');if(!fr.length)emp(l,q?'No friends found.':'No friends yet. Tap the round chat button below to add a friend by username.');
-  fr.forEach(x=>{const bb=blockedBy.has(x.u),d=urow(bb?null:(x.c.photos||{})[x.u],x.n,bb?'':'@'+((x.c.unames||{})[x.u]||''),[],isOnline(x.u));d.dataset.cid=x.c.id;
+  fr.forEach(x=>{const bb=blockedBy.has(x.u),d=urow(bb?null:(x.c.photos||{})[x.u],x.n,bb?'':'@'+((x.c.unames||{})[x.u]||''),[],isOnline(x.u));d.dataset.cid=x.c.id;vbFlag(d.querySelector('.t b'),!bb&&isVer(x.u));if(!bb)avTap(d.querySelector('.av'),x.u,x.n);
     if(lset('blk').has(x.u)){const t=document.createElement('small');t.textContent='Blocked';t.style.color='#e11d48';d.appendChild(t)}
     d.onclick=()=>{tab='chats';showLock=lset('lck').has(x.c.id);[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));$('fab').style.display='';closeSearch();renderList();openChat(x.c)};l.appendChild(d)});
   const dv=document.createElement('div');dv.className='dvd';l.appendChild(dv);renderReqs(l,q)}
@@ -1537,11 +1558,11 @@ function renderReqs(l,q){const has=(a,b)=>!q||(a||'').toLowerCase().includes(q)|
   hd2(l,'Friend requests ('+reqs.length+')');
   if(!rq.length)emp(l,q&&reqs.length?'No requests found.':'No pending requests. Requests sent to you appear here when your account is private.');
   rq.forEach(r=>l.appendChild(urow(r.fromPhoto,r.fromName,'@'+r.fromUsername,[btn('Accept',()=>acceptReq(r)),btn('Decline',()=>declineReq(r),1)])));
-  if(sent.length){hd2(l,'Sent requests ('+sent.length+')');sn.forEach(r=>l.appendChild(urow(null,r.toName||('@'+r.toUsername),'Waiting to be accepted',[btn('Cancel request',()=>cancelReq(r.id),1)])))}if(!q)renderSugg(l)}
+  if(sent.length){hd2(l,'Sent requests ('+sent.length+')');sn.forEach(r=>l.appendChild(urow(null,r.toName||('@'+r.toUsername),'Waiting to be accepted',[btn('Cancel request',()=>cancelReq(r.id),1)])))}}
 function stat(){if(!cur)return;let t='',k='';const tp=Object.entries(cur.typing||{}).filter(a=>a[0]!==me.uid&&!blockedBy.has(a[0])&&Date.now()-M(a[1])<6000).map(a=>cur.names[a[0]]||'');
   if(tp.length){t=cur.type==='group'?tp.join(', ')+' typing…':'Typing…';k='ty'}else if(cur.type==='group')t=Object.values(cur.names).join(', ');else if(isOnline(peerOf(cur))){t='Online';k='on'}$('cst').textContent=t;$('cst').dataset.s=k}
 async function showProfile(uid){const cs=(u,k)=>{const v=u['pv_'+k]||'everyone';return v==='everyone'||(v==='contacts'&&hasDm(uid))};const c=cur,nm=c.names[uid]||'User',bb=blockedBy.has(uid),un=()=>bb?null:(c.unames||{})[uid],em=()=>bb?'—':(c.emails||{})[uid]||'—';
-  $('pv').querySelector('.hero').style.display='';$('pvt').textContent='Friend info';av($('pva'),nm,false,(c.type==='dm'&&!bb)?(c.photos||{})[uid]:null,c.type==='dm'&&isOnline(uid));$('pvn').textContent=nm;vbPut($('pvn'),c.type==='dm'?uid:null);
+  $('pv').querySelector('.hero').style.display='';$('pvt').textContent='Friend info';av($('pva'),nm,false,(c.type==='dm'&&!bb)?(c.photos||{})[uid]:null,c.type==='dm'&&isOnline(uid));$('pvn').textContent=nm;vbPut($('pvn'),c.type==='dm'?uid:null);$('pva').onclick=()=>photoView(c.type==='dm'&&!bb?uid:null,$('pvn').textContent,avPhoto($('pva')));
   let rows=[['Username',bb?'—':'@'+(un()||'—')],['Email',em()]];pvRows(rows);$('pv').style.display='flex';
   try{const u=bb?{}:((await db.doc('users/'+uid).get()).data()||{});rows=[['Username',bb?'—':'@'+(u.username||un()||'—')],['Email',em()]];if(u.photo&&cs(u,'photo'))av($('pva'),nm,false,u.photo,c.type==='dm'&&isOnline(uid));if(u.name)$('pvn').textContent=u.name;vbPut($('pvn'),c.type==='dm'?uid:null)}catch(e){}
   if(uid!==me.uid&&c.type==='dm'){const bl=lset('blk').has(uid);rows.push([bl?'Unblock':'Block','Tap to '+(bl?'unblock':'block')+' this friend',()=>{setBlock(uid).then(()=>showProfile(uid))},1],['Report','Report this user',()=>reportIt(uid),1],['Unfriend','Remove from your friends and delete this chat for both of you',()=>unfriend(uid),1])}
@@ -1550,7 +1571,7 @@ $('cm').onclick=()=>{if(!cur)return;const id=cur.id,g=cur.type==='group',ad=g&&(
   const r=[[g?'Group info':'Friend info',()=>$('hd').onclick()],[lset('mut').has(id)?'Unmute notifications':'Mute notifications',()=>{tog('mut',id);renderList()}],['Photos & videos · save',mediaGallery],['Auto-delete · '+expName(cur),timerM],[lset('pin').has(id)?'Unpin chat':'Pin chat',()=>{tog('pin',id);renderList()}],[lset('lck').has(id)?'Unlock chat':'Lock chat',()=>lockChat(id)],
   ['More…',()=>{const m=[['Clear chat',()=>{put('clr_'+id,Date.now());renderM()}]];if(g){if(ad)m.push(['Add participants',addM],['Change group name',renG],['Change group photo',()=>{pt='g';$('pf').click()}]);m.push(['Exit group',()=>leaveG()])}else m.push([lset('blk').has(o)?'Unblock':'Block',()=>{setBlock(o)}],['Report',()=>reportIt(o)],['Unfriend',()=>unfriend(o)]);sheet(m,'pop')}]];
   sheet(r,'pop')};
-$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addC();return}if(n==='prof'){openProfile();return}if(n==='loc'){locOpen();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
+$('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addOpen();return}if(n==='prof'){openProfile();return}if(n==='loc'){locOpen();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
 let bioShown='';
 const lockRows=()=>{bioShown=bioK+'|'+bioWhy;bioKind().then(k=>{if(k+'|'+bioWhy!==bioShown){bioK=k;if(cp2==='priv')drawPanel('priv')}});
   const bioOn=!!bioK&&lockOn()&&bioPref();
@@ -1631,7 +1652,7 @@ function renderM(){
 }
 function msgMenu(x){const r=[[['👍','❤️','😂','😮','😢','🙏'],em=>col2().doc(x.id).update({['rx.'+me.uid]:x.rx&&x.rx[me.uid]===em?firebase.firestore.FieldValue.delete():em}).catch(e=>toast(e.message))],['Reply',()=>{reply={n:x.fromName||'User',t:prev(x)};rp();$('txt').focus()}]];
   if(x.text)r.push(['Copy',()=>navigator.clipboard&&navigator.clipboard.writeText(x.text)]);
-  if(x.type!=='vid')r.push(['Forward',()=>fwd(x)]);
+  if(x.type!=='vid'&&x.type!=='doc')r.push(['Forward',()=>fwd(x)]);
   if(['img','vid','aud','doc'].includes(x.type))r.push(['Save to phone',()=>saveMedia(x)]);
   if(x.from===me.uid&&x.type==='text')r.push(['Edit',async()=>{const t=await ask('Edit message',x.text);if(t&&t.trim()&&t.trim()!==x.text&&!admWordBlock(t))col2().doc(x.id).update({text:t.trim().slice(0,2000),edited:true}).catch(e=>toast(e.message))}]);
   if(x.from!==me.uid)r.push(['Report',()=>reportIt(x.from,x.id,prev(x))]);
@@ -1656,8 +1677,8 @@ $('pvx').onclick=()=>$('pv').style.display='none';
 async function renG(){const n=((await ask('New group name',cur.name))||'').trim();if(n)db.doc('chats/'+cur.id).update({name:n.slice(0,40)}).catch(e=>toast(e.message))}
 async function addM(){const un=clean((await ask('New member’s username'))||'');if(!un)return;try{const o=await find(un);const ge=grpErr(o,un);if(ge)return toast(ge);if(cur.members.includes(o.uid))return toast('Already in the group');await db.doc('chats/'+cur.id).update({members:firebase.firestore.FieldValue.arrayUnion(o.uid),['names.'+o.uid]:o.name});toast(o.name+' added ✅')}catch(e){toast(e.message)}}
 async function leaveG(c){c=c||cur;if(!c||!(await confirmD('Exit this group?')))return;try{await db.doc('chats/'+c.id).update({members:firebase.firestore.FieldValue.arrayRemove(me.uid)});if(cur&&cur.id===c.id)$('back').onclick()}catch(e){toast(e.message)}}
-function fwd(x){const r=chats.filter(c=>c.id!==cur.id).map(c=>['→ '+title(c),async()=>{try{const b={from:me.uid,fromName:me.name,ts:SV(),expireAt:ex(),type:x.type,fwd:true};if(x.text)b.text=x.text;if(x.data)b.data=x.data;if(x.fname)b.fname=x.fname;if(x.size)b.size=x.size;if(x.lat!=null){b.lat=x.lat;b.lng=x.lng}await db.collection('chats/'+c.id+'/messages').add(b);await db.doc('chats/'+c.id).update({last:prev(x),lastTs:SV(),lastFrom:me.uid});bumpUn(c);st('Forwarded ✅');setTimeout(()=>st(''),1500)}catch(e){toast(e.message)}}]);sheet(r.length?r:[['No other chats']])}
-async function post(x,p,ref){const c=cur;ref=ref||col2().doc();const b={from:me.uid,fromName:me.name,ts:SV(),expireAt:x.exp||ex(),...arOf(c),...x};delete b.exp;if(reply)b.reply=reply;reply=null;rp();await ref.set(b);db.doc('chats/'+c.id).update({last:p,lastTs:SV(),lastFrom:me.uid}).catch(()=>{});bumpUn(c)}
+function fwd(x){const r=chats.filter(c=>c.id!==cur.id).map(c=>['→ '+title(c),async()=>{try{const b={from:me.uid,fromName:me.name,ts:SV(),expireAt:ex(),type:x.type,fwd:true};if(x.text)b.text=x.text;if(x.data)b.data=x.data;if(x.fname)b.fname=x.fname;if(x.size)b.size=x.size;if(x.lat!=null){b.lat=x.lat;b.lng=x.lng}await db.collection('chats/'+c.id+'/messages').add(b);await db.doc('chats/'+c.id).update({last:prev(x),lastTs:SV(),lastFrom:me.uid});bumpUn(c,prev(x));st('Forwarded ✅');setTimeout(()=>st(''),1500)}catch(e){toast(e.message)}}]);sheet(r.length?r:[['No other chats']])}
+async function post(x,p,ref){const c=cur;ref=ref||col2().doc();const b={from:me.uid,fromName:me.name,ts:SV(),expireAt:x.exp||ex(),...arOf(c),...x};delete b.exp;if(reply)b.reply=reply;reply=null;rp();await ref.set(b);db.doc('chats/'+c.id).update({last:p,lastTs:SV(),lastFrom:me.uid}).catch(()=>{});bumpUn(c,p)}
 const mic=()=>{if(!rec)setSnd($('txt').value.trim()?'send':'mic')};
 async function sendT(){const t=$('txt').value.trim();if(!t||!cur)return;if(cur.type==='dm'&&lset('blk').has(cur.members.find(x=>x!==me.uid)))return toast('This contact is blocked. Unblock first.');if(admWordBlock(t))return;$('txt').value='';mic();clearTyping();try{await post({type:'text',text:t.slice(0,2000)},t.slice(0,40))}catch(e){toast('Message not sent: '+e.message)}}
 async function recT(){if(!rec&&featBlock('voice'))return;
@@ -1692,7 +1713,7 @@ $('file').onchange=async e=>{
       const b64=url.split(',')[1],n=Math.ceil(b64.length/PART),ref=col2().doc(),xp=ex();
       for(let i=0;i<n;i++)await ref.collection('parts').doc('p'+i).set({i,d:b64.slice(i*PART,(i+1)*PART),expireAt:xp});
       await post({type:'vid',parts:n,mime:f.type||'video/mp4',exp:xp},'🎥 Video',ref);
-    }else{if(f.size>600000)return toast('Document must be under 600 KB');st('Sending document…');const d=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)});await post({type:'doc',data:d,fname:f.name.slice(0,80),size:f.size},'📄 '+f.name.slice(0,30))}
+    }else{return toast('Only photos and videos can be sent.')}
   }catch(err){toast('Failed: '+err.message)}
   st('');
 };
@@ -1720,9 +1741,9 @@ $('wp').onchange=e=>{put('wp',e.target.value);look()};$('sd').onchange=e=>put('s
 
 $('pw').onclick=()=>auth.sendPasswordResetEmail(auth.currentUser.email).then(()=>toast('Reset email sent')).catch(e=>toast(e.message));
 $('bk').onclick=()=>{const b=lset('blk'),r=[];chats.forEach(c=>{if(c.type==='dm'){const o=c.members.find(x=>x!==me.uid);if(b.has(o))r.push(['✅ Unblock: '+title(c),()=>setBlock(o)])}});sheet(r.length?r:[['No blocked contacts']])};
-$('da').onclick=async()=>{if(!(await confirmD('Your account will be deleted permanently. Are you sure?')))return;const pw=await ask('Enter your password to confirm','',false,true);if(!pw)return;
-  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));delAcc=true;manual=true;try{await pushLogout()}catch(e){}const b=db.batch();b.delete(db.doc('users/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/pin'));b.delete(db.doc('usernames/'+me.username));b.delete(db.doc('locs/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/push'));await b.commit();await u.delete();$('set').style.display='none';$('prf').style.display='none';goLogin(true);toast('Your account was deleted')}catch(e){delAcc=false;manual=false;toast(E[e.code]||'Wrong password or error: '+e.message)}};
-$('at').onclick=()=>cur&&!featBlock('attach')&&sheet([['📸 Camera',()=>openCamera({to:cur.id})],['🖼 Photo / Video',()=>{$('file').accept='image/*,video/*';$('file').click()}],['📄 Document (up to 600 KB)',()=>{$('file').accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip';$('file').click()}]]);
+
+
+$('at').onclick=()=>cur&&!featBlock('attach')&&sheet([['📸 Camera',()=>openCamera({to:cur.id})],['🖼 Photo / Video',()=>{$('file').accept='image/*,video/*';$('file').click()}]]);
 function sendLoc(){navigator.geolocation?navigator.geolocation.getCurrentPosition(p=>post({type:'loc',lat:+p.coords.latitude.toFixed(5),lng:+p.coords.longitude.toFixed(5)},'📍 Location').catch(e=>toast(e.message)),()=>toast('Location permission denied')):toast('Location is not supported')}
 /* ---- chat timer: After seen (direct chats) / Today (24 h) / 7 days ---- */
 const AR_MS=10000;
@@ -1747,7 +1768,7 @@ function arTick(){clearTimeout(arT);if(!cur||cur.type!=='dm'||document.hidden||!
   if(next<1e9)arT=setTimeout(arTick,next+30)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){arSeen.clear();clearTimeout(arT)}else arTick()});
 /* unread counters: the sender adds 1 for every other member, the reader resets their own counter (best effort) */
-function bumpUn(c){try{const inc=firebase.firestore.FieldValue.increment(1),u={};c.members.forEach(m=>{if(m!==me.uid)u['un.'+m]=inc});if(Object.keys(u).length)db.doc('chats/'+c.id).update(u).catch(()=>{})}catch(e){}}
+function bumpUn(c,p){try{xpSend(c,p)}catch(e){}try{const inc=firebase.firestore.FieldValue.increment(1),u={};c.members.forEach(m=>{if(m!==me.uid)u['un.'+m]=inc});if(Object.keys(u).length)db.doc('chats/'+c.id).update(u).catch(()=>{})}catch(e){}}
 function clearUn(c){if(c&&c.un&&c.un[me.uid]>0)db.doc('chats/'+c.id).update({['un.'+me.uid]:0}).catch(()=>{})}
 /* ---- save photos / videos / voice / files to the phone ---- */
 let curView=null;
@@ -2095,7 +2116,7 @@ $('lcok').onclick=async()=>{$('lcon').style.display='none';await locEnable()};
 $('lme').innerHTML=ic('locate');$('lme').onclick=locMe;
 $('lpl').innerHTML=ic('people');$('lpl').onclick=()=>{const p=$('lpn');p.classList.toggle('show');if(p.classList.contains('show'))locPanel()};
 $('lpx').onclick=()=>$('lpn').classList.remove('show');
-$('lad').innerHTML=ic('userplus')+'<span>Add friends</span>';$('lad').onclick=()=>addC();
+$('lad').innerHTML=ic('userplus')+'<span>Add friends</span>';$('lad').onclick=()=>addOpen();
 $('lpkx').onclick=()=>{$('lpick').style.display='none'};
 setInterval(()=>{if(LOC.open&&!document.hidden)locDraw()},2e4);
 /* ===== Push notifications (Firebase Cloud Messaging) =====
@@ -2107,7 +2128,7 @@ const PUSH={state:'',err:'',tok:'',busy:false,wired:false,msgWired:false};
 const PN=()=>plug('PushNotifications');
 const pushVapid=()=>String(window.VT_VAPID||'');
 /* true when a server sends the pushes (config.js: VT_PUSH_SERVER = true) and this phone is registered: then the app does not show its own copy */
-const pushServer=()=>window.VT_PUSH_SERVER===true&&PUSH.state==='on';
+const pushServer=()=>(window.VT_PUSH_SERVER===true&&PUSH.state==='on')||xpActive();   /* xpActive(): this phone is registered with Expo Push (expo.js) */
 function pushDid(){let d=get('did','');if(!d){d=((window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/-/g,'').slice(0,24);put('did',d)}return d}
 const pushDoc=()=>db.doc('users/'+me.uid+'/private/push');
 function pushSave(tok,plat){if(!me||!tok)return Promise.resolve();PUSH.tok=tok;
@@ -2132,7 +2153,7 @@ async function pushNative(){const P=PN();
   if(!pm||pm.receive!=='granted'){try{pm=await P.requestPermissions()}catch(e){pm={}}}
   if(!pm||pm.receive!=='granted'){PUSH.state='perm';return}
   if(!PUSH.wired){PUSH.wired=true;
-    P.addListener('registration',t=>{if(!t||!t.value)return;PUSH.state='on';PUSH.err='';pushSave(t.value,'android').then(()=>{if(cp2==='notif')drawPanel('notif')})});
+    P.addListener('registration',t=>{if(!t||!t.value)return;PUSH.state='on';PUSH.err='';pushSave(t.value,'android').then(()=>{if(cp2==='notif')drawPanel('notif')});try{xpRegister(t.value)}catch(e){}});
     P.addListener('registrationError',e=>{PUSH.state='err';PUSH.err=(e&&e.error)||'error';if(cp2==='notif')drawPanel('notif')});
     P.addListener('pushNotificationActionPerformed',a=>{const d=a&&a.notification&&a.notification.data;if(d&&d.chat)pushOpen(String(d.chat))});
     P.addListener('pushNotificationReceived',()=>{})}                         /* app is open: the live chat listener already shows it */
@@ -2158,12 +2179,12 @@ async function pushInit(){if(!me||PUSH.busy)return;PUSH.busy=true;pushHash();
   PUSH.busy=false;try{if(cp2==='notif')drawPanel('notif')}catch(e){}}
 async function pushStop(){const P=PN();
   if(P&&PUSH.wired&&isNative()){try{await P.unregister()}catch(e){}}            /* drops this phone's token at Google, so a different account on this phone gets its own */
-  await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
+  try{await xpForget()}catch(e){}await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
 const pushLogout=()=>Promise.race([pushStop(),new Promise(r=>setTimeout(r,2500))]);
 /* ---- Settings > Notifications row ---- */
 const PUSH_TXT={get on(){return window.VT_PUSH_SERVER===true?'On: this phone gets new messages even when VText is closed':'Registered on this phone. A closed app gets messages only after the push server is set up (see README).'},nofb:'Not set up yet: the app build needs the Firebase file (google-services.json). See README.',oldapk:'Needs the newest VText APK',perm:'Blocked. Allow notifications for VText in your phone Settings.',ask:'Tap to allow notifications',off:'Off: turn on “Show notifications” above'};
-function pushRows(){const s=PUSH.state;if(!s&&!PUSH.busy)return[];
-  return[{t:'Push notifications',s:PUSH.busy&&!s?'Checking…':s==='err'?'Couldn’t register: '+PUSH.err:PUSH_TXT[s]||'',tap:async()=>{if(s==='ask'){try{await Notification.requestPermission()}catch(e){}}await pushInit();toast(PUSH.state==='on'?'Push notifications are on':(PUSH_TXT[PUSH.state]||'Push notifications are not available'))}}]}
+function pushRows(){const s=PUSH.state,xr=xpRows();if(!s&&!PUSH.busy)return xr;
+  return[{t:'Push notifications',s:PUSH.busy&&!s?'Checking…':s==='err'?'Couldn’t register: '+PUSH.err:PUSH_TXT[s]||'',tap:async()=>{if(s==='ask'){try{await Notification.requestPermission()}catch(e){}}await pushInit();toast(PUSH.state==='on'?'Push notifications are on':(PUSH_TXT[PUSH.state]||'Push notifications are not available'))}}].concat(xr)}
 /* ===== Admin hooks (round 7): feature switches, maintenance, announcement, force update, banned words,
    suspended accounts (also with an end time) + appeals, warnings, verified badge =====
    Everything comes from ONE public document, config/app (written only by the owner from the separate admin website):
@@ -2257,9 +2278,13 @@ function admWordBlock(t){const w=ADM.cfg&&ADM.cfg.words;if(!Array.isArray(w)||!w
 
 /* ----- verified badge (given by the owner on users/<uid>.verified) ----- */
 function isVer(uid){if(!uid||!me)return false;if(uid===me.uid)return me.verified===true;const p=presence[uid];return !!(p&&p.ver)}
-function vbadge(uid){if(!isVer(uid))return null;const s=document.createElement('span');s.className='vb';s.title='Verified';s.setAttribute('aria-label','Verified');
-  s.innerHTML='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';return s}
-function vbPut(e,uid){if(!e)return;const o=e.querySelector('.vb');if(o)o.remove();const b=vbadge(uid);if(b)e.appendChild(b)}
+function vbMk(){const s=document.createElement('span');s.className='vbd';s.title='Verified';s.setAttribute('aria-label','Verified');
+  s.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><use href="#vbs"/></svg>';return s}
+function vbadge(uid){return isVer(uid)?vbMk():null}
+function vbFlag(e,on){if(!e)return;const o=e.querySelector('.vbd');if(o)o.remove();if(on)e.appendChild(vbMk())}
+function vbPut(e,uid){vbFlag(e,isVer(uid))}
+/* the blue scalloped badge with a white check (like the one on X / Twitter): one shared symbol, fixed blue in every theme */
+document.body.insertAdjacentHTML('beforeend','<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="vbs" viewBox="0 0 24 24"><path d="M12.0 0.7L13.0 1.0L13.8 1.8L14.5 2.8L15.1 3.6L15.8 3.9L16.7 3.8L17.9 3.5L19.1 3.5L20.0 4.0L20.5 4.9L20.5 6.1L20.2 7.3L20.1 8.2L20.4 8.9L21.2 9.5L22.2 10.2L23.0 11.0L23.4 12.0L23.0 13.0L22.2 13.8L21.2 14.5L20.4 15.1L20.1 15.8L20.2 16.7L20.5 17.9L20.5 19.1L20.0 20.0L19.1 20.5L17.9 20.5L16.7 20.2L15.8 20.1L15.1 20.4L14.5 21.2L13.8 22.2L13.0 23.0L12.0 23.4L11.0 23.0L10.2 22.2L9.5 21.2L8.9 20.4L8.2 20.1L7.3 20.2L6.1 20.5L4.9 20.5L4.0 20.0L3.5 19.1L3.5 17.9L3.8 16.7L3.9 15.8L3.6 15.1L2.8 14.5L1.8 13.8L1.0 13.0L0.7 12.0L1.0 11.0L1.8 10.2L2.8 9.5L3.6 8.9L3.9 8.2L3.8 7.3L3.5 6.1L3.5 4.9L4.0 4.0L4.9 3.5L6.1 3.5L7.3 3.8L8.2 3.9L8.9 3.6L9.5 2.8L10.2 1.8L11.0 1.0Z" fill="#1d9bf0"/><path d="M7.4 12.4l3.1 3.1 6.2-6.6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol></svg>');
 function vbHead(c){vbPut($('cname'),c&&c.type==='dm'?peerOf(c):null)}
 
 /* ----- after an admin cleaned up this person's name, username or photo, fix the copies kept in his own chats (once per cleanup) ----- */
@@ -2270,6 +2295,7 @@ function admHealCheck(){try{if(me)vbPut($('sname'),me.uid)}catch(e){}   /* the t
   admHT=setInterval(async()=>{if(!me||!me.modAt){clearInterval(admHT);admHT=null;return}
     if(!chats.length&&++admHN<8)return;clearInterval(admHT);admHT=null;
     try{const U=me.uid,F=firebase.firestore.FieldValue;
+      if(!me.photo)savePhotoBig('');   /* an admin removed my photo: the big copy goes too */
       for(let i=0;i<chats.length;i+=400){const b=db.batch();let n=0;
         chats.slice(i,i+400).forEach(c=>{const o={};if(me.name)o['names.'+U]=me.name;if(me.username)o['unames.'+U]=me.username;
           if(c.type==='dm'&&me.pv_photo!=='nobody')o['photos.'+U]=me.photo?me.photo:F.delete();
@@ -2287,60 +2313,250 @@ function snapMute(){const m=$('cmu');if(!m)return;const on=!!(cur&&lset('mut').h
 (function(){const b=document.createElement('div');b.id='offb';b.textContent='Offline · showing saved chats';document.body.appendChild(b);
   const f=()=>{const off=navigator.onLine===false;b.classList.toggle('on',off);document.documentElement.classList.toggle('offl',off)};
   addEventListener('online',f);addEventListener('offline',f);f()})();
-/* ---------- friend suggestions: the newest accounts that are not your friends yet (Friends page) ---------- */
-const SUG={list:[],at:0,busy:false,err:false,sx:0,uid:''};
+/* ---------- friend suggestions: the newest accounts that are not your friends yet (shown on the Add friend page) ---------- */
+const SUG={list:[],at:0,busy:false,err:false,uid:''};
 async function sugLoad(force){
   if(!me||BGM||SUG.busy)return;
-  if(SUG.uid!==me.uid){SUG.uid=me.uid;SUG.list=[];SUG.at=0;SUG.err=false;SUG.sx=0}
+  if(SUG.uid!==me.uid){SUG.uid=me.uid;SUG.list=[];SUG.at=0;SUG.err=false}
   if(!force&&SUG.at&&Date.now()-SUG.at<20*60*1000)return;
   if(navigator.onLine===false&&!force)return;
   SUG.busy=true;
-  try{const q=await db.collection('users').orderBy('created','desc').limit(30).get();SUG.list=q.docs.map(x=>({uid:x.id,...x.data()}));SUG.at=Date.now();SUG.err=false}
+  try{const q=await db.collection('users').orderBy('created','desc').limit(40).get();SUG.list=q.docs.map(x=>({uid:x.id,...x.data()}));SUG.at=Date.now();SUG.err=false}
   catch(e){SUG.err=true;SUG.at=Date.now()-19*60*1000}
-  SUG.busy=false;if(tab==='fr'&&me)renderList()}
+  SUG.busy=false;try{adRefresh(true)}catch(e){}}
+/* private accounts are suggested too (their Add sends a friend request); accounts that are being deleted are not */
 function sugItems(){
+  if(!me)return[];
   const skip=new Set([me.uid]);chats.forEach(c=>{if(c.type==='dm')(c.members||[]).forEach(m=>skip.add(m))});
-  reqs.forEach(r=>skip.add(r.from));sent.forEach(r=>skip.add(r.to));
+  reqs.forEach(r=>skip.add(r.from));
   const blk=lset('blk'),hid=lset('sgx');
-  return SUG.list.filter(u=>!skip.has(u.uid)&&!blk.has(u.uid)&&!blockedBy.has(u.uid)&&!hid.has(u.uid)&&!u.private&&u.name&&u.username).slice(0,12)}
-function renderSugg(l){
-  if(!me||BGM)return;
-  sugLoad();
-  const it=sugItems();
-  hd2(l,'Find friends');
-  if(!it.length){emp(l,SUG.busy&&!SUG.at?'Looking for people…':SUG.err?'Couldn’t load suggestions. Check your internet connection.':'No new people to suggest right now.');return}
-  const row=document.createElement('div');row.className='sgr';
-  it.forEach(u=>{const c=document.createElement('div');c.className='sgc';
-    const x=document.createElement('button');x.className='sgx';x.type='button';x.setAttribute('aria-label','Hide');x.textContent='✕';x.onclick=e=>{e.stopPropagation();tog('sgx',u.uid);renderList()};
-    const a=document.createElement('div');a.className='av';av(a,u.name,false,u.pv_photo==='nobody'?null:u.photo);
-    const n=document.createElement('b');n.textContent=u.name;
-    const s=document.createElement('small');s.textContent='@'+u.username;
-    const j=document.createElement('small');j.className='sgj';j.textContent='Recently joined';
-    const b=document.createElement('button');b.className='btn';b.type='button';b.textContent='Add';b.onclick=e=>{e.stopPropagation();sugAdd(u,b)};
-    c.append(x,a,n,s,j,b);row.appendChild(c)});
-  row.onscroll=()=>{SUG.sx=row.scrollLeft};l.appendChild(row);row.scrollLeft=SUG.sx}
+  return SUG.list.filter(u=>!skip.has(u.uid)&&!blk.has(u.uid)&&!blockedBy.has(u.uid)&&!hid.has(u.uid)&&!u.delAt&&u.name&&u.username).slice(0,25)}
+/* Add somebody by uid/username data from find(): creates the chat at once (public account) or sends a friend request (private account / unfriended before) */
+async function addUser(o){
+  if(o.uid===me.uid)return{k:'self'};
+  const ex=chats.find(c=>c.type==='dm'&&c.members.includes(o.uid));if(ex)return{k:'friend',chat:ex};
+  const inc=reqs.find(r=>r.from===o.uid);if(inc)return{k:'incoming',req:inc};
+  const again=await wasUnfriended(o.uid);
+  if(o.private||again){await sendReq(o,again&&!o.private);return{k:'req'}}
+  const ref=db.collection('chats').doc(),c={type:'dm',members:[me.uid,o.uid],names:{[me.uid]:me.name,[o.uid]:o.name},photos:{...(me.photo&&me.pv_photo!=='nobody'?{[me.uid]:me.photo}:{}),...(o.photo?{[o.uid]:o.photo}:{})},unames:{[me.uid]:me.username,[o.uid]:o.username},emails:{[me.uid]:auth.currentUser.email}};
+  await ref.set(c);return{k:'chat',chat:{id:ref.id,...c}}}
 async function sugAdd(u,b){
   if(featBlock('friends'))return;
   b.disabled=true;b.textContent='Adding…';
   const drop=()=>{SUG.list=SUG.list.filter(x=>x.uid!==u.uid)};
-  try{const o=await find(u.username);
-    if(o.uid===me.uid){drop();return}
-    if(chats.some(c=>c.type==='dm'&&c.members.includes(o.uid))){drop();toast('You are already friends with '+o.name);return}
-    if(reqs.some(r=>r.from===o.uid)){toast(o.name+' already sent you a request. Accept it under Friend requests.');return}
-    const again=await wasUnfriended(o.uid);
-    if(o.private||again){await sendReq(o,again&&!o.private);return}
-    const ref=db.collection('chats').doc(),c={type:'dm',members:[me.uid,o.uid],names:{[me.uid]:me.name,[o.uid]:o.name},photos:{...(me.photo&&me.pv_photo!=='nobody'?{[me.uid]:me.photo}:{}),...(o.photo?{[o.uid]:o.photo}:{})},unames:{[me.uid]:me.username,[o.uid]:o.username},emails:{[me.uid]:auth.currentUser.email}};
-    await ref.set(c);drop();toast('You are now friends with '+o.name+'. Say hi from Chats.')}
+  try{const o=await find(u.username),r=await addUser(o);
+    if(r.k==='self')drop();
+    else if(r.k==='friend'){drop();toast('You are already friends with '+o.name)}
+    else if(r.k==='incoming')toast(o.name+' already sent you a request. Accept it under Friend requests.');
+    else if(r.k==='chat'){drop();toast('You are now friends with '+o.name+'. Say hi from Chats.')}}
   catch(e){toast(e.message)}
-  finally{b.disabled=false;b.textContent='Add';if(tab==='fr')renderList()}}
+  finally{b.disabled=false;b.textContent='Add';adRefresh(true)}}
+/* ---------- Add friend page: username box (Find) and, below it, "Find friends" suggestions ---------- */
+const ADF={res:null,sig:''};
+(function(){const p=document.createElement('div');p.id='adf';
+  p.innerHTML='<div class="top w"><button class="ib" id="adx" type="button" aria-label="Back">←</button><b style="flex:1">Add friend</b></div>'
+   +'<div class="sc" id="adb"><div class="adc"><label for="adu">Add by username</label><div class="adq"><span aria-hidden="true">@</span>'
+   +'<input id="adu" placeholder="username" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" enterkeyhint="search"><button class="adb" id="adg" type="button">Find</button></div><div id="adm" role="alert"></div></div>'
+   +'<div id="adr"></div><div id="adl"></div></div>';
+  document.body.appendChild(p);
+  $('adx').onclick=closeAdd;$('adg').onclick=adFind;
+  $('adu').oninput=function(){const v=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'');if(v!==this.value)this.value=v;$('adm').textContent=''};
+  $('adu').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();adFind()}}})();
+function addOpen(pre){
+  if(!me||featBlock('friends'))return;
+  ADF.res=null;ADF.sig='';$('adr').innerHTML='';$('adm').textContent='';
+  $('adu').value=typeof pre==='string'?clean(pre).replace(/[^a-z0-9_]/g,''):'';
+  $('adf').style.display='flex';$('adb').scrollTop=0;
+  sugLoad();adRefresh(true);
+  if($('adu').value)adFind()}
+function closeAdd(){$('adf').style.display='none';try{$('adu').blur()}catch(e){}ADF.res=null;if(me)renderList()}
+async function adFind(){
+  const un=clean($('adu').value),m=$('adm'),r=$('adr');m.textContent='';r.innerHTML='';ADF.res=null;
+  if(!un){m.textContent='Enter a username.';return}
+  if(!/^[a-z0-9_]{3,20}$/.test(un)){m.textContent='Usernames have 3 to 20 characters: a-z, 0-9 and _ only.';return}
+  if(un===me.username){m.textContent='That’s your own username.';return}
+  const b=$('adg');b.disabled=true;b.textContent='Finding…';
+  try{const o=await find(un);adCard(o)}catch(e){m.textContent=e.message}
+  finally{b.disabled=false;b.textContent='Find'}}
+/* a person row: photo, name (+ verified tick), @username and a button */
+function adRow(o,sub,btns){const d=urow(o.pv_photo==='nobody'?null:o.photo,o.name,sub,btns);vbFlag(d.querySelector('.t b'),o.verified===true);avTap(d.querySelector('.av'),o.uid,o.name);return d}
+function adBtn(txt,fn,sec){const b=document.createElement('button');b.type='button';b.className='adb'+(sec?' sec':'');b.textContent=txt;b.onclick=e=>{e.stopPropagation();fn(b)};return b}
+function adCard(o){
+  ADF.res=o;const r=$('adr');r.innerHTML='';
+  const ex=chats.find(c=>c.type==='dm'&&c.members.includes(o.uid)),inc=reqs.find(x=>x.from===o.uid),pend=sent.some(x=>x.to===o.uid);
+  let b,st='@'+o.username+(o.private?' · Private account':'');
+  if(ex){b=adBtn('Message',()=>{closeAdd();tab='chats';showLock=lset('lck').has(ex.id);[...$('nav').children].forEach(y=>y.classList.toggle('on',y.dataset.n==='chats'));$('fab').style.display='';renderList();openChat(ex)},true);st+=' · Friends'}
+  else if(inc){b=adBtn('Accept',async x=>{x.disabled=true;await acceptReq(inc);adRefresh(true)})}
+  else if(pend){b=adBtn('Requested',()=>reqDialog('You already sent a friend request to '+o.name+' (@'+o.username+'). Waiting for them to accept.',o.uid),true)}
+  else b=adBtn('Add',x=>adAdd(o,x));
+  const d=adRow(o,st,[b]);d.classList.add('adcard');r.appendChild(d)}
+async function adAdd(o,b){
+  if(featBlock('friends'))return;b.disabled=true;b.textContent='Adding…';
+  try{const x=await addUser(o);
+    if(x.k==='chat'){closeAdd();openChat(x.chat);return}
+    if(x.k==='friend'||x.k==='incoming'){adRefresh(true);return}
+  }catch(e){toast(e.message)}
+  b.disabled=false;b.textContent='Add';adRefresh(true)}
+function adList(){
+  const l=$('adl');l.innerHTML='';hd2(l,'Find friends');
+  const it=sugItems();
+  if(!it.length){emp(l,SUG.busy&&!SUG.at?'Looking for people…':SUG.err?'Couldn’t load suggestions. Check your internet connection.':'No new people to suggest right now.');return}
+  it.forEach(u=>{
+    const hide=document.createElement('button');hide.type='button';hide.className='adh';hide.setAttribute('aria-label','Hide suggestion');hide.textContent='✕';hide.onclick=e=>{e.stopPropagation();tog('sgx',u.uid);adRefresh(true)};
+    const asked=sent.some(x=>x.to===u.uid);
+    const d=adRow(u,'@'+u.username+(u.private?' · Private account':' · Recently joined'),[asked?adBtn('Requested',()=>reqDialog('You already sent a friend request to '+u.name+' (@'+u.username+'). Waiting for them to accept.',u.uid),true):adBtn('Add',b=>sugAdd(u,b)),hide]);
+    d.onclick=()=>{$('adu').value=u.username;adFind();$('adb').scrollTop=0};
+    l.appendChild(d)})}
+/* redraw the page when chats / requests / suggestions change (cheap: only when something visible changed) */
+function adRefresh(force){
+  if(!$('adf'))return;
+  if(!me){$('adf').style.display='none';return}
+  if($('adf').style.display!=='flex')return;
+  const sig=[chats.length,reqs.length,sent.length,SUG.at,SUG.busy,SUG.err,lset('sgx').size,lset('blk').size,sugItems().map(u=>u.uid).join(',')].join('|');
+  if(!force&&sig===ADF.sig)return;
+  ADF.sig=sig;adList();if(ADF.res)adCard(ADF.res)}
+/* ===== Expo Push (free, https://expo.dev) =====
+   OFF until config.js has  window.VT_EXPO_PROJECT_ID = '<your Expo project id>'.  Android app only.
+   Why only the Android app: exp.host does not accept calls from a browser (CORS), so the app uses Android's own HTTP client (CapacitorHttp).
+   1. This phone already gets a normal FCM token (push.js). It is exchanged for an Expo push token (exp.host/--/api/v2/push/getExpoPushToken, no secret).
+   2. The token is saved inside every chat of this person:  chats/<id>.xpt.<uid> = { t: token, l: 1 if the chat is locked }.
+      A muted chat gets no entry. Only members of a chat can read it, so only the people you chat with can ever see the token.
+   3. The SENDER's phone posts the message to exp.host/--/api/v2/push/send for every other member that has an entry (no secret needed).
+      A locked chat only shows "VText / New message". The Android service (VTextFcmService) turns the Expo message into a notification
+      when VText is closed; tapping it opens the chat (pushOpen). While VText is open the live chat listener already shows it. */
+const XP={tok:'',state:'',err:'',tm:null,busy:false,fail:0};
+const XP_APP='com.thindyuvraj.vtext';
+const xpProject=()=>String(window.VT_EXPO_PROJECT_ID||'').trim();
+const xpHttp=()=>plug('CapacitorHttp');
+const xpOn=()=>!!xpProject()&&isNative()&&!!xpHttp();
+const xpActive=()=>xpOn()&&XP.state==='on'&&!!XP.tok;
+function xpUuid(){let d=get('xdid','');
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(d)){
+    d=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});put('xdid',d)}
+  return d}
+async function xpPost(url,body){
+  const H=xpHttp();if(!H)throw new Error('Needs the newest VText APK');
+  const r=await H.request({url,method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},data:body,connectTimeout:15000,readTimeout:15000});
+  let d=r&&r.data;if(typeof d==='string'){try{d=JSON.parse(d)}catch(e){}}
+  if(!r||r.status<200||r.status>=300){const m=d&&d.errors&&d.errors[0]&&d.errors[0].message;throw new Error(m||('Expo answered '+(r&&r.status)))}
+  return d}
+/* called by push.js when Android gives this phone its FCM token */
+async function xpRegister(fcm){
+  if(!xpOn()||!me||!fcm)return;
+  try{
+    const r=await xpPost('https://exp.host/--/api/v2/push/getExpoPushToken',{type:'fcm',deviceId:xpUuid(),development:false,appId:XP_APP,deviceToken:fcm,projectId:xpProject()});
+    const t=r&&r.data&&r.data.expoPushToken;
+    if(typeof t!=='string'||!/^Expo(nent)?PushToken\[[^\]]+\]$/.test(t))throw new Error('Expo did not return a push token');
+    XP.tok=t;XP.state='on';XP.err='';XP.fail=0;xpSyncSoon(true)}
+  catch(e){XP.tok='';XP.state='err';XP.err=String((e&&e.message)||e)}
+  try{if(cp2==='notif')drawPanel('notif')}catch(e){}}
+/* keep chats/<id>.xpt.<me> equal to: token (not muted) / no entry (muted); only writes what differs */
+function xpSyncSoon(now){if(!xpActive())return;clearTimeout(XP.tm);XP.tm=setTimeout(xpSync,now?200:1500)}
+async function xpSync(){
+  if(!xpActive()||!me||XP.busy||Date.now()-XP.fail<3e5)return;XP.busy=true;
+  try{const mu=lset('mut'),lk=lset('lck'),F=firebase.firestore.FieldValue,k='xpt.'+me.uid,todo=[];
+    chats.forEach(c=>{const e=(c.xpt||{})[me.uid],want=mu.has(c.id)?null:{t:XP.tok,l:lk.has(c.id)?1:0};
+      if(want?(e&&e.t===want.t&&(e.l|0)===want.l):!e)return;todo.push([c.id,want])});
+    for(let i=0;i<todo.length;i+=400){const b=db.batch();todo.slice(i,i+400).forEach(x=>b.update(db.doc('chats/'+x[0]),{[k]:x[1]||F.delete()}));await b.commit()}}
+  catch(e){XP.fail=Date.now()}
+  XP.busy=false}
+/* logout / notifications switched off: remove this person's token from all chats (best effort) */
+async function xpForget(){
+  const had=!!XP.tok;XP.tok='';if(XP.state==='on')XP.state='';
+  if(!had||!me)return;
+  try{const F=firebase.firestore.FieldValue,k='xpt.'+me.uid,todo=chats.filter(c=>(c.xpt||{})[me.uid]);
+    for(let i=0;i<todo.length;i+=400){const b=db.batch();todo.slice(i,i+400).forEach(c=>b.update(db.doc('chats/'+c.id),{[k]:F.delete()}));await b.commit()}}
+  catch(e){}}
+/* a message was sent in chat c: tell the other members' phones (only members that have an entry, i.e. not muted) */
+function xpSend(c,p){
+  if(!xpOn()||!c||!me)return;
+  const x=c.xpt||{},g=c.type==='group',pv=String(p||'New message').replace(/\s+/g,' ').slice(0,140),out=[];
+  (c.members||[]).forEach(m=>{const e=x[m];if(m===me.uid||!e||typeof e.t!=='string'||blockedBy.has(m))return;
+    const o={to:e.t,data:{chat:c.id},channelId:'messages',priority:'high',sound:'default',ttl:86400};
+    if(e.l){o.title='VText';o.body='New message'}else if(g){o.title=title(c);o.body=String(me.name||'').split(' ')[0]+': '+pv}else{o.title=me.name||'VText';o.body=pv}
+    out.push(o)});
+  for(let i=0;i<out.length;i+=100)xpPost('https://exp.host/--/api/v2/push/send',out.slice(i,i+100)).catch(()=>{})}
+/* Settings > Notifications row: "Expo push" with a test button */
+async function xpTest(){
+  if(!xpActive()){toast(XP.state==='err'?'Expo push: '+XP.err:'Expo push is not registered on this phone yet');return}
+  try{const r=await xpPost('https://exp.host/--/api/v2/push/send',[{to:XP.tok,title:'VText',body:'Test: Expo push works ✅',data:{chat:''},channelId:'messages',priority:'high',sound:'default',ttl:600}]);
+    const t=r&&r.data&&(Array.isArray(r.data)?r.data[0]:r.data);
+    if(t&&t.status==='error')toast('Expo push: '+(t.message||'error'));else toast('Test sent. It arrives in a few seconds. Close VText to see it as a notification.')}
+  catch(e){toast('Expo push: '+((e&&e.message)||e))}}
+function xpRows(){
+  if(!xpProject())return[];
+  const s=!xpHttp()?'oldapk':XP.state||(isNative()?'':'web');
+  const T={on:'On: this phone gets new messages through Expo Push, also when VText is closed. Tap to send a test.',err:'Couldn’t register: '+XP.err,oldapk:'Needs the newest VText APK',web:'Only the Android app uses Expo Push',nofb:'Not set up yet: the app build needs the Firebase file (google-services.json). See README.','':'Not registered yet'};
+  return[{t:'Expo push',s:T[PUSH.state==='nofb'&&s!=='on'?'nofb':s]||'',tap:xpTest}]}
+/* ---------- full-screen profile photo (tap your own photo, or a friend's photo on Friend info) ---------- */
+/* The small 128px picture stays in users/<uid>.photo (used in lists). A bigger 512px copy of new pictures is kept in photos/<uid>
+   and fetched only when somebody opens the photo. Older pictures have no big copy: the small one is shown. */
+let PPH=0;
+(function(){const p=document.createElement('div');p.id='pph';
+  p.innerHTML='<div class="pphb"><button class="ib" id="pphx" type="button" aria-label="Back">←</button><b id="pphn"></b></div><div class="pphs"><img id="pphi" alt="Profile photo"></div>';
+  document.body.appendChild(p);
+  $('pphx').onclick=photoClose;
+  p.onclick=e=>{if(e.target.id==='pph'||e.target.classList.contains('pphs'))photoClose()}})();
+const PH_OK=/^data:image\/[a-z]+;base64,[A-Za-z0-9+\/=]+$/;
+function avPhoto(el){const m=el&&/url\(["']?(data:image\/[a-z]+;base64,[A-Za-z0-9+\/=]+)["']?\)/.exec(el.style.backgroundImage||'');return m?m[1]:''}
+function photoClose(){$('pph').style.display='none';PPH++;$('pphi').removeAttribute('src')}
+async function photoView(uid,name,thumb){
+  if(!thumb||!PH_OK.test(thumb))return;
+  const t=++PPH,im=$('pphi');
+  $('pphn').textContent=name||'';vbFlag($('pphn'),!!uid&&isVer(uid));
+  im.src=thumb;$('pph').style.display='flex';
+  if(!uid||navigator.onLine===false)return;
+  try{const x=await db.doc('photos/'+uid).get(),b=x.exists?x.data().b:'';
+    if(t===PPH&&typeof b==='string'&&PH_OK.test(b))im.src=b}catch(e){}}
+/* saved together with a new profile picture; an empty value removes the old big copy (e.g. when the new picture has none) */
+async function savePhotoBig(b){
+  if(!me)return;
+  try{if(b&&PH_OK.test(b)&&b.length<280000)await db.doc('photos/'+me.uid).set({b,ts:SV()});else await db.doc('photos/'+me.uid).delete()}catch(e){}}
+/* own profile picture: tap = look at it (no picture yet = choose one) */
+function photoSelf(){if(me.photo)photoView(me.uid,me.name,me.photo);else{pt='me';$('pf').click()}}
+
+/* tap a picture to look at it: chat list, Friends, Add friend rows and the chat header (no picture = nothing happens, the row / header works as before) */
+function avTap(el,uid,name){const t=avPhoto(el);if(!el||!t)return;el.style.cursor='pointer';el.onclick=e=>{e.stopPropagation();photoView(uid,name,t)}}
+$('cav').style.cursor='pointer';
+$('cav').onclick=()=>{if(!cur)return;const t=avPhoto($('cav'));if(t)photoView(cur.type==='dm'?peerOf(cur):null,title(cur),t);else $('hd').onclick()};
+/* ---------- delete account with a 7-day grace period ---------- */
+/* Delete account: password -> `delAt` (+ `delReq`, server time) is written to the profile and the person is logged out.
+   Logging in again within 7 days cancels the deletion. After 7 days a daily GitHub Actions job (scripts/delete-expired-accounts.js)
+   removes the login and all data. While it is pending the account is hidden from search and friend suggestions. */
+const DEL_DAYS=7;
+const delWhen=ms=>{try{return new Date(ms).toLocaleString('en-GB',{day:'numeric',month:'long',year:'numeric',hour:'numeric',minute:'2-digit'})}catch(e){return new Date(ms).toString()}};
+async function schedDelete(){
+  if(!me)return;
+  if(!(await confirmD('Your account will be deleted in '+DEL_DAYS+' days. If you log in to VText again before then, the deletion is cancelled and nothing is lost. Do you want to continue?')))return;
+  const pw=await ask('Enter your password to confirm','',false,true);if(!pw)return;
+  try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));
+    const at=Date.now()+DEL_DAYS*864e5;delSched=true;
+    try{await pushLogout()}catch(e){}
+    const b=db.batch();b.update(db.doc('users/'+me.uid),{delAt:at,delReq:SV()});b.delete(db.doc('locs/'+me.uid));b.delete(db.doc('users/'+me.uid+'/private/push'));await b.commit();
+    $('set').style.display='none';$('prf').style.display='none';
+    await msgD('Your account will be deleted on '+delWhen(at)+'.\n\nWant to keep it? Just log in again before that date. After that your account and username are removed for good and cannot be restored.');
+    logout()}
+  catch(e){delSched=false;toast(E[e.code]||'Wrong password or error: '+e.message)}}
+/* a person logs in while a deletion is pending: cancel it */
+async function delCancel(){
+  try{const F=firebase.firestore.FieldValue;await db.doc('users/'+me.uid).update({delAt:F.delete(),delReq:F.delete()});delete me.delAt;delete me.delReq;
+    msgD('Welcome back! Your account deletion has been cancelled. Your account stays exactly as it was.')}catch(e){}}
+/* called with every profile snapshot: true = this session must end */
+function delGate(first){
+  if(!me||!me.delAt||delSched)return false;
+  if(first){
+    if(me.delAt<=Date.now()){pendErr='This account was scheduled for deletion and the 7 days are over. It is being removed and can’t be used any more.';logout();return true}
+    delCancel();return false}
+  pendErr='This account is scheduled for deletion on '+delWhen(me.delAt)+'. Log in again before then to keep it.';logout();return true}
+$('da').onclick=schedDelete;
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
-function sq(f){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=128;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,128,128);res(cv.toDataURL('image/jpeg',.7))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
-$('sav').onclick=()=>{pt='me';$('pf').click()};
-$('pf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const p=await sq(f);if(pt==='g')await db.doc('chats/'+cur.id).update({photo:p});else{await db.doc('users/'+me.uid).set({photo:p},{merge:true});const b=db.batch();if(me.pv_photo!=='nobody')chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:p}));await b.commit();av($('sav'),me.name,false,p)}}catch(er){toast(er.message)}};
+function sq(f,n,q){n=n||128;q=q||.7;return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=n;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n);res(cv.toDataURL('image/jpeg',q))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
+$('sav').onclick=photoSelf;
+$('pf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const p=await sq(f),pb=pt==='g'?'':await sq(f,512,.82);if(pt==='g')await db.doc('chats/'+cur.id).update({photo:p});else{await db.doc('users/'+me.uid).set({photo:p},{merge:true});savePhotoBig(pb);const b=db.batch();if(me.pv_photo!=='nobody')chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:p}));await b.commit();av($('sav'),me.name,false,p)}}catch(er){toast(er.message)}};
 async function reportIt(uid,mid,txt){if(!(await confirmD('Report this user / message?')))return;db.collection('reports').add({by:me.uid,byName:me.name||'',byUn:me.username||'',against:uid,againstName:((cur&&cur.names)||{})[uid]||'',againstUn:((cur&&cur.unames)||{})[uid]||'',chat:cur?cur.id:null,msg:mid||null,text:(txt||'').slice(0,200),status:'new',ts:SV()}).then(()=>toast('Report sent. Thank you.')).catch(e=>toast(e.message))}
 const AP=plug('App');
 if(AP)AP.addListener('appStateChange',s=>{active=s.isActive;if(!s.isActive){if(!lockBusy)hiddenAt=Date.now()}else onResume()});
-if(AP)AP.addListener('backButton',()=>{if($('dlg').style.display==='flex')$('dc').onclick();else if($('perm').style.display==='flex')permHide();else if($('lpick').style.display==='flex'||($('loc').style.display==='flex'&&$('sheet').style.display!=='flex'))locBack();else if(window.camBack&&camBack());else if($('avt').style.display==='flex')$('avt').style.display='none';else if($('prf').style.display==='flex')$('prf').style.display='none';else if($('doc').style.display==='flex')$('doc').style.display='none';else if($('sheet').style.display==='flex')$('sheet').style.display='none';else if($('pv').style.display==='flex')$('pv').style.display='none';else if($('vw').style.display==='flex')$('vw').style.display='none';else if($('set').style.display==='flex')$('sx').onclick();else if($('app').classList.contains('open'))$('back').onclick();else AP.exitApp()});
+if(AP)AP.addListener('backButton',()=>{if($('dlg').style.display==='flex')$('dc').onclick();else if($('pph')&&$('pph').style.display==='flex')photoClose();else if($('perm').style.display==='flex')permHide();else if($('lpick').style.display==='flex'||($('loc').style.display==='flex'&&$('sheet').style.display!=='flex'))locBack();else if(window.camBack&&camBack());else if($('avt').style.display==='flex')$('avt').style.display='none';else if($('adf')&&$('adf').style.display==='flex')closeAdd();else if($('prf').style.display==='flex')$('prf').style.display='none';else if($('doc').style.display==='flex')$('doc').style.display='none';else if($('sheet').style.display==='flex')$('sheet').style.display='none';else if($('pv').style.display==='flex')$('pv').style.display='none';else if($('vw').style.display==='flex')$('vw').style.display='none';else if($('set').style.display==='flex')$('sx').onclick();else if($('app').classList.contains('open'))$('back').onclick();else AP.exitApp()});
 }
 </script></body></html>

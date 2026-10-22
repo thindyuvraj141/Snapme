@@ -15,4 +15,10 @@ window.FIREBASE_CONFIG = {
 window.VT_VAPID = '';
 // Set to true ONLY after you deployed the Cloud Function from the "functions" folder (needs the Firebase Blaze plan).
 // Then the server sends the message notifications and the app stops showing its own copy, so you never get two.
-window.VT_PUSH_SERVER = true;
+window.VT_PUSH_SERVER = false;
+
+// ---- Expo Push (free, https://expo.dev). OFF while this is empty. Android app only. See README > "Expo Push". ----
+// 1. Create a free account + project on expo.dev (any name), copy its Project ID (a long id like 1b2c3d4e-....).
+// 2. Paste it between the quotes. 3. Upload your Firebase service-account key to that Expo project (Credentials > Android > FCM V1).
+// With it on, a phone that gets a new message while VText is closed is woken by Expo Push; the app stops showing its own copy.
+window.VT_EXPO_PROJECT_ID = '';
