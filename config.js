@@ -21,4 +21,4 @@ window.VT_PUSH_SERVER = false;
 // 1. Create a free account + project on expo.dev (any name), copy its Project ID (a long id like 1b2c3d4e-....).
 // 2. Paste it between the quotes. 3. Upload your Firebase service-account key to that Expo project (Credentials > Android > FCM V1).
 // With it on, a phone that gets a new message while VText is closed is woken by Expo Push; the app stops showing its own copy.
-window.VT_EXPO_PROJECT_ID = '7ea5ed27-9443-4a62-a071-5a07b705f1e9';
+window.VT_EXPO_PROJECT_ID = '09381185-bafd-479f-acc9-854f300d606f';
