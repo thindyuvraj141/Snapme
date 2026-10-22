@@ -12,7 +12,7 @@ window.FIREBASE_CONFIG = {
 // ---- Push notifications (see README > "Push notifications") ----
 // Web push key for browsers: Firebase console > Project settings > Cloud Messaging > Web Push certificates > "Generate key pair",
 // then paste the long key between the quotes. Leave it empty to keep browser push off. (The Android app does not need it.)
-window.VT_VAPID = '';
+window.VT_VAPID = 'BPsplVeuoerHSxvJa5R8cDBaHNn_6J0I7AsyEMVRqwFl9bjkhHzRdTNO4bbx4T_Sv6sJthXTL_9MiJX3ZFteq28';
 // Set to true ONLY after you deployed the Cloud Function from the "functions" folder (needs the Firebase Blaze plan).
 // Then the server sends the message notifications and the app stops showing its own copy, so you never get two.
 window.VT_PUSH_SERVER = false;
