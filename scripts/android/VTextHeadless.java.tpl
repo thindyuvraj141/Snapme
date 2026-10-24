@@ -25,8 +25,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 /**
- * Runs the VText page in a hidden WebView while the app screen is closed (swiped away, backed out, or closed by Android),
- * so the chat connection keeps listening and new messages still produce a notification. The page is the normal VText page
+ * Runs the Snapme page in a hidden WebView while the app screen is closed (swiped away, backed out, or closed by Android),
+ * so the chat connection keeps listening and new messages still produce a notification. The page is the normal Snapme page
  * opened with "?bg=1": in that mode it does not show anything, does not mark you online and asks the service to show
  * notifications through window.VTBg.notify().  Everything runs on the main thread.
  */
@@ -112,7 +112,7 @@ final class VTextHeadless {
             web.setWebViewClient(new WebViewClient() {
                 @Override
                 public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                    // this hidden page may only ever show VText itself
+                    // this hidden page may only ever show Snapme itself
                     return !request.getUrl().toString().startsWith(site);
                 }
 
@@ -195,7 +195,7 @@ final class VTextHeadless {
     static void post(Context c, String title, String body, String chat) {
         try {
             if (!NotificationManagerCompat.from(c).areNotificationsEnabled()) return;
-            if (title == null || title.length() == 0) title = "VText";
+            if (title == null || title.length() == 0) title = "Snapme";
             if (body == null || body.length() == 0) body = "New message";
             if (title.length() > 120) title = title.substring(0, 120);
             if (body.length() > 400) body = body.substring(0, 400);

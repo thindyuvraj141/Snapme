@@ -24,7 +24,7 @@ import java.util.Map;
  * Receives the Firebase (FCM) messages of the app.
  *
  * Expo Push sends Android messages as "data only" FCM messages (keys title / message / body, no notification part). Android does not
- * show those by itself, so this service turns them into a normal VText message notification when the app screen is not in front.
+ * show those by itself, so this service turns them into a normal Snapme message notification when the app screen is not in front.
  * Tapping it opens the chat (MainActivity reads "vt_chat").
  * Everything else (normal FCM notification messages, token changes) is passed on to Capacitor's push plugin exactly as before.
  * Only installed when the push plugin is part of the build; it replaces Capacitor's own MessagingService (see patch_android.py).
@@ -41,7 +41,7 @@ public class VTextFcmService extends FirebaseMessagingService {
             if (m.getNotification() != null) return;           // a normal notification message: Android / Capacitor handle it
             Map<String, String> d = m.getData();
             if (d == null || !d.containsKey("body") || !(d.containsKey("title") || d.containsKey("message"))) return;   // not an Expo message
-            if (VTextBgPlugin.fg) return;                       // VText is open: the page already shows it
+            if (VTextBgPlugin.fg) return;                       // Snapme is open: the page already shows it
             String title = d.get("title"), text = d.get("message"), chat = "";
             try {
                 JSONObject j = new JSONObject(d.get("body"));
@@ -79,7 +79,7 @@ public class VTextFcmService extends FirebaseMessagingService {
     static void show(Context c, String title, String body, String chat) {
         try {
             if (!NotificationManagerCompat.from(c).areNotificationsEnabled()) return;
-            if (title == null || title.length() == 0) title = "VText";
+            if (title == null || title.length() == 0) title = "Snapme";
             if (body == null || body.length() == 0) body = "New message";
             if (title.length() > 120) title = title.substring(0, 120);
             if (body.length() > 400) body = body.substring(0, 400);

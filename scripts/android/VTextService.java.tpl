@@ -13,7 +13,7 @@ import android.os.IBinder;
 import androidx.core.app.NotificationCompat;
 
 /**
- * Keeps the VText process in the foreground so Android does not freeze it while the app is in the
+ * Keeps the Snapme process in the foreground so Android does not freeze it while the app is in the
  * background. This lets the chat connection keep delivering new-message notifications.
  * (HL = the hidden background page: when the app screen is gone, the service runs the page itself.)
  */
@@ -74,7 +74,7 @@ public class VTextService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         try {
             if (Build.VERSION.SDK_INT >= 26) {
-                NotificationChannel ch = new NotificationChannel(CHANNEL, "VText running in background", NotificationManager.IMPORTANCE_MIN);
+                NotificationChannel ch = new NotificationChannel(CHANNEL, "Snapme running in background", NotificationManager.IMPORTANCE_MIN);
                 ch.setShowBadge(false);
                 ch.setSound(null, null);
                 NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -89,7 +89,7 @@ public class VTextService extends Service {
             }
             NotificationCompat.Builder b = new NotificationCompat.Builder(this, CHANNEL)
                     .setSmallIcon(icon)
-                    .setContentTitle("VText")
+                    .setContentTitle("Snapme")
                     .setContentText("Running in the background so you can get messages")
                     .setOngoing(true)
                     .setShowWhen(false)

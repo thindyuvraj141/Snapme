@@ -98,7 +98,7 @@ public class MainActivity extends BridgeActivity {
         /*END_HL*/
         registerPlugin(VTextBgPlugin.class);
         super.onCreate(savedInstanceState);
-        // Never show the Android title bar (the "VText" strip at the top) and keep the window behind the page dark until the page paints.
+        // Never show the Android title bar (the "Snapme" strip at the top) and keep the window behind the page dark until the page paints.
         try {
             androidx.appcompat.app.ActionBar ab = getSupportActionBar();
             if (ab != null) ab.hide();

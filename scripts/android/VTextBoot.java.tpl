@@ -6,7 +6,7 @@ import android.content.Intent;
 
 import androidx.core.content.ContextCompat;
 
-/** After the phone restarts (or VText is updated) the background service is started again, if it was on. */
+/** After the phone restarts (or Snapme is updated) the background service is started again, if it was on. */
 public class VTextBoot extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -16,7 +16,7 @@ public class VTextBoot extends BroadcastReceiver {
             if (!context.getSharedPreferences("vtext", Context.MODE_PRIVATE).getBoolean("bg", false)) return;
             ContextCompat.startForegroundService(context, new Intent(context, VTextService.class));
         } catch (Throwable t) {
-            // not allowed right now: the service starts the next time VText is opened
+            // not allowed right now: the service starts the next time Snapme is opened
         }
     }
 }

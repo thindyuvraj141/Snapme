@@ -48,7 +48,7 @@ import com.getcapacitor.annotation.PermissionCallback;
         })
 public class VTextBgPlugin extends Plugin {
 
-    /** True while the VText screen is in front (set by MainActivity); the Expo push service shows nothing then. */
+    /** True while the Snapme screen is in front (set by MainActivity); the Expo push service shows nothing then. */
     static volatile boolean fg = false;
 
     // ---------- permissions: camera, gallery (photos / videos), location ----------
@@ -203,8 +203,8 @@ public class VTextBgPlugin extends Plugin {
     /** Shows the system fingerprint prompt. Resolves on success, rejects with "cancelled" or the error text. */
     @PluginMethod
     public void bioAuth(final PluginCall call) {
-        final String title = call.getString("title", "VText");
-        final String reason = call.getString("reason", "Unlock VText");
+        final String title = call.getString("title", "Snapme");
+        final String reason = call.getString("reason", "Unlock Snapme");
         final String cancel = call.getString("cancel", "Use password");
         if (getActivity() == null || !(getActivity() instanceof FragmentActivity)) {
             call.reject("Fingerprint is not available");
@@ -272,12 +272,12 @@ public class VTextBgPlugin extends Plugin {
         }
     }
 
-    /** Saves a photo / video / voice message / file into the phone's gallery or Downloads (folder "VText"). */
+    /** Saves a photo / video / voice message / file into the phone's gallery or Downloads (folder "Snapme"). */
     @PluginMethod
     public void saveMedia(PluginCall call) {
         String b64 = call.getString("data");
         String mime = call.getString("mime", "application/octet-stream");
-        String name = call.getString("name", "VText-" + System.currentTimeMillis());
+        String name = call.getString("name", "Snapme-" + System.currentTimeMillis());
         if (b64 == null || b64.isEmpty()) {
             call.reject("Nothing to save");
             return;
@@ -295,7 +295,7 @@ public class VTextBgPlugin extends Plugin {
                 ContentValues v = new ContentValues();
                 v.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
                 v.put(MediaStore.MediaColumns.MIME_TYPE, mime);
-                v.put(MediaStore.MediaColumns.RELATIVE_PATH, dir + "/VText");
+                v.put(MediaStore.MediaColumns.RELATIVE_PATH, dir + "/Snapme");
                 v.put(MediaStore.MediaColumns.IS_PENDING, 1);
                 Uri base = image ? MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                         : video ? MediaStore.Video.Media.EXTERNAL_CONTENT_URI
@@ -310,7 +310,7 @@ public class VTextBgPlugin extends Plugin {
                 ContentValues done = new ContentValues();
                 done.put(MediaStore.MediaColumns.IS_PENDING, 0);
                 cr.update(out, done, null, null);
-                shown = dir + "/VText";
+                shown = dir + "/Snapme";
             } else {
                 if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                     if (getActivity() != null) {
@@ -319,14 +319,14 @@ public class VTextBgPlugin extends Plugin {
                     call.reject("Allow storage access, then tap Save again");
                     return;
                 }
-                File folder = new File(Environment.getExternalStoragePublicDirectory(dir), "VText");
+                File folder = new File(Environment.getExternalStoragePublicDirectory(dir), "Snapme");
                 if (!folder.exists() && !folder.mkdirs()) throw new IOException("Could not create the folder");
                 File f = new File(folder, name);
                 try (FileOutputStream fo = new FileOutputStream(f)) {
                     fo.write(bytes);
                 }
                 MediaScannerConnection.scanFile(ctx, new String[]{f.getAbsolutePath()}, new String[]{mime}, null);
-                shown = dir + "/VText";
+                shown = dir + "/Snapme";
             }
             JSObject r = new JSObject();
             r.put("path", shown);
