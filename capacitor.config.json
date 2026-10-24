@@ -1,6 +1,6 @@
 {
   "appId": "com.thindyuvraj.vtext",
-  "appName": "VText",
+  "appName": "Snapme",
   "webDir": "www",
   "android": {
     "adjustMarginsForEdgeToEdge": "force"
