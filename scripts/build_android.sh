@@ -33,7 +33,7 @@ npmi() { npm install --no-audit --no-fund "$@" || { echo "npm install failed - t
 
 # ---------------------------------------------------------------------------------------------
 # Checks that must pass for every attempt. Fixes the one mistake that already happened once:
-# functions/package.json uploaded to the repo root replaces VText's own package.json, then Capacitor is not installed.
+# functions/package.json uploaded to the repo root replaces Snapme's own package.json, then Capacitor is not installed.
 # ---------------------------------------------------------------------------------------------
 preflight() {
   local missing="" f
@@ -45,7 +45,7 @@ preflight() {
     return 1
   fi
   if ! node -e "const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));const d=Object.assign({},p.devDependencies,p.dependencies);process.exit(d['@capacitor/core']&&d['@capacitor/android']&&d['@capacitor/cli']?0:1)" 2>/dev/null; then
-    echo "::warning::package.json in the repo root is not the VText one (it is probably functions/package.json that was uploaded to the root by mistake). The built-in copy is used for this build. Please upload the right package.json to the repo root."
+    echo "::warning::package.json in the repo root is not the Snapme one (it is probably functions/package.json that was uploaded to the root by mistake). The built-in copy is used for this build. Please upload the right package.json to the repo root."
     cat > package.json <<'JSON'
 {
   "name": "vtext",

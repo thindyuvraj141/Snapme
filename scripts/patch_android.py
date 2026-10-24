@@ -6,7 +6,7 @@ Environment:
                  "none"           = plain Capacitor project (only permissions, version, signing)
   VT_PUSH_PLUGIN "1" (default) = the push-notification plugin is part of this build: add the Firebase settings
                  "0"           = no push plugin: leave all Firebase settings out
-  VT_HEADLESS    "1" (default) = the background service can run the VText page in a hidden WebView while the app screen is closed
+  VT_HEADLESS    "1" (default) = the background service can run the Snapme page in a hidden WebView while the app screen is closed
                                  (needs VT_NATIVE=full and an app that loads the website, i.e. server.url in capacitor.config.json)
                  "0"           = leave that part out (the build script retries like this if that part does not compile)
 """
@@ -32,7 +32,7 @@ if native == 'full':
     if headless:
         perms += ['RECEIVE_BOOT_COMPLETED']
 add = ''.join('    <uses-permission android:name="android.permission.%s"/>\n' % x for x in perms if ('android.permission.%s"' % x) not in s)
-if native == 'full':  # gallery permission (photos / videos): asked once on the "Allow VText to..." screen
+if native == 'full':  # gallery permission (photos / videos): asked once on the "Allow Snapme to..." screen
     for x in ('READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO'):
         if ('android.permission.%s"' % x) not in s:
             add += '    <uses-permission android:name="android.permission.%s"/>\n' % x
@@ -52,7 +52,7 @@ if native == 'full' and 'VTextService' not in s:
            '        </service>\n')
     assert '</application>' in s
     s = s.replace('</application>', svc + '    </application>', 1)
-if headless and 'VTextBoot' not in s:  # starts the background service again after the phone restarts or VText is updated
+if headless and 'VTextBoot' not in s:  # starts the background service again after the phone restarts or Snapme is updated
     rcv = ('        <receiver android:name=".VTextBoot" android:exported="true">\n'
            '            <intent-filter>\n'
            '                <action android:name="android.intent.action.BOOT_COMPLETED"/>\n'
@@ -170,7 +170,7 @@ print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------
 # The Android project from `npx cap add android` can come with a theme that has a title bar (ActionBar). That shows up as a
-# ~56dp strip at the top of the app with the app name ("VText") in it. This part makes the theme deterministic: whatever the
+# ~56dp strip at the top of the app with the app name ("Snapme") in it. This part makes the theme deterministic: whatever the
 # template looks like, the app themes below have NO title bar and a solid dark window. The page then repaints the window and the
 # bars in its own colour (light / dark) through the VTextBg plugin (setBars).
 try:
