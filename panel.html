@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#4a63ff">
+<title>Snapme Admin</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--bg:#f5f6fc;--panel:#fff;--txt:#15162b;--sub:#6a7088;--line:#e3e5f0;--field:#eceef8;--acc:#4a63ff;--grad:linear-gradient(135deg,#4a63ff,#7c3aed);--ok:#12a45b;--warn:#c27803;--bad:#d93051;--okbg:#e3f7ec;--warnbg:#fff3d6;--badbg:#fde6eb;--shadow:0 6px 22px -10px #1b1f5a40}
+@media (prefers-color-scheme:dark){:root{--bg:#07080d;--panel:#12131b;--txt:#f1f2fa;--sub:#9a9fb4;--line:#ffffff1a;--field:#1a1b26;--acc:#7f93ff;--ok:#3ddc8c;--warn:#f5b73b;--bad:#ff6b88;--okbg:#10301f;--warnbg:#33290d;--badbg:#3a1520;--shadow:none}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none!important}
+.center{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;color:var(--sub)}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+h1,h2,h3{margin:0}
+h3{font-size:1rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0;box-shadow:var(--shadow)}
+.card>h3{margin-bottom:8px}
+.sub{color:var(--sub);font-size:.86rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>input,.row>select{flex:1;min-width:0}
+input,select,textarea{width:100%;background:var(--field);border:1px solid transparent;border-radius:12px;padding:11px 12px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--acc)}
+textarea{min-height:110px;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:600;background:var(--grad);color:#fff;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ghost{background:var(--field);color:var(--txt)}
+.btn.bad{background:var(--bad)}
+.btn.sm{padding:7px 11px;font-size:.85rem;border-radius:10px}
+.lnk{background:none;border:0;color:var(--acc);font-weight:600;cursor:pointer;padding:6px 4px;text-decoration:none}
+.chip{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--field);color:var(--sub);vertical-align:middle}
+.chip.ok{background:var(--okbg);color:var(--ok)}.chip.warn{background:var(--warnbg);color:var(--warn)}.chip.bad{background:var(--badbg);color:var(--bad)}.chip.acc{background:var(--acc);color:#fff}
+.er{color:var(--bad);min-height:1.2em;font-size:.88rem;margin:8px 0 0}
+.er.ok{color:var(--ok)}
+/* login */
+.box{max-width:400px;margin:0 auto;padding:36px 16px}
+.logo{font-size:1.8rem;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:4px}
+.box .card{display:flex;flex-direction:column;gap:10px}
+/* panel */
+.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding:calc(8px + env(safe-area-inset-top)) 0 0}
+.top .bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:1.1rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.grow{flex:1}
+#tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:6px 0 8px}
+#tabs::-webkit-scrollbar{display:none}
+#tabs button{flex:none;border:0;background:none;padding:7px 12px;border-radius:20px;font-weight:600;color:var(--sub);cursor:pointer}
+#tabs button.on{background:var(--acc);color:#fff}
+#tabs .n{display:inline-block;min-width:18px;padding:0 5px;margin-left:5px;border-radius:9px;background:var(--bad);color:#fff;font-size:.7rem;line-height:18px;text-align:center}
+main{padding-bottom:70px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:1.6rem;line-height:1.1}
+.stat span{color:var(--sub);font-size:.82rem}
+.item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;cursor:pointer}
+.item:first-child{border-top:0}
+.av{flex:none;width:40px;height:40px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.it{flex:1;min-width:0}
+.it b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.it small{color:var(--sub)}
+.sw{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.sw:first-of-type{border-top:0}
+.sw .it small{display:block}
+.tg{flex:none;position:relative;width:46px;height:28px;border-radius:14px;border:0;background:var(--field);cursor:pointer;transition:background .15s}
+.tg::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0004;transition:transform .15s}
+.tg.on{background:var(--ok)}.tg.on::after{transform:translateX(18px)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+blockquote{margin:8px 0;padding:8px 12px;border-left:3px solid var(--acc);background:var(--field);border-radius:0 10px 10px 0;word-break:break-word;white-space:pre-wrap}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:.9rem}
+.kv span:nth-child(odd){color:var(--sub)}
+.kv span{word-break:break-all}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem}
+.plan{margin:10px 0;padding:0;list-style:none}
+.plan li{padding:7px 0;border-top:1px solid var(--line);display:flex;gap:8px}
+.plan li:first-child{border-top:0}
+.plan .s{flex:none;width:20px;text-align:center}
+.empty{color:var(--sub);text-align:center;padding:18px 0}
+/* modal */
+#md{position:fixed;inset:0;z-index:50;background:#0008;display:flex;align-items:flex-end;justify-content:center}
+#md .sheet{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+@media (min-width:600px){#md{align-items:center}#md .sheet{border-radius:20px}}
+#md h3{margin-bottom:8px;font-size:1.1rem}
+#md p{margin:0 0 10px;color:var(--sub);white-space:pre-wrap}
+#toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#15162bee;color:#fff;padding:10px 16px;border-radius:22px;z-index:60;max-width:90vw;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="boot" class="center">Loading…</div>
+
+<section id="login" hidden>
+  <div class="box">
+    <div class="logo">Snapme Admin</div>
+    <p class="sub" style="margin:0 0 6px">Log in with your Snapme email and password. Only accounts that were made an admin can enter.</p>
+    <div class="card">
+      <input id="em" type="email" placeholder="Email" autocomplete="username" inputmode="email">
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="btn" id="go">Log in</button>
+      <div class="er" id="le"></div>
+    </div>
+    
+  </div>
+</section>
+
+<section id="deny" hidden>
+  <div class="box">
+    <div class="logo">Snapme Admin</div>
+    <div class="card">
+      <h3>This account is not an admin</h3>
+      <p class="sub" id="dmsg" style="margin:0"></p>
+      <p class="sub" style="margin:0">If you are the owner and this is the first time: open the Firebase console &gt; Firestore Database &gt; Start collection <b>admins</b>, Document ID = the account ID below, one field <b>role</b> (string) = <b>owner</b>. Then reload this page.</p>
+      <div class="kv"><span>Account ID</span><span class="mono" id="did"></span></div>
+      <div class="btns"><button class="btn sm" id="dcopy">Copy account ID</button><button class="btn sm ghost" id="dout">Log out</button></div>
+    </div>
+    
+  </div>
+</section>
+
+<div id="app" hidden>
+  <header class="top"><div class="wrap">
+    <div class="bar">
+      <span class="brand">Snapme Admin</span><span class="chip acc" id="role"></span>
+      <span class="grow"></span>
+      <a class="lnk" href="https://thindyuvraj141.github.io/VText/" target="_blank" rel="noopener">Open Snapme</a><button class="lnk" id="out">Log out</button>
+    </div>
+    <nav id="tabs"></nav>
+  </div></header>
+  <main class="wrap" id="view"></main>
+</div>
+
+<div id="md" hidden><div class="sheet" id="mdc"></div></div>
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBkh_MJ6qBZySNvUwitl1iuvdGK1iadS6k",
+  authDomain: "vtext-506f7.firebaseapp.com",
+  projectId: "vtext-506f7",
+  storageBucket: "vtext-506f7.firebasestorage.app",
+  messagingSenderId: "448390510213",
+  appId: "1:448390510213:web:0b96f283bedf72d43ddbec"
+};
+</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const tms=v=>v?(v.toMillis?v.toMillis():(typeof v==='number'?v:0)):0;
+const fmt=v=>{const m=tms(v);return m?new Date(m).toLocaleString([], {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'};
+const ini=n=>(String(n||'?').trim()[0]||'?').toUpperCase();
+const DAY=864e5;
+const FEATS=[['loc','Location (Friends map)','Nobody can open the map or share their position. Anyone who was sharing stops.'],['cam','Camera','The camera screen cannot be opened.'],['voice','Voice messages','The microphone button is blocked.'],['groups','Creating groups','Nobody can start a new group.'],['attach','Photos, videos and documents','The attach (paper clip) button in chats is blocked.'],['post','Snaps & Feed','Nobody can post a new snap. The Feed and Memories still open.'],['friends','Adding new friends','Nobody can start a new chat or send a friend request. Existing chats keep working.'],['signup','New sign-ups','Nobody can create a new account. Logging in still works.']];
+const featName=k=>(FEATS.find(f=>f[0]===k)||[k,k])[1];
+
+firebase.initializeApp(window.FIREBASE_CONFIG);
+const auth=firebase.auth(),db=firebase.firestore();
+try{auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e){}
+const SV=()=>firebase.firestore.FieldValue.serverTimestamp();
+const FDEL=()=>firebase.firestore.FieldValue.delete();
+let ME=null,TAB='dash';
+
+/* ---------- small helpers ---------- */
+let tt=null;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),3200)}
+function errText(e){const c=e&&e.code;if(c==='permission-denied')return'Not allowed. Your role may not include this, or the newest Firestore rules are not published yet.';if(c==='unavailable')return'No internet connection.';return(e&&e.message)||String(e)}
+function show(id){['boot','login','deny','app'].forEach(x=>$(x).hidden=x!==id)}
+function modal(html){$('mdc').innerHTML=html;$('md').hidden=false}
+function closeModal(){$('md').hidden=true;$('mdc').innerHTML=''}
+$('md').addEventListener('click',e=>{if(e.target===$('md'))closeModal()});
+/* a small question box: returns the typed text (or true for a plain confirm; {v,s} when it has a choice list) or null when cancelled */
+function ask(o){return new Promise(res=>{
+  modal('<h3>'+esc(o.title)+'</h3>'+(o.text?'<p>'+esc(o.text)+'</p>':'')
+    +(o.select?'<select id="as" style="margin-bottom:8px">'+o.select.map(x=>'<option value="'+esc(x[0])+'">'+esc(x[1])+'</option>').join('')+'</select>':'')
+    +(o.input?(o.area?'<textarea id="aq" placeholder="'+esc(o.ph||'')+'">'+esc(o.val||'')+'</textarea>':'<input id="aq" placeholder="'+esc(o.ph||'')+'" value="'+esc(o.val||'')+'">'):'')
+    +'<div class="btns"><button class="btn ghost" id="aqn">Cancel</button><button class="btn'+(o.bad?' bad':'')+'" id="aqy">'+esc(o.ok||'OK')+'</button></div>');
+  const done=v=>{closeModal();res(v)};
+  $('aqn').onclick=()=>done(null);
+  $('aqy').onclick=()=>{const t=o.input?$('aq').value.trim():'';done(o.select?{v:t,s:$('as').value}:(o.input?t:true))};
+  if(o.input)setTimeout(()=>{const i=$('aq');i&&i.focus()},50)})}
+async function copy(t){try{await navigator.clipboard.writeText(t);toast('Copied');return true}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();let ok=false;try{ok=document.execCommand('copy')}catch(x){}a.remove();toast(ok?'Copied':'Select the text and copy it by hand');return ok}}
+
+/* ---------- data helpers ---------- */
+const NAME=new Map();
+async function userDoc(uid){try{const s=await db.doc('users/'+uid).get();return s.exists?s.data():null}catch(e){return null}}
+async function nameOf(uid){if(NAME.has(uid))return NAME.get(uid);const u=await userDoc(uid);const n=u?{name:u.name||'',un:u.username||''}:{name:'',un:''};NAME.set(uid,n);return n}
+const label=(n,un)=>(n||'Unknown')+(un?' (@'+un+')':'');
+/* "@alice", "alice" or an account ID  ->  account ID */
+async function uidOf(x){const s=String(x||'').trim();if(!s)throw Error('Please enter a username.');
+  const un=s.replace(/^@/,'').toLowerCase();
+  if(/^[a-z0-9_]{3,20}$/.test(un)){const u=await db.doc('usernames/'+un).get();if(u.exists&&u.data().uid&&!u.data().retired)return u.data().uid}
+  if(/^[A-Za-z0-9]{20,40}$/.test(s)){const u=await db.doc('users/'+s).get();if(u.exists)return s}
+  throw Error('No user found for "'+s+'".')}
+async function log(what,detail,via){try{await db.collection('adminlog').add({by:ME.uid,byName:ME.name||'',what,detail:String(detail||'').slice(0,300),via:via||'panel',ts:SV()})}catch(e){}}
+async function cfgGet(){const s=await db.doc('config/app').get();return s.exists?s.data():{}}
+async function cfgSet(mut){const o=await cfgGet();mut(o);o.updBy=ME.uid;o.updTs=SV();await db.doc('config/app').set(o);return o}
+async function listAll(col,lim){const s=await db.collection(col).limit(lim||200).get();return s.docs.map(d=>({id:d.id,...d.data()}))}
+const isOwner=()=>ME&&ME.role==='owner';
+const banEnded=b=>{const u=tms(b&&b.until);return !!(u&&u<Date.now())};
+const banLive=b=>!!b&&!banEnded(b);
+const banWhen=b=>{const u=tms(b.until);return u?(banEnded(b)?'ended '+fmt(b.until):'until '+fmt(b.until)):'until an admin lifts it'};
+const fmtN=n=>n==null?'—':(typeof n==='number'?n.toLocaleString():String(n));
+
+/* number of documents. First the SDK's own count() (if this SDK version has it), then the Firestore REST address (counts without
+   reading the documents), then a capped read ("500+"). The result is remembered for a minute. */
+const CC=new Map(),CAP=500;
+async function countQ(col,filters){
+  const fl=filters||[],ck=col+'|'+fl.map(f=>f[0]+f[1]).join(','),hit=CC.get(ck);
+  if(hit&&Date.now()-hit.t<60000)return hit.v;
+  const done=v=>{if(v!=null)CC.set(ck,{t:Date.now(),v});return v};
+  let q=db.collection(col);fl.forEach(f=>{q=q.where(f[0],f[1],f[2])});
+  try{if(typeof q.count==='function'){const s=await q.count().get();return done(s.data().count)}}catch(e){if(e&&e.code==='permission-denied')return null}
+  try{const tok=await auth.currentUser.getIdToken(),P=window.FIREBASE_CONFIG.projectId;
+    const val=v=>v instanceof Date?{timestampValue:v.toISOString()}:typeof v==='boolean'?{booleanValue:v}:typeof v==='number'?{integerValue:String(v)}:{stringValue:String(v)};
+    const OP={'==':'EQUAL','>=':'GREATER_THAN_OR_EQUAL','>':'GREATER_THAN','<':'LESS_THAN','<=':'LESS_THAN_OR_EQUAL'};
+    const ff=fl.map(f=>({fieldFilter:{field:{fieldPath:f[0]},op:OP[f[1]],value:val(f[2])}})),sq={from:[{collectionId:col}]};
+    if(ff.length)sq.where=ff.length===1?ff[0]:{compositeFilter:{op:'AND',filters:ff}};
+    const r=await fetch('https://firestore.googleapis.com/v1/projects/'+P+'/databases/(default)/documents:runAggregationQuery',{method:'POST',headers:{'Authorization':'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({structuredAggregationQuery:{structuredQuery:sq,aggregations:[{alias:'n',count:{}}]}})});
+    if(r.ok){const j=await r.json(),f=j&&j[0]&&j[0].result&&j[0].result.aggregateFields&&j[0].result.aggregateFields.n;if(f&&f.integerValue!=null)return done(+f.integerValue)}
+  }catch(e){}
+  try{const s=await q.limit(CAP+1).get();return done(s.size>CAP?CAP+'+':s.size)}catch(e){return null}}
+
+/* ----- what an admin can do (each action is written to the log) ----- */
+async function banUser(uid,reason,via,days){
+  const d={reason:reason||'',by:ME.uid,byName:ME.name||'',ts:SV()},n=Math.floor(+days);
+  if(n>0)d.until=firebase.firestore.Timestamp.fromMillis(Date.now()+n*DAY);
+  try{await db.doc('bans/'+uid).set(d)}
+  catch(e){if(e.code==='permission-denied')throw Error('This account cannot be suspended (admins cannot be suspended: remove the admin role first).');throw e}
+  const nm=await nameOf(uid);log('ban',label(nm.name,nm.un)+' · '+(n>0?n+' day'+(n===1?'':'s'):'until lifted')+(reason?' · '+reason:''),via)}
+async function unbanUser(uid,via){await db.doc('bans/'+uid).delete();
+  try{const a=await db.doc('appeals/'+uid).get();if(a.exists&&a.data().status==='new')await db.doc('appeals/'+uid).update({status:'accepted',handledBy:ME.uid,handledTs:SV()})}catch(e){}
+  const n=await nameOf(uid);log('unban',label(n.name,n.un),via)}
+async function appealReject(uid,note,via){const a=await db.doc('appeals/'+uid).get();if(!a.exists)throw Error('There is no appeal from this person.');
+  await db.doc('appeals/'+uid).update({status:'rejected',note:String(note||'').slice(0,300),handledBy:ME.uid,handledTs:SV()});const n=await nameOf(uid);log('appeal_reject',label(n.name,n.un)+(note?' · '+note:''),via)}
+async function appealDelete(uid,via){await db.doc('appeals/'+uid).delete();log('appeal_delete',uid,via)}
+async function warnUser(uid,text,via){const t=String(text||'').trim().slice(0,400);if(!t)throw Error('Write the warning first.');if(uid===ME.uid)throw Error('You cannot warn yourself.');
+  await db.doc('warnings/'+uid).set({id:Date.now().toString(36),text:t,by:ME.uid,byName:ME.name||'',ts:SV()});const n=await nameOf(uid);log('warn',label(n.name,n.un)+' · '+t,via)}
+async function verifyUser(uid,on,via){await db.doc('users/'+uid).update({verified:on?true:FDEL()});const n=await nameOf(uid);log(on?'verify':'unverify',label(n.name,n.un),via)}
+/* clean up a bad photo, name or username. The person's own app then fixes the copies in his chats the next time it opens. */
+async function cleanUser(uid,what,via){const u=await userDoc(uid);if(!u)throw Error('User not found.');const n=await nameOf(uid),lb=label(n.name,n.un);
+  if(what==='photo'){await db.doc('users/'+uid).update({photo:FDEL(),cover:FDEL(),modAt:SV()});log('remove_photo',lb,via)}
+  else if(what==='name'){await db.doc('users/'+uid).update({name:'Snapme user',modAt:SV()});NAME.delete(uid);log('reset_name',lb,via)}
+  else if(what==='username'){const old=u.username;let done=false,last=null;
+    for(let i=0;i<6&&!done;i++){const nu='user'+String(Math.floor(Math.random()*900000)+100000);
+      if((await db.doc('usernames/'+nu).get()).exists)continue;
+      const b=db.batch();b.set(db.doc('usernames/'+nu),{uid});
+      if(old&&(await db.doc('usernames/'+old).get()).exists)b.update(db.doc('usernames/'+old),{retired:true});
+      b.update(db.doc('users/'+uid),{username:nu,modAt:SV()});
+      try{await b.commit();done=true;NAME.delete(uid);log('reset_username','@'+(old||'?')+' → @'+nu,via)}catch(e){last=e}}
+    if(!done)throw last||Error('Could not find a free username. Try again.')}
+  else throw Error('Unknown clean-up.')}
+async function noteSave(uid,text,via){const t=String(text||'').trim().slice(0,1000),n=await nameOf(uid);
+  if(!t){await db.doc('adminnotes/'+uid).delete();log('note_delete',label(n.name,n.un),via);return}
+  await db.doc('adminnotes/'+uid).set({text:t,by:ME.uid,byName:ME.name||'',ts:SV()});log('note',label(n.name,n.un),via)}
+async function removeMessage(chat,msg,via){
+  let parts=0;try{const s=await db.doc('chats/'+chat+'/messages/'+msg).get();if(s.exists)parts=+(s.data().parts)||0}catch(e){}
+  for(let i=0;i<parts&&i<200;i++){try{await db.doc('chats/'+chat+'/messages/'+msg+'/parts/p'+i).delete()}catch(e){}}
+  await db.doc('chats/'+chat+'/messages/'+msg).delete();log('remove_message',chat+'/'+msg,via)}
+async function removePost(id,via){await db.doc('posts/'+id).delete();log('remove_snap',id,via)}
+async function removeChat(chat,via){await db.doc('chats/'+chat).delete();log('remove_chat',chat,via)}
+async function reportDone(id,via){await db.doc('reports/'+id).update({status:'done',handledBy:ME.uid,handledTs:SV()});log('report_done',id,via)}
+async function reportDelete(id,via){await db.doc('reports/'+id).delete();log('report_delete',id,via)}
+async function setAdmin(uid,role,via){await db.doc('admins/'+uid).set({role,by:ME.uid,ts:SV()});const n=await nameOf(uid);log('admin_set',label(n.name,n.un)+' · '+role,via)}
+async function delAdmin(uid,via){await db.doc('admins/'+uid).delete();const n=await nameOf(uid);log('admin_remove',label(n.name,n.un),via)}
+const wordsClean=a=>[...new Set((Array.isArray(a)?a:[]).map(x=>String(x==null?'':x).trim().toLowerCase()).filter(x=>x&&x.length<=40))].slice(0,300);
+async function setWords(arr,why,via){const w=wordsClean(arr);await cfgSet(o=>{if(w.length)o.words=w;else delete o.words});log('words',why+' · '+w.length+' in the list',via);return w}
+/* msg / link: undefined = leave as it is, '' = remove */
+async function setMinVer(v,msg,link,via){const n=Math.floor(+v)||0;if(typeof link==='string'&&link.trim()&&!/^https:\/\//i.test(link.trim()))throw Error('The download link must start with https://');
+  await cfgSet(o=>{if(n>0)o.minVer=n;else delete o.minVer;
+    if(typeof msg==='string'){const m=msg.trim().slice(0,300);if(m)o.minMsg=m;else delete o.minMsg}
+    if(typeof link==='string'){const l=link.trim().slice(0,300);if(l)o.updUrl=l;else delete o.updUrl}});
+  log('min_version',n>0?'version '+n+' or newer':'off',via)}
+
+/* ---------- tabs ---------- */
+const TABS=()=>[['dash','Overview'],['users','Users'],['reports','Reports'],['appeals','Appeals'],...(isOwner()?[['ctl','Controls'],['adm','Admins']]:[]),['log','Log'],['ai','Claude']];
+let REPN=0,APPN=0;
+const badge=n=>n?'<span class="n">'+(n>99?'99+':n)+'</span>':'';
+function drawTabs(){$('tabs').innerHTML=TABS().map(t=>'<button data-t="'+t[0]+'" class="'+(t[0]===TAB?'on':'')+'">'+t[1]+(t[0]==='reports'?badge(REPN):t[0]==='appeals'?badge(APPN):'')+'</button>').join('')}
+$('tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)go(b.dataset.t)});
+async function go(t,keep){if(t==='reports'&&!keep){REPQ='';REPA=''}TAB=t;drawTabs();const v=$('view');v.innerHTML='<div class="empty">Loading…</div>';window.scrollTo(0,0);
+  try{await VIEW[t]()}catch(e){v.innerHTML='<div class="card"><h3>Something went wrong</h3><p class="sub">'+esc(errText(e))+'</p><button class="btn sm" data-a="retry">Try again</button></div>'}}
+$('view').addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+  try{if(ACT[a])await ACT[a](b,e)}catch(x){toast(errText(x))}});
+$('mdc').addEventListener('click',async e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+  try{if(ACT[a])await ACT[a](b,e)}catch(x){toast(errText(x))}});
+function afterAct(){if(TAB==='users')return go('users');if(TAB==='reports')return drawReports();if(TAB==='appeals')return go('appeals');if(TAB==='dash')return go('dash')}
+
+/* ---------- overview ---------- */
+async function loadReports(){const s=await db.collection('reports').orderBy('ts','desc').limit(150).get();return s.docs.map(d=>({id:d.id,...d.data()}))}
+async function loadAppeals(){const s=await db.collection('appeals').orderBy('ts','desc').limit(100).get();return s.docs.map(d=>({id:d.id,...d.data()}))}
+const stat=(t,n,l)=>'<button class="stat" data-a="tab" data-t="'+t+'"><b>'+esc(n)+'</b><span>'+esc(l)+'</span></button>';
+const VIEW={};
+VIEW.dash=async function(){
+  const t0=new Date();t0.setHours(0,0,0,0);
+  const [reps,bans,adm,cfg,apps,nUsers,nAct,nNew]=await Promise.all([loadReports(),listAll('bans'),listAll('admins'),cfgGet(),loadAppeals(),countQ('users'),countQ('users',[['seen','>=',new Date(Date.now()-DAY)]]),countQ('users',[['created','>=',t0]])]);
+  REPN=reps.filter(r=>r.status!=='done').length;APPN=apps.filter(a=>a.status==='new').length;drawTabs();
+  const off=Object.keys(cfg.off||{}).filter(k=>cfg.off[k]===true),n=cfg.notice,live=bans.filter(banLive).length;
+  $('view').innerHTML='<div class="stats" style="margin-top:12px">'
+   +stat('reports',REPN,'Reports waiting')+stat('appeals',APPN,'Appeals waiting')+stat('users',live,'Suspended now')
+   +stat('users',fmtN(nUsers),'Users in total')+stat('users',fmtN(nAct),'Active in 24 hours')+stat('users',fmtN(nNew),'New today')
+   +stat(isOwner()?'adm':'log',adm.length,'Admins')+'</div>'
+   +'<p class="sub" style="margin:8px 2px 0">“New today” only counts accounts made after the latest app update (older accounts have no creation date). “Active” counts people whose online status is switched on.</p>'
+   +'<div class="card"><h3>App status</h3><div class="kv">'
+   +'<span>Maintenance</span><span>'+(cfg.maint===true?'<span class="chip warn">ON</span> '+esc(cfg.maintMsg||''):'<span class="chip ok">Off</span>')+'</span>'
+   +'<span>Switched off</span><span>'+(off.length?off.map(k=>'<span class="chip bad">'+esc(featName(k))+'</span>').join(' '):'<span class="chip ok">Nothing, everything is on</span>')+'</span>'
+   +'<span>Announcement</span><span>'+(n&&n.text?'<b>'+esc(n.title||'Announcement')+'</b><br>'+esc(n.text):'None')+'</span>'
+   +'<span>Minimum app</span><span>'+(+cfg.minVer>0?'Version 1.0.'+esc(cfg.minVer)+' or newer':'Not required')+'</span>'
+   +'<span>Blocked words</span><span>'+((cfg.words||[]).length?(cfg.words.length+' in the list'):'None')+'</span></div>'
+   +(isOwner()?'<div class="btns"><button class="btn sm ghost" data-a="tab" data-t="ctl">Open Controls</button></div>':'')+'</div>'
+   +'<div class="card"><h3>Download (CSV)</h3><p class="sub" style="margin:0 0 6px">Opens in Excel or Google Sheets. Keep these files private.</p><div class="btns">'
+   +'<button class="btn sm ghost" data-a="exp" data-k="reports">Reports</button><button class="btn sm ghost" data-a="exp" data-k="bans">Suspended accounts</button><button class="btn sm ghost" data-a="exp" data-k="appeals">Appeals</button><button class="btn sm ghost" data-a="exp" data-k="log">Admin log</button>'
+   +(isOwner()?'<button class="btn sm ghost" data-a="exp" data-k="users">All users</button>':'')+'</div></div>'
+   +'<div class="card"><h3>Your role: '+esc(ME.role==='owner'?'Owner':'Moderator')+'</h3><p class="sub" style="margin:0">'+(isOwner()
+     ?'You can suspend users (for a time or until you lift it), warn them, answer appeals, handle reports, clean up bad names and photos, keep private notes, give the verified badge, change the app switches, require an app update, keep the blocked-words list, publish announcements and add or remove admins.'
+     :'You can suspend and warn users, answer appeals, clean up bad names and photos, handle reports and keep private notes. Only the owner can change app switches, the blocked-words list, app updates, the verified badge and admins.')+'</p></div>'};
+
+/* ---------- users ---------- */
+const US={cursor:null,done:false,list:[],bans:new Map(),adm:new Map()};
+async function userStatus(){const [b,a]=await Promise.all([listAll('bans'),listAll('admins')]);US.bans=new Map(b.map(x=>[x.id,x]));US.adm=new Map(a.map(x=>[x.id,x]))}
+function uRow(id,u){const b=US.bans.get(id),a=US.adm.get(id);
+  return'<button class="item" data-a="user" data-u="'+esc(id)+'"><span class="av">'+(u.photo&&/^data:image\//.test(u.photo)?'<img src="'+esc(u.photo)+'" alt="">':esc(ini(u.name)))+'</span><span class="it"><b>'+esc(u.name||'No name')+'</b><small>@'+esc(u.username||'?')+'</small></span>'
+   +(u.verified===true?'<span class="chip ok">✓ Verified</span>':'')+(a?'<span class="chip acc">'+(a.role==='owner'?'Owner':'Mod')+'</span>':'')+(b?(banEnded(b)?'<span class="chip warn">Suspension ended</span>':'<span class="chip bad">Suspended'+(b.until?' · timed':'')+'</span>'):'')+'</button>'}
+VIEW.users=async function(){
+  US.cursor=null;US.done=false;US.list=[];await userStatus();
+  $('view').innerHTML='<div class="card"><h3>Find a user</h3><div class="row"><input id="uq" placeholder="Username, e.g. alice" autocapitalize="off"><button class="btn" data-a="find">Find</button></div><div class="er" id="ufe"></div></div>'
+   +'<div class="card"><h3>Suspended accounts</h3><div id="ubans"></div></div>'
+   +'<div class="card"><h3>All users</h3><div id="ulist"></div><div class="btns"><button class="btn ghost sm" data-a="more" id="umore">Show more</button></div></div>';
+  $('uq').addEventListener('keydown',e=>{if(e.key==='Enter')ACT.find()});
+  const bl=[...US.bans.keys()];
+  $('ubans').innerHTML=bl.length?'':'<div class="empty">Nobody is suspended.</div>';
+  for(const id of bl){const u=await userDoc(id)||{name:'(account not found)',username:''};$('ubans').insertAdjacentHTML('beforeend',uRow(id,u))}
+  await ACT.more()};
+async function usersMore(){
+  let q=db.collection('users').limit(25);if(US.cursor)q=db.collection('users').startAfter(US.cursor).limit(25);
+  const s=await q.get();if(s.docs.length)US.cursor=s.docs[s.docs.length-1];if(s.docs.length<25){US.done=true;const m=$('umore');if(m)m.hidden=true}
+  const l=$('ulist');if(!l)return;
+  s.docs.forEach(d=>l.insertAdjacentHTML('beforeend',uRow(d.id,d.data())));
+  if(!l.children.length)l.innerHTML='<div class="empty">No users yet.</div>'}
+async function openUser(uid){
+  modal('<div class="empty">Loading…</div>');
+  const [u,b,a,nt,ap,rs]=await Promise.all([userDoc(uid),db.doc('bans/'+uid).get(),db.doc('admins/'+uid).get(),db.doc('adminnotes/'+uid).get().catch(()=>null),db.doc('appeals/'+uid).get().catch(()=>null),db.collection('reports').where('against','==',uid).limit(100).get().catch(()=>null)]);
+  if(!u){modal('<h3>User not found</h3><div class="btns"><button class="btn ghost" data-a="close">Close</button></div>');return}
+  const banned=b.exists,bd=banned?b.data():null,live=banned&&banLive(bd),role=a.exists?(a.data().role||'mod'):null,ad=ap&&ap.exists?ap.data():null,note=nt&&nt.exists?nt.data():null;
+  const rl=rs?rs.docs.map(d=>d.data()):[],rw=rl.filter(x=>x.status!=='done').length,me0=uid===ME.uid,canDisc=!me0&&(isOwner()||!role);
+  modal('<div class="row" style="margin-bottom:10px"><span class="av">'+(u.photo&&/^data:image\//.test(u.photo)?'<img src="'+esc(u.photo)+'" alt="">':esc(ini(u.name)))+'</span><div class="it"><b>'+esc(u.name||'No name')+'</b><small>@'+esc(u.username||'?')+'</small></div>'
+    +(u.verified===true?'<span class="chip ok">✓ Verified</span>':'')+(role?'<span class="chip acc">'+(role==='owner'?'Owner':'Mod')+'</span>':'')+(live?'<span class="chip bad">Suspended</span>':(banned?'<span class="chip warn">Suspension ended</span>':''))+'</div>'
+    +'<div class="kv"><span>Account ID</span><span class="mono">'+esc(uid)+'</span><span>Last seen</span><span>'+esc(fmt(u.seen))+'</span>'+(u.created?'<span>Joined</span><span>'+esc(fmt(u.created))+'</span>':'')+'<span>Account</span><span>'+(u.private?'Private (needs a request)':'Public')+'</span>'
+    +'<span>Reports about</span><span>'+rl.length+(rl.length?' ('+rw+' waiting) <button class="lnk" data-a="seerep" data-u="'+esc(uid)+'">See them</button>':'')+'</span>'
+    +(banned?'<span>Suspended</span><span>'+esc(fmt(bd.ts))+(bd.byName?' by '+esc(bd.byName):'')+'<br>'+esc(banWhen(bd))+'<br>Reason: '+esc(bd.reason||'—')+'</span>':'')+'</div>'
+    +(ad&&ad.status==='new'?'<div class="card" style="margin:12px 0 0"><h3>Appeal</h3><blockquote>'+esc(ad.text)+'</blockquote><div class="sub">Sent '+esc(fmt(ad.ts))+'</div><div class="btns">'+(banned?'<button class="btn sm" data-a="unban" data-u="'+esc(uid)+'">Unsuspend</button>':'')+'<button class="btn sm ghost" data-a="apprej" data-u="'+esc(uid)+'">Reject appeal</button></div></div>':'')
+    +'<div class="btns">'
+    +(role?'':(banned?'<button class="btn" data-a="unban" data-u="'+esc(uid)+'">'+(live?'Unsuspend':'Remove old record')+'</button>':'')+(live?'':'<button class="btn bad" data-a="ban" data-u="'+esc(uid)+'">Suspend</button>'))
+    +(canDisc?'<button class="btn ghost" data-a="warn" data-u="'+esc(uid)+'">Warn</button>':'')+'</div>'
+    +(me0?'':!canDisc?'<p class="sub" style="margin:12px 0 0">Only the owner can warn or clean up another admin.</p>':'<p class="sub" style="margin:12px 0 0">Clean-up (the person’s app also fixes the copies in his chats the next time it opens)</p><div class="btns" style="margin-top:6px"><button class="btn sm ghost" data-a="clean" data-w="photo" data-u="'+esc(uid)+'">Remove photo</button><button class="btn sm ghost" data-a="clean" data-w="name" data-u="'+esc(uid)+'">Reset name</button><button class="btn sm ghost" data-a="clean" data-w="username" data-u="'+esc(uid)+'">Reset username</button></div>')
+    +(isOwner()?'<div class="btns"><button class="btn sm ghost" data-a="verify" data-u="'+esc(uid)+'" data-on="'+(u.verified===true?'0':'1')+'">'+(u.verified===true?'Remove verified badge':'Give verified badge')+'</button>'+(me0?'':(role?'<button class="btn sm ghost" data-a="rmadmin" data-u="'+esc(uid)+'">Remove admin role</button>':'<button class="btn sm ghost" data-a="mkmod" data-u="'+esc(uid)+'">Make moderator</button>'))+'</div>':'')
+    +'<p class="sub" style="margin:12px 0 4px">Private note (only admins can read it)'+(note?' · '+esc(note.byName||'')+' · '+esc(fmt(note.ts)):'')+'</p><textarea id="unote" maxlength="1000" style="min-height:70px;font-family:inherit;font-size:.92rem" placeholder="Write a note for the other admins…">'+esc(note?note.text:'')+'</textarea>'
+    +'<div class="btns"><button class="btn sm" data-a="savenote" data-u="'+esc(uid)+'">Save note</button><button class="btn sm ghost" data-a="copyid" data-v="'+esc(uid)+'">Copy account ID</button><button class="btn sm ghost" data-a="close">Close</button></div>'
+    +'<p class="sub" style="margin-top:12px">A suspended person can log in but sees a notice, and cannot send messages, friend requests or create chats. He can send you one appeal. To delete the login itself, use Firebase console &gt; Authentication.</p>')}
+
+/* ---------- reports ---------- */
+let REPS=[],REPF='new',REPQ='',REPA='';
+const repText=r=>[r.byName,r.byUn,r.by,r.againstName,r.againstUn,r.against,r.text,r.chat].join(' ').toLowerCase();
+VIEW.reports=async function(){REPS=await loadReports();REPN=REPS.filter(r=>r.status!=='done').length;drawTabs();await drawReports()};
+async function drawReports(){
+  const q=REPQ.trim().toLowerCase().replace(/^@/,''),cnt={};REPS.forEach(r=>{if(r.against)cnt[r.against]=(cnt[r.against]||0)+1});
+  const list=REPS.filter(r=>(REPF==='all'||(REPF==='new'?r.status!=='done':r.status==='done'))&&(!q||repText(r).includes(q))&&(!REPA||r.against===REPA));
+  const bt=(f,t)=>'<button class="btn sm '+(REPF===f?'':'ghost')+'" data-a="rf" data-f="'+f+'">'+t+'</button>';
+  let h='<div class="card"><div class="row"><input id="rq" placeholder="Filter by name, @username, account ID or text" value="'+esc(REPQ)+'" autocapitalize="off"><button class="btn sm" data-a="rsearch">Filter</button>'+((REPQ||REPA)?'<button class="btn sm ghost" data-a="rclear">'+(REPA&&!REPQ?'Show all':'Clear')+'</button>':'')+'</div>'+(REPA?'<div class="sub" style="margin-top:8px" id="rabout">Only reports about <b>…</b></div>':'')+'</div>'
+   +'<div class="row" style="margin:12px 0">'+bt('new','Waiting ('+REPN+')')+bt('done','Handled')+bt('all','All')+'<span class="sub">Newest first · last 150</span></div>';
+  const top=Object.entries(cnt).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if(!q&&!REPA&&top.length){h+='<div class="card"><h3>Most reported people</h3><div id="rtop"></div></div>'}
+  if(!list.length)h+='<div class="card empty">'+(q?'No reports match this filter.':REPF==='new'?'No reports waiting. 🎉':REPF==='done'?'No handled reports.':'No reports here.')+'</div>';
+  $('view').innerHTML=h+'<div id="rl"></div>';
+  $('rq').addEventListener('keydown',e=>{if(e.key==='Enter')ACT.rsearch()});
+  if(REPA){const n=await nameOf(REPA);const e=$('rabout');if(e)e.innerHTML='Only reports about <b>'+esc(label(n.name,n.un))+'</b>'}
+  if(!q&&!REPA&&top.length){for(const [id,c] of top){const n=await nameOf(id);$('rtop').insertAdjacentHTML('beforeend','<button class="item" data-a="user" data-u="'+esc(id)+'"><span class="av">'+esc(ini(n.name))+'</span><span class="it"><b>'+esc(n.name||'Unknown')+'</b><small>@'+esc(n.un||'?')+'</small></span><span class="chip '+(c>=3?'bad':'warn')+'">'+c+' reports</span></button>')}}
+  for(const r of list){
+    let by={name:r.byName,un:r.byUn},ag={name:r.againstName,un:r.againstUn};
+    if(!by.name&&r.by)by=await nameOf(r.by);if(!ag.name&&r.against)ag=await nameOf(r.against);
+    const c=cnt[r.against]||0;
+    $('rl').insertAdjacentHTML('beforeend','<div class="card" data-r="'+esc(r.id)+'"><div class="row"><span class="chip '+(r.status==='done'?'ok':'warn')+'">'+(r.status==='done'?'Handled':'New')+'</span>'+(c>=3?'<span class="chip bad">'+c+' reports about this person</span>':'')+'<span class="sub">'+esc(fmt(r.ts))+'</span></div>'
+     +'<p style="margin:8px 0 0"><b>'+esc(label(by.name,by.un))+'</b> reported <b>'+esc(label(ag.name,ag.un))+'</b>'+(r.msg?'':r.post?' <span class="sub">(a snap in the Feed)</span>':' <span class="sub">(the person, not a message)</span>')+'</p>'
+     +(r.text?'<blockquote>'+esc(r.text)+'</blockquote>':'')
+     +'<div class="mbox" data-m="'+esc(r.id)+'"></div>'
+     +'<div class="btns">'
+     +(r.msg&&r.chat?'<button class="btn sm ghost" data-a="openmsg" data-r="'+esc(r.id)+'">Open message</button><button class="btn sm ghost" data-a="rmmsg" data-r="'+esc(r.id)+'">Remove message</button>':'')
+     +(r.post?'<button class="btn sm ghost" data-a="openpost" data-r="'+esc(r.id)+'">Open snap</button><button class="btn sm ghost" data-a="rmpost" data-r="'+esc(r.id)+'">Remove snap</button>':'')
+     +(r.chat?'<button class="btn sm ghost" data-a="rmchat" data-r="'+esc(r.id)+'">Remove chat</button>':'')
+     +(r.against?'<button class="btn sm ghost" data-a="user" data-u="'+esc(r.against)+'">Open user</button><button class="btn sm ghost" data-a="warnrep" data-r="'+esc(r.id)+'">Warn</button><button class="btn sm bad" data-a="banrep" data-r="'+esc(r.id)+'">Suspend '+esc(ag.un?'@'+ag.un:'user')+'</button>':'')
+     +(r.status==='done'?'':'<button class="btn sm" data-a="repdone" data-r="'+esc(r.id)+'">Mark handled</button>')
+     +'<button class="btn sm ghost" data-a="repdel" data-r="'+esc(r.id)+'">Delete report</button></div></div>')}}
+const repOf=b=>REPS.find(r=>r.id===b.dataset.r);
+
+/* ---------- appeals ---------- */
+let APPS=[],APF='new';
+VIEW.appeals=async function(){APPS=await loadAppeals();APPN=APPS.filter(a=>a.status==='new').length;drawTabs();await drawAppeals()};
+async function drawAppeals(){
+  const list=APPS.filter(a=>APF==='all'||(APF==='new'?a.status==='new':a.status!=='new'));
+  const bt=(f,t)=>'<button class="btn sm '+(APF===f?'':'ghost')+'" data-a="af" data-f="'+f+'">'+t+'</button>';
+  $('view').innerHTML='<div class="row" style="margin:12px 0">'+bt('new','Waiting ('+APPN+')')+bt('done','Answered')+bt('all','All')+'<span class="sub">A suspended person can send one appeal at a time.</span></div>'
+    +(list.length?'':'<div class="card empty">'+(APF==='new'?'No appeals waiting.':'No appeals here.')+'</div>')+'<div id="apl"></div>';
+  for(const a of list){const n=await nameOf(a.id);let b=null;try{const s=await db.doc('bans/'+a.id).get();b=s.exists?s.data():null}catch(e){}
+    const st=a.status==='new'?['warn','New']:a.status==='accepted'?['ok','Accepted']:['bad','Rejected'];
+    $('apl').insertAdjacentHTML('beforeend','<div class="card"><div class="row"><span class="chip '+st[0]+'">'+st[1]+'</span><span class="sub">'+esc(fmt(a.ts))+'</span></div>'
+      +'<p style="margin:8px 0 0"><b>'+esc(label(n.name,n.un))+'</b>'+(b?(banLive(b)?'':' <span class="chip warn">suspension ended</span>'):' <span class="sub">(not suspended now)</span>')+'</p>'
+      +(b?'<div class="sub">Suspended '+esc(banWhen(b))+' · Reason: '+esc(b.reason||'—')+'</div>':'')
+      +'<blockquote>'+esc(a.text||'')+'</blockquote>'+(a.note?'<div class="sub">Your note to the person: '+esc(a.note)+'</div>':'')
+      +'<div class="btns">'+(a.status==='new'?(b?'<button class="btn sm" data-a="unban" data-u="'+esc(a.id)+'">Unsuspend</button>':'')+'<button class="btn sm ghost" data-a="apprej" data-u="'+esc(a.id)+'">Reject</button>':'')
+      +'<button class="btn sm ghost" data-a="user" data-u="'+esc(a.id)+'">Open user</button><button class="btn sm ghost" data-a="appdel" data-u="'+esc(a.id)+'">Delete</button></div></div>')}}
+
+/* ---------- controls (owner) ---------- */
+VIEW.ctl=async function(){
+  if(!isOwner()){$('view').innerHTML='<div class="card empty">Only the owner can change these.</div>';return}
+  const c=await cfgGet(),off=c.off||{},n=c.notice||{};
+  $('view').innerHTML='<div class="card"><h3>Maintenance mode</h3><p class="sub" style="margin:0 0 10px">When on, everybody except admins sees a "Snapme is under maintenance" screen with your message.</p>'
+   +'<div class="sw"><div class="it"><b>Maintenance</b><small>'+(c.maint===true?'ON: users are locked out':'Off')+'</small></div><button class="tg'+(c.maint===true?' on':'')+'" data-a="maint" aria-label="Maintenance mode"></button></div>'
+   +'<textarea id="mmsg" style="min-height:70px;font-family:inherit;font-size:.95rem" placeholder="Message shown to users (optional)">'+esc(c.maintMsg||'')+'</textarea>'
+   +'<div class="btns"><button class="btn sm" data-a="mmsg">Save message</button></div></div>'
+   +'<div class="card"><h3>Features</h3><p class="sub" style="margin:0 0 6px">Switch a part of the app off for everybody. It takes effect within seconds, no update needed.</p>'
+   +FEATS.map(f=>'<div class="sw"><div class="it"><b>'+esc(f[1])+'</b><small>'+esc(f[2])+'</small></div><button class="tg'+(off[f[0]]===true?'':' on')+'" data-a="feat" data-k="'+f[0]+'" aria-label="'+esc(f[1])+'" title="'+(off[f[0]]===true?'Off':'On')+'"></button></div>').join('')+'</div>'
+   +'<div class="card"><h3>Announcement</h3><p class="sub" style="margin:0 0 10px">Shown once on every phone the next time the app is open (not shown again after the person taps OK).</p>'
+   +'<input id="nt" placeholder="Title" maxlength="80" value="'+esc(n.title||'')+'" style="margin-bottom:8px"><textarea id="nx" style="min-height:90px;font-family:inherit;font-size:.95rem" placeholder="Text" maxlength="600">'+esc(n.text||'')+'</textarea>'
+   +'<div class="btns"><button class="btn sm" data-a="notice">Publish</button>'+(n.text?'<button class="btn sm ghost" data-a="noticeclear">Withdraw</button>':'')+'</div>'
+   +(n.text?'<p class="sub" style="margin-top:8px">Currently published: <b>'+esc(n.title||'Announcement')+'</b></p>':'')+'</div>'
+   +'<div class="card"><h3>Require an app update</h3><p class="sub" style="margin:0 0 10px">Only the installed <b>Android app</b> can be forced (the website is always the newest). Enter the number <b>N</b> of your newest APK, from its name “Snapme APK 1.0.<b>N</b>” on the GitHub Releases page. Every installed app with a smaller number gets a screen that asks to update. Leave empty or 0 to switch this off. Apps that were installed before this feature existed cannot be forced.</p>'
+   +'<input id="mv" type="number" min="0" step="1" inputmode="numeric" placeholder="Minimum version number, e.g. 12" value="'+esc(+c.minVer>0?c.minVer:'')+'" style="margin-bottom:8px">'
+   +'<input id="mu" placeholder="Download link (https://…), optional. Default: your GitHub Releases page" maxlength="300" value="'+esc(c.updUrl||'')+'" style="margin-bottom:8px">'
+   +'<textarea id="mum" maxlength="300" style="min-height:70px;font-family:inherit;font-size:.95rem" placeholder="Message (optional)">'+esc(c.minMsg||'')+'</textarea>'
+   +'<div class="btns"><button class="btn sm" data-a="minver">Save</button></div></div>'
+   +'<div class="card"><h3>Blocked words</h3><p class="sub" style="margin:0 0 10px">One word or phrase per line (max 300). A message that contains one of them is not sent. Whole words only, upper/lower case does not matter. This is checked by the app, so it stops normal use but not a modified app.</p>'
+   +'<textarea id="wl" style="min-height:130px;font-family:inherit;font-size:.95rem" placeholder="one word per line" spellcheck="false">'+esc((c.words||[]).join('\n'))+'</textarea>'
+   +'<div class="btns"><button class="btn sm" data-a="words">Save list</button></div></div>'};
+
+/* ---------- admins (owner) ---------- */
+VIEW.adm=async function(){
+  if(!isOwner()){$('view').innerHTML='<div class="card empty">Only the owner can manage admins.</div>';return}
+  const a=await listAll('admins');
+  $('view').innerHTML='<div class="card"><h3>Admins</h3><div id="al"></div></div>'
+   +'<div class="card"><h3>Add an admin</h3><p class="sub" style="margin:0 0 8px">The person needs a Snapme account. Moderators can suspend and warn users, answer appeals, handle reports and clean up bad names and photos. Owners can do everything.</p>'
+   +'<div class="row"><input id="au" placeholder="Username, e.g. mia" autocapitalize="off"><select id="ar" style="flex:none;width:130px"><option value="mod">Moderator</option><option value="owner">Owner</option></select></div>'
+   +'<div class="btns"><button class="btn" data-a="addadm">Add admin</button></div></div>';
+  for(const x of a){const n=await nameOf(x.id);
+    $('al').insertAdjacentHTML('beforeend','<div class="item" style="cursor:default"><span class="av">'+esc(ini(n.name))+'</span><span class="it"><b>'+esc(n.name||'Unknown')+(x.id===ME.uid?' (you)':'')+'</b><small>@'+esc(n.un||'?')+'</small></span><span class="chip acc">'+(x.role==='owner'?'Owner':'Mod')+'</span>'
+     +(x.id!==ME.uid?'<button class="btn sm ghost" data-a="rmadmin" data-u="'+esc(x.id)+'">Remove</button>':'')+'</div>')}}
+
+/* ---------- log ---------- */
+VIEW.log=async function(){
+  const s=await db.collection('adminlog').orderBy('ts','desc').limit(60).get();
+  $('view').innerHTML='<div class="card"><h3>What the admins did</h3><p class="sub" style="margin:0 0 6px">Last 60 actions. Nobody can edit or delete this list.</p><div id="ll"></div></div>';
+  if(!s.docs.length)$('ll').innerHTML='<div class="empty">Nothing yet.</div>';
+  s.docs.forEach(d=>{const x=d.data();$('ll').insertAdjacentHTML('beforeend','<div class="item" style="cursor:default"><span class="it"><b>'+esc(x.what)+(x.via==='claude'?' <span class="chip acc">via Claude</span>':'')+'</b><small>'+esc(x.byName||x.by)+' · '+esc(fmt(x.ts))+'<br>'+esc(x.detail||'')+'</small></span></div>')})};
+
+/* ---------- download (CSV) ---------- */
+function csvCell(v){let s=String(v==null?'':v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return'"'+s.replace(/"/g,'""')+'"'}
+const toCSV=rows=>'﻿'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+function download(name,text){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8'}));a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+const iso=v=>{const m=tms(v);return m?new Date(m).toISOString():''};
+async function buildCSV(k){
+  if(k==='reports'){const r=await loadReports();return[['id','time','status','reported_by_name','reported_by_username','reported_by_id','against_name','against_username','against_id','chat_id','message_id','snap_id','text'],...r.map(x=>[x.id,iso(x.ts),x.status||'new',x.byName||'',x.byUn||'',x.by||'',x.againstName||'',x.againstUn||'',x.against||'',x.chat||'',x.msg||'',x.post||'',x.text||''])]}
+  if(k==='bans'){const b=await listAll('bans',500),o=[['id','name','username','reason','suspended_by','since','until']];for(const x of b){const n=await nameOf(x.id);o.push([x.id,n.name,n.un,x.reason||'',x.byName||x.by||'',iso(x.ts),iso(x.until)])}return o}
+  if(k==='appeals'){const a=await loadAppeals(),o=[['id','name','username','status','sent','text','note']];for(const x of a){const n=await nameOf(x.id);o.push([x.id,n.name,n.un,x.status||'',iso(x.ts),x.text||'',x.note||''])}return o}
+  if(k==='log'){const s=await db.collection('adminlog').orderBy('ts','desc').limit(500).get();return[['time','admin','action','detail','via'],...s.docs.map(d=>{const x=d.data();return[iso(x.ts),x.byName||x.by||'',x.what||'',x.detail||'',x.via||'panel']})]}
+  if(k==='users'){if(!isOwner())throw Error('Only the owner can download all users.');const o=[['id','name','username','joined','last_seen','private','verified']];let cur=null,n=0;
+    for(let i=0;i<10;i++){let q=db.collection('users').limit(500);if(cur)q=db.collection('users').startAfter(cur).limit(500);const s=await q.get();
+      s.docs.forEach(d=>{const x=d.data();o.push([d.id,x.name||'',x.username||'',iso(x.created),iso(x.seen),x.private?'yes':'no',x.verified===true?'yes':'no'])});n+=s.docs.length;
+      if(s.docs.length<500)break;cur=s.docs[s.docs.length-1]}
+    return o}
+  throw Error('Unknown download.')}
+
+/* ---------- Claude bridge ---------- */
+const needUser=c=>!!c.user||'"user" is needed';
+const CMDS={
+  feature:{own:1,chk:c=>(FEATS.some(f=>f[0]===c.name)&&typeof c.on==='boolean')||'"name" must be one of '+FEATS.map(f=>f[0]).join(', ')+' and "on" must be true or false',
+    d:c=>(c.on?'Turn ON ':'Turn OFF ')+featName(c.name),run:async c=>{await cfgSet(o=>{o.off=o.off||{};if(c.on)delete o.off[c.name];else o.off[c.name]=true});log('feature',c.name+' = '+(c.on?'on':'off'),'claude')}},
+  maintenance:{own:1,chk:c=>typeof c.on==='boolean'||'"on" must be true or false',
+    d:c=>'Maintenance mode '+(c.on?'ON':'OFF')+(c.on&&c.message?' · "'+c.message+'"':''),run:async c=>{await cfgSet(o=>{o.maint=c.on;if(typeof c.message==='string')o.maintMsg=c.message.slice(0,300)});log('maintenance',c.on?'on':'off','claude')}},
+  notice:{own:1,chk:c=>!!(typeof c.text==='string'&&c.text.trim())||'"text" is needed',
+    d:c=>'Publish announcement "'+(c.title||'Announcement')+'": '+c.text,run:async c=>{await cfgSet(o=>{o.notice={id:Date.now().toString(36),title:String(c.title||'').slice(0,80),text:String(c.text).slice(0,600)}});log('notice',c.title||'',"claude")}},
+  notice_clear:{own:1,chk:()=>true,d:()=>'Withdraw the announcement',run:async()=>{await cfgSet(o=>{delete o.notice});log('notice_clear','','claude')}},
+  min_version:{own:1,chk:c=>(Number.isInteger(+c.version)&&+c.version>=0)||'"version" must be a whole number (0 switches the check off)',
+    d:c=>(+c.version>0?'Require app version 1.0.'+c.version+' or newer':'Switch the minimum-version check OFF')+(c.message?' · "'+c.message+'"':''),run:async c=>setMinVer(c.version,typeof c.message==='string'?c.message:undefined,typeof c.link==='string'?c.link:undefined,'claude')},
+  words_add:{own:1,chk:c=>(Array.isArray(c.words)&&c.words.length>0)||'"words" must be a list of words',d:c=>'Block these words: '+c.words.join(', '),
+    run:async c=>{const o=await cfgGet();await setWords((o.words||[]).concat(c.words),'added '+c.words.length,'claude')}},
+  words_remove:{own:1,chk:c=>(Array.isArray(c.words)&&c.words.length>0)||'"words" must be a list of words',d:c=>'Allow these words again: '+c.words.join(', '),
+    run:async c=>{const o=await cfgGet(),rm=wordsClean(c.words);await setWords((o.words||[]).filter(x=>!rm.includes(String(x).toLowerCase())),'removed '+rm.length,'claude')}},
+  words_clear:{own:1,chk:()=>true,d:()=>'Empty the blocked-words list',run:async()=>{await setWords([],'cleared','claude')}},
+  ban:{chk:c=>(!!c.user&&(c.days==null||(+c.days>=1&&+c.days<=365)))||'"user" is needed; "days" (optional) must be 1 to 365',
+    d:c=>'Suspend '+c.user+(c.days?' for '+c.days+' day'+(+c.days===1?'':'s'):' until lifted')+(c.reason?' ("'+c.reason+'")':''),run:async c=>banUser(await uidOf(c.user),String(c.reason||'').slice(0,200),'claude',c.days)},
+  unban:{chk:needUser,d:c=>'Unsuspend '+c.user,run:async c=>unbanUser(await uidOf(c.user),'claude')},
+  warn:{chk:c=>(!!c.user&&typeof c.text==='string'&&!!c.text.trim())||'"user" and "text" are needed',d:c=>'Send a warning to '+c.user+': '+c.text,run:async c=>warnUser(await uidOf(c.user),c.text,'claude')},
+  appeal_reject:{chk:needUser,d:c=>'Reject the appeal of '+c.user+(c.note?' ("'+c.note+'")':''),run:async c=>appealReject(await uidOf(c.user),String(c.note||''),'claude')},
+  verify:{own:1,chk:c=>(!!c.user&&typeof c.on==='boolean')||'"user" and "on" (true or false) are needed',d:c=>(c.on?'Give the verified badge to ':'Remove the verified badge from ')+c.user,run:async c=>verifyUser(await uidOf(c.user),c.on,'claude')},
+  remove_photo:{chk:needUser,d:c=>'Remove the photo of '+c.user,run:async c=>cleanUser(await uidOf(c.user),'photo','claude')},
+  reset_name:{chk:needUser,d:c=>'Reset the name of '+c.user,run:async c=>cleanUser(await uidOf(c.user),'name','claude')},
+  reset_username:{chk:needUser,d:c=>'Reset the username of '+c.user+' (the old one is retired for good)',run:async c=>cleanUser(await uidOf(c.user),'username','claude')},
+  note:{chk:c=>(!!c.user&&typeof c.text==='string')||'"user" and "text" are needed (empty text deletes the note)',d:c=>(String(c.text).trim()?'Save a private note about '+c.user:'Delete the private note about '+c.user),run:async c=>noteSave(await uidOf(c.user),c.text,'claude')},
+  report_done:{chk:c=>!!c.id||'"id" is needed',d:c=>'Mark report '+c.id+' as handled',run:async c=>reportDone(String(c.id),'claude')},
+  report_delete:{chk:c=>!!c.id||'"id" is needed',d:c=>'Delete report '+c.id,run:async c=>reportDelete(String(c.id),'claude')},
+  remove_message:{chk:c=>(!!c.chat&&!!c.msg)||'"chat" and "msg" are needed',d:c=>'Remove message '+c.msg+' (chat '+c.chat+')',run:async c=>removeMessage(String(c.chat),String(c.msg),'claude')},
+  remove_snap:{chk:c=>!!c.post||'"post" is needed',d:c=>'Remove snap '+c.post,run:async c=>removePost(String(c.post),'claude')},
+  remove_chat:{chk:c=>!!c.chat||'"chat" is needed',d:c=>'Remove chat '+c.chat,run:async c=>removeChat(String(c.chat),'claude')},
+  admin_add:{own:1,chk:c=>(!!c.user&&['mod','owner'].includes(c.role||'mod'))||'"user" is needed and "role" must be mod or owner',d:c=>'Make '+c.user+' '+((c.role||'mod')==='owner'?'an OWNER':'a moderator'),run:async c=>setAdmin(await uidOf(c.user),c.role||'mod','claude')},
+  admin_remove:{own:1,chk:needUser,d:c=>'Remove admin role from '+c.user,run:async c=>{const u=await uidOf(c.user);if(u===ME.uid)throw Error('You cannot remove yourself.');await delAdmin(u,'claude')}}
+};
+const HELP_CMDS='{"commands":[\n  {"do":"feature","name":"voice","on":false},\n  {"do":"maintenance","on":true,"message":"Back at 6 pm."},\n  {"do":"notice","title":"New update","text":"Please update the app."},\n  {"do":"ban","user":"@bob","reason":"Spam","days":7},\n  {"do":"warn","user":"@bob","text":"Please stop spamming."},\n  {"do":"appeal_reject","user":"@bob","note":"Not accepted."},\n  {"do":"min_version","version":12,"message":"Please update."},\n  {"do":"words_add","words":["badword","bad phrase"]},\n  {"do":"verify","user":"@alice","on":true},\n  {"do":"reset_username","user":"@bob"},\n  {"do":"note","user":"@bob","text":"Warned twice."},\n  {"do":"remove_message","chat":"CHAT_ID","msg":"MESSAGE_ID"}\n]}';
+let PLAN=null;
+VIEW.ai=async function(){
+  $('view').innerHTML='<div class="card"><h3>Work with Claude</h3><p class="sub" style="margin:0 0 6px">1. Tap <b>Copy status</b> and paste it in your chat with Claude, then tell Claude what you want (for example “suspend @bob for 7 days and warn him”).<br>2. Claude answers with a block of commands. Paste it below, check the list, tap <b>Run</b>.<br>Nothing runs until you tap Run, and everything you run is written to the Log.</p>'
+   +'<div class="btns"><button class="btn" data-a="snap">Copy status for Claude</button></div><div class="er" id="se"></div></div>'
+   +'<div class="card"><h3>Commands from Claude</h3><textarea id="cm" placeholder=\'{"commands":[ … ]}\' spellcheck="false"></textarea><div class="btns"><button class="btn ghost" data-a="plan">Check</button></div><div id="pl"></div></div>'
+   +'<div class="card"><h3>What the commands can do</h3><p class="sub" style="margin:0 0 6px">Commands: <span class="mono">'+Object.keys(CMDS).join(', ')+'</span>. Changing the app\'s <i>code</i> (a new screen, a new button, a bug fix) is not a command: ask Claude for new files and upload them to GitHub.</p><textarea readonly style="min-height:200px">'+esc(HELP_CMDS)+'</textarea></div>'};
+function parseCmds(t){
+  let s=String(t||'').trim().replace(/^```[a-z]*\s*/i,'').replace(/```\s*$/,'').trim();
+  if(!s)throw Error('Paste the commands from Claude first.');
+  let j;try{j=JSON.parse(s)}catch(e){throw Error('This is not valid JSON ('+e.message+'). Copy the whole block again.')}
+  const a=Array.isArray(j)?j:j&&j.commands;if(!Array.isArray(a)||!a.length)throw Error('No commands found. It must look like {"commands":[ … ]}.');
+  if(a.length>40)throw Error('Too many commands (max 40 at a time).');
+  return a}
+function buildPlan(t){const a=parseCmds(t);
+  return a.map(c=>{const d=c&&CMDS[c.do];
+    if(!d)return{c,ok:false,t:'Unknown command: '+JSON.stringify(c&&c.do)};
+    if(d.own&&!isOwner())return{c,ok:false,t:d.d(c)+' — only the owner can do this'};
+    const k=d.chk(c);if(k!==true)return{c,ok:false,t:(c.do)+' — '+k};
+    return{c,ok:true,t:d.d(c)}})}
+function drawPlan(p,res){
+  $('pl').innerHTML='<ul class="plan">'+p.map((x,i)=>'<li><span class="s">'+(res?(res[i]===true?'✓':res[i]==null?'·':'✗'):(x.ok?'•':'⚠'))+'</span><span>'+esc(x.t)+(res&&res[i]&&res[i]!==true?'<br><span class="sub" style="color:var(--bad)">'+esc(res[i])+'</span>':'')+'</span></li>').join('')+'</ul>'
+   +(res?'':(p.every(x=>x.ok)?'<div class="btns"><button class="btn" data-a="run">Run '+p.length+' command'+(p.length===1?'':'s')+'</button></div>':'<div class="er">Fix the red items first (ask Claude to correct them). Nothing was run.</div>'))}
+async function snapshot(){
+  const t0=new Date();t0.setHours(0,0,0,0);
+  const [reps,bans,adm,cfg,lg,apps,nUsers,nAct,nNew]=await Promise.all([loadReports(),listAll('bans'),listAll('admins'),cfgGet(),db.collection('adminlog').orderBy('ts','desc').limit(10).get(),loadAppeals(),countQ('users'),countQ('users',[['seen','>=',new Date(Date.now()-DAY)]]),countQ('users',[['created','>=',t0]])]);
+  const nm=async id=>{const n=await nameOf(id);return n.un?'@'+n.un:id};
+  const S={vtext_admin_snapshot:new Date().toISOString(),you:{role:ME.role},
+    stats:{users_total:nUsers,users_active_last_24h:nAct,users_new_today:nNew},
+    config:{maintenance:cfg.maint===true,maintenance_message:cfg.maintMsg||'',switched_off:Object.keys(cfg.off||{}).filter(k=>cfg.off[k]===true),announcement:cfg.notice?{title:cfg.notice.title||'',text:cfg.notice.text||''}:null,
+      minimum_app_version:+cfg.minVer||0,blocked_words:cfg.words||[],available_switches:FEATS.map(f=>f[0])},
+    reports_waiting:[],appeals_waiting:[],suspended:[],admins:[],recent_actions:lg.docs.map(d=>{const x=d.data();return x.what+' · '+(x.detail||'')+' · '+fmt(x.ts)})};
+  for(const r of reps.filter(r=>r.status!=='done').slice(0,25))S.reports_waiting.push({id:r.id,by:r.byUn?'@'+r.byUn:await nm(r.by),against:r.againstUn?'@'+r.againstUn:(r.against?await nm(r.against):''),chat:r.chat||null,msg:r.msg||null,post:r.post||null,text:r.text||'',when:fmt(r.ts)});
+  for(const a of apps.filter(a=>a.status==='new').slice(0,25))S.appeals_waiting.push({user:await nm(a.id),text:a.text||'',when:fmt(a.ts)});
+  for(const b of bans.slice(0,50))S.suspended.push({user:await nm(b.id),reason:b.reason||'',ends:tms(b.until)?fmt(b.until):'when an admin lifts it',already_ended:banEnded(b)});
+  for(const x of adm)S.admins.push({user:await nm(x.id),role:x.role||'mod'});
+  return JSON.stringify(S,null,1)}
+
+/* ---------- actions ---------- */
+const ACT={
+  retry:()=>go(TAB),
+  tab:b=>go(b.dataset.t),
+  close:()=>closeModal(),
+  copyid:b=>copy(b.dataset.v),
+  find:async()=>{const q=$('uq').value.trim(),e=$('ufe');e.textContent='';if(!q)return;
+    try{const id=await uidOf(q);openUser(id)}catch(x){e.textContent=x.message}},
+  more:()=>usersMore(),
+  user:b=>openUser(b.dataset.u),
+  ban:async b=>{const uid=b.dataset.u,n=await nameOf(uid);
+    const r=await ask({title:'Suspend '+label(n.name,n.un)+'?',text:'The person sees the reason when they open Snapme and cannot send messages or friend requests until the suspension ends or you lift it. He can send you an appeal.',input:true,ph:'Reason (shown to the person)',select:[['0','Until I lift it'],['1','1 day'],['3','3 days'],['7','7 days'],['30','30 days']],ok:'Suspend',bad:true});
+    if(r===null)return;await banUser(uid,r.v,undefined,+r.s);toast('Suspended');closeModal();afterAct()},
+  unban:async b=>{await unbanUser(b.dataset.u);toast('Unsuspended');closeModal();afterAct()},
+  warn:async b=>{const uid=b.dataset.u,n=await nameOf(uid);
+    const t=await ask({title:'Warn '+label(n.name,n.un)+'?',text:'The person sees this once, in a box, the next time Snapme is open. It is not a suspension.',input:true,area:true,ph:'Warning text (max 400 characters)',ok:'Send warning'});
+    if(t===null)return;await warnUser(uid,t);toast('Warning sent')},
+  warnrep:async b=>{const r=repOf(b);return ACT.warn({dataset:{u:r.against}})},
+  apprej:async b=>{const uid=b.dataset.u,n=await nameOf(uid);
+    const t=await ask({title:'Reject the appeal of '+label(n.name,n.un)+'?',text:'The person sees that the appeal was not accepted, with your note. The suspension stays.',input:true,ph:'Note for the person (optional)',ok:'Reject appeal',bad:true});
+    if(t===null)return;await appealReject(uid,t);toast('Appeal rejected');closeModal();afterAct()},
+  appdel:async b=>{if(!(await ask({title:'Delete this appeal?',text:'It is removed from the list. If the person is still suspended he can send a new one.',ok:'Delete',bad:true})))return;await appealDelete(b.dataset.u);toast('Deleted');go('appeals')},
+  af:b=>{APF=b.dataset.f;return drawAppeals()},
+  clean:async b=>{const uid=b.dataset.u,w=b.dataset.w,n=await nameOf(uid);
+    const T={photo:['Remove the photo of '+label(n.name,n.un)+'?','His profile photo and profile background are deleted. He can upload a new photo later.'],name:['Reset the name of '+label(n.name,n.un)+'?','His name becomes “Snapme user”. He can change it again later.'],username:['Reset the username of '+label(n.name,n.un)+'?','He gets a new username like user123456. The old one is retired for good, so nobody can use it again.']}[w];
+    if(!(await ask({title:T[0],text:T[1],ok:'Do it',bad:true})))return;await cleanUser(uid,w);toast('Done');closeModal()},
+  verify:async b=>{const on=b.dataset.on==='1';await verifyUser(b.dataset.u,on);toast(on?'Verified badge given':'Badge removed');closeModal();afterAct()},
+  savenote:async b=>{await noteSave(b.dataset.u,$('unote').value);toast('Note saved')},
+  seerep:b=>{closeModal();REPQ='';REPA=b.dataset.u;REPF='all';return go('reports',true)},
+  mkmod:async b=>{const n=await nameOf(b.dataset.u);if(!(await ask({title:'Make '+label(n.name,n.un)+' a moderator?',text:'A moderator can suspend and warn users, answer appeals and handle reports.',ok:'Make moderator'})))return;await setAdmin(b.dataset.u,'mod');toast('Done');closeModal();afterAct()},
+  rmadmin:async b=>{const n=await nameOf(b.dataset.u);if(!(await ask({title:'Remove the admin role from '+label(n.name,n.un)+'?',ok:'Remove',bad:true})))return;await delAdmin(b.dataset.u);toast('Removed');closeModal();go(TAB)},
+  addadm:async()=>{const u=$('au').value.trim(),role=$('ar').value;if(!u)return toast('Enter a username');
+    const uid=await uidOf(u);if(uid===ME.uid)return toast('That is you');const n=await nameOf(uid);
+    if(!(await ask({title:'Make '+label(n.name,n.un)+' '+(role==='owner'?'an OWNER':'a moderator')+'?',text:role==='owner'?'An owner has the same power as you: switches, admins, everything.':'A moderator can suspend and warn users, answer appeals and handle reports.',ok:'Add admin',bad:role==='owner'})))return;
+    await setAdmin(uid,role);toast('Admin added');go('adm')},
+  rf:b=>{REPF=b.dataset.f;return drawReports()},
+  rsearch:()=>{REPQ=$('rq').value;return drawReports()},
+  rclear:()=>{REPQ='';REPA='';return drawReports()},
+  openmsg:async b=>{const r=repOf(b),box=document.querySelector('[data-m="'+CSS.escape(r.id)+'"]');box.innerHTML='<div class="sub">Loading…</div>';
+    const s=await db.doc('chats/'+r.chat+'/messages/'+r.msg).get();
+    if(!s.exists){box.innerHTML='<blockquote>This message does not exist any more (deleted or expired).</blockquote>';return}
+    const m=s.data(),f=await nameOf(m.from);
+    let body=m.type==='text'||!m.type?esc(m.text||''):(m.type==='img'&&/^data:image\//.test(m.data||'')?'<img src="'+esc(m.data)+'" style="max-width:100%;border-radius:10px" alt="">':'['+esc(m.type)+']'+(m.text?' '+esc(m.text):''));
+    box.innerHTML='<blockquote><div class="sub" style="margin-bottom:4px">From '+esc(label(f.name,f.un))+' · '+esc(fmt(m.ts))+(m.edited?' · edited':'')+'</div>'+body+'</blockquote>'},
+  rmmsg:async b=>{const r=repOf(b);if(!(await ask({title:'Remove this message for everybody?',text:'It disappears from the chat of both people. This cannot be undone.',ok:'Remove',bad:true})))return;await removeMessage(r.chat,r.msg);toast('Message removed')},
+  openpost:async b=>{const r=repOf(b),box=document.querySelector('[data-m="'+CSS.escape(r.id)+'"]');box.innerHTML='<div class="sub">Loading…</div>';
+    let s;try{s=await db.doc('posts/'+r.post).get()}catch(e){box.innerHTML='<blockquote>This snap cannot be opened (it may be private to friends).</blockquote>';return}
+    if(!s.exists){box.innerHTML='<blockquote>This snap does not exist any more (deleted or expired).</blockquote>';return}
+    const m=s.data(),f=await nameOf(m.uid);
+    box.innerHTML='<blockquote><div class="sub" style="margin-bottom:4px">From '+esc(label(f.name,f.un))+' · '+esc(fmt(m.ts))+(m.pub?' · public':' · friends')+(m.vb?' · '+esc(m.vb):'')+'</div>'+(/^data:image\//.test(m.img||'')?'<img src="'+esc(m.img)+'" style="max-width:100%;border-radius:10px" alt="">':'[no picture]')+'</blockquote>'},
+  rmpost:async b=>{const r=repOf(b);if(!(await ask({title:'Remove this snap for everybody?',text:'It disappears from everybody’s Feed. The poster’s own private Memories copy is not touched. This cannot be undone.',ok:'Remove',bad:true})))return;await removePost(r.post);toast('Snap removed')},
+  rmchat:async b=>{const r=repOf(b);if(!(await ask({title:'Remove this whole chat?',text:'The chat disappears for everybody in it (messages are no longer reachable). The two people stay friends and can start a new chat. This cannot be undone.',ok:'Remove chat',bad:true})))return;await removeChat(r.chat);toast('Chat removed')},
+  banrep:async b=>{const r=repOf(b);return ACT.ban({dataset:{u:r.against}})},
+  repdone:async b=>{const r=repOf(b);await reportDone(r.id);r.status='done';REPN=REPS.filter(x=>x.status!=='done').length;drawTabs();drawReports();toast('Marked as handled')},
+  repdel:async b=>{const r=repOf(b);if(!(await ask({title:'Delete this report?',ok:'Delete',bad:true})))return;await reportDelete(r.id);REPS=REPS.filter(x=>x.id!==r.id);REPN=REPS.filter(x=>x.status!=='done').length;drawTabs();drawReports();toast('Deleted')},
+  maint:async()=>{const c=await cfgGet(),on=c.maint!==true;
+    if(on&&!(await ask({title:'Turn maintenance mode ON?',text:'Everybody except admins is locked out of Snapme until you turn it off.',ok:'Turn on',bad:true})))return;
+    await cfgSet(o=>{o.maint=on;o.maintMsg=$('mmsg').value.trim().slice(0,300)});log('maintenance',on?'on':'off');toast(on?'Maintenance is ON':'Maintenance is off');go('ctl')},
+  mmsg:async()=>{await cfgSet(o=>{o.maintMsg=$('mmsg').value.trim().slice(0,300)});log('maintenance','message changed');toast('Saved')},
+  feat:async b=>{const k=b.dataset.k,c=await cfgGet(),nowOff=(c.off||{})[k]===true;
+    await cfgSet(o=>{o.off=o.off||{};if(nowOff)delete o.off[k];else o.off[k]=true});log('feature',k+' = '+(nowOff?'on':'off'));toast(featName(k)+(nowOff?' is ON':' is OFF'));go('ctl')},
+  notice:async()=>{const t=$('nt').value.trim(),x=$('nx').value.trim();if(!x)return toast('Write the announcement text first');
+    await cfgSet(o=>{o.notice={id:Date.now().toString(36),title:t.slice(0,80),text:x.slice(0,600)}});log('notice',t);toast('Published');go('ctl')},
+  noticeclear:async()=>{await cfgSet(o=>{delete o.notice});log('notice_clear','');toast('Withdrawn');go('ctl')},
+  minver:async()=>{const v=$('mv').value.trim();if(v&&!/^\d{1,6}$/.test(v))return toast('The version must be a whole number');
+    await setMinVer(v||0,$('mum').value,$('mu').value);toast(+v>0?'Saved: version '+v+' or newer is required':'Saved: no update is required');go('ctl')},
+  words:async()=>{const w=await setWords($('wl').value.split(/\r?\n/),'list saved');toast(w.length?'Saved: '+w.length+' blocked word'+(w.length===1?'':'s'):'The list is empty');go('ctl')},
+  exp:async b=>{b.disabled=true;try{if(b.dataset.k==='users'&&!(await ask({title:'Download all users?',text:'This reads every user once (up to 5000) and uses some of your free Firestore reads. The file has names, usernames and dates, no emails or passwords.',ok:'Download'})))return;
+      const rows=await buildCSV(b.dataset.k);download('vtext-'+b.dataset.k+'-'+new Date().toISOString().slice(0,10)+'.csv',toCSV(rows));toast((rows.length-1)+' rows downloaded')}finally{b.disabled=false}},
+  snap:async b=>{b.disabled=true;const e=$('se');e.textContent='';e.classList.remove('ok');
+    try{const t=await snapshot();
+      if(await copy(t)){e.classList.add('ok');e.textContent='Copied. Paste it in your chat with Claude.'}
+      else modal('<h3>Copy this text</h3><textarea readonly style="min-height:260px" id="snt">'+esc(t)+'</textarea><div class="btns"><button class="btn ghost" data-a="close">Close</button></div>')}
+    finally{b.disabled=false}},
+  plan:()=>{try{PLAN=buildPlan($('cm').value);drawPlan(PLAN)}catch(e){PLAN=null;$('pl').innerHTML='<div class="er">'+esc(e.message)+'</div>'}},
+  run:async b=>{if(!PLAN||!PLAN.every(x=>x.ok))return;
+    if(!(await ask({title:'Run '+PLAN.length+' command'+(PLAN.length===1?'':'s')+'?',text:PLAN.map(x=>'• '+x.t).join('\n'),ok:'Run'})))return;
+    b.disabled=true;const res=[];
+    for(const x of PLAN){try{await CMDS[x.c.do].run(x.c);res.push(true)}catch(e){res.push(errText(e))}drawPlan(PLAN,res.concat(Array(PLAN.length-res.length).fill(null)))}
+    drawPlan(PLAN,res);toast(res.every(r=>r===true)?'All done':'Finished, some commands failed')}
+};
+
+/* ---------- sign-in ---------- */
+$('go').onclick=async()=>{const e=$('em').value.trim(),p=$('pw').value;$('le').textContent='';if(!e||!p){$('le').textContent='Enter your email and password.';return}
+  $('go').disabled=true;
+  try{await auth.signInWithEmailAndPassword(e,p)}
+  catch(x){const m={'auth/invalid-credential':'Wrong email or password.','auth/wrong-password':'Wrong password.','auth/user-not-found':'No account with this email.','auth/invalid-email':'Invalid email address.','auth/too-many-requests':'Too many attempts. Wait a while and try again.','auth/network-request-failed':'No internet connection.','auth/unauthorized-domain':'This website address is not allowed yet. Firebase console > Authentication > Settings > Authorized domains > Add domain: '+location.hostname}[x.code]||x.message;$('le').textContent=m}
+  $('go').disabled=false};
+$('pw').addEventListener('keydown',e=>{if(e.key==='Enter')$('go').click()});
+const logout=()=>auth.signOut();$('out').onclick=logout;$('dout').onclick=logout;
+$('dcopy').onclick=()=>copy($('did').textContent);
+
+let booted=null;
+auth.onAuthStateChanged(async u=>{
+  if(!u){ME=null;booted=null;show('login');return}
+  if(booted===u.uid)return;booted=u.uid;show('boot');
+  try{
+    const a=await db.doc('admins/'+u.uid).get();
+    if(!a.exists){$('did').textContent=u.uid;$('dmsg').textContent='You are logged in as '+(u.email||'')+', but this account has no admin rights.';show('deny');return}
+    const me=await userDoc(u.uid);
+    ME={uid:u.uid,email:u.email,role:(a.data().role||'mod'),name:(me&&me.name)||''};
+    $('role').textContent=ME.role==='owner'?'Owner':'Moderator';show('app');TAB='dash';drawTabs();go('dash')
+  }catch(e){booted=null;$('boot').textContent='Could not load: '+errText(e);show('boot')}
+});
+window.__admin={get me(){return ME},go};
+})();
+</script>
+</body></html>

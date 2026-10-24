@@ -1,4 +1,4 @@
-# VText: Play Store checklist
+# Snapme: Play Store checklist
 
 ## One-time steps
 1. Create a developer account at play.google.com/console (one-time US$25, ID verification).
@@ -11,7 +11,7 @@
 6. Firebase: publish the latest `firestore.rules`. In Google Cloud / Firebase, add TTL policies on `messages` and `parts` (field `expireAt`), because the privacy policy says expired messages are removed.
 
 ## Every release
-Actions > **Build Play Store AAB** > Run workflow > download `VText.aab` from Artifacts > upload it in Play Console. The version code increases automatically with every run.
+Actions > **Build Play Store AAB** > Run workflow > download `Snapme.aab` from Artifacts > upload it in Play Console. The version code increases automatically with every run.
 The Play Store build bundles the web files inside the app (so updates go through the store) and leaves out the background service helper, because Google restricts always-running services and battery-optimisation exemptions.
 
 ## Play Console forms
@@ -19,12 +19,12 @@ The Play Store build bundles the web files inside the app (so updates go through
 - Privacy policy URL: https://thindyuvraj141.github.io/VText/privacy.html
 - Account deletion URL: https://thindyuvraj141.github.io/VText/delete-account.html
 - Category: Communication. Ads: No. Content rating questionnaire: user-generated content / users interact = Yes.
-- Data safety: collected = email, name, user IDs, photos/videos, audio, messages, approximate/precise location (only if the user turns on sharing on the Location page; visible only to the friends they choose; foreground only, no background location); encrypted in transit = Yes; users can request deletion = Yes; shared with third parties = No (Firebase is a service provider).
+- Data safety: collected = email, name, user IDs, photos/videos (snaps), audio (voice vibes, voice messages), messages, approximate/precise location (only if the user turns on sharing on the Location page; visible only to the friends they choose; foreground only, no background location); encrypted in transit = Yes; users can request deletion = Yes; shared with third parties = No (Firebase is a service provider).
 - App access: give the reviewer a test email and password.
 - Graphics: `store/icon-512.png`, `store/feature-graphic-1024x500.png`, and at least 2 real phone screenshots.
 
-Short description: Simple private chat with photos, voice notes and groups.
-Full description: VText is a simple chat app. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages and documents, and see on a friends map where your friends are when you both choose to share (sharing is off until you turn it on). Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
+Short description: Share raw snaps with friends, see a daily Feed, keep Memories and chat.
+Full description: Snapme lets you share a raw moment with your friends: take a snap with the dual camera, add a mood and a 10-second voice vibe, and post it to your friends or your Inner Circle (Public accounts also appear in the Public feed). Snaps last 24 hours and your own Memories keep them privately for 30 days. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages and documents, and see on a friends map where your friends are when you both choose to share (sharing is off until you turn it on). Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
 - Permissions declared: camera, microphone, photos/videos (READ_MEDIA_IMAGES / READ_MEDIA_VIDEO, READ_EXTERNAL_STORAGE up to Android 12), approximate + precise location (foreground only, **no** ACCESS_BACKGROUND_LOCATION), notifications (Firebase Cloud Messaging push, POST_NOTIFICATIONS), biometric. In the Play Console location declaration say: used for the optional friends map, only while the app is open.
 - Data safety: also declare Device or other IDs (Firebase Cloud Messaging token), collected for app functionality (notifications), not shared.
 - Privacy policy: the in-app and web privacy text should mention the push token. (Already added to `privacy.html` and the in-app policy.)

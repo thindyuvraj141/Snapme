@@ -1,8 +1,8 @@
-// VText service worker: the app is cached and only changes when the user taps Settings > App update.
+// Snapme service worker: the app is cached and only changes when the user taps Settings > App update.
 const CACHE = 'vtext-shell';
 const FILES = ['./', 'index.html', 'offline.html', 'logo.svg', 'manifest.json'];
 const reqOf = u => new Request(new URL(u, self.registration.scope).href);
-// The Firebase scripts come from Google's server. Keep a copy on the phone so VText also opens (and shows the saved chats) without internet.
+// The Firebase scripts come from Google's server. Keep a copy on the phone so Snapme also opens (and shows the saved chats) without internet.
 const CDN = ['app', 'auth', 'firestore'].map(n => 'https://www.gstatic.com/firebasejs/10.12.2/firebase-' + n + '-compat.js');
 const isCdn = u => u.origin === 'https://www.gstatic.com' && u.pathname.indexOf('/firebasejs/') === 0;
 // Fetch a Firebase script and keep a copy. If the server does not allow a normal (CORS) request the plain script request is kept instead.

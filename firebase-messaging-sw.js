@@ -1,4 +1,4 @@
-/* VText: Firebase Cloud Messaging worker for the website / installed web app (browsers only; the Android app does not use it).
+/* Snapme: Firebase Cloud Messaging worker for the website / installed web app (browsers only; the Android app does not use it).
    index.html registers it with its own scope ("firebase-cloud-messaging-push-scope"), so it never replaces sw.js. */
 self.window = self;                                   // config.js writes to window.*
 importScripts(
@@ -12,7 +12,7 @@ const messaging = firebase.messaging();
 // The server sends data-only messages to browsers, so the notification is built here.
 messaging.onBackgroundMessage(payload => {
   const d = (payload && payload.data) || {};
-  return self.registration.showNotification(d.title || 'VText', {
+  return self.registration.showNotification(d.title || 'Snapme', {
     body: d.body || 'New message',
     icon: 'logo.svg',
     badge: 'logo.svg',
@@ -22,7 +22,7 @@ messaging.onBackgroundMessage(payload => {
   });
 });
 
-// Tapping it brings VText forward and opens the chat.
+// Tapping it brings Snapme forward and opens the chat.
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const chat = (event.notification.data && event.notification.data.chat) || '';
