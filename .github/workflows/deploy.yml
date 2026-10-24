@@ -1,4 +1,4 @@
-name: Deploy VText
+name: Deploy Snapme
 on:
   push:
     branches: [main]

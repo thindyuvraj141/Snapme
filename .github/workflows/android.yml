@@ -24,14 +24,14 @@ jobs:
       - run: python3 -m pip install --break-system-packages pillow
       - name: Build (full build first, simpler fallbacks if needed)
         run: bash scripts/build_android.sh
-      - run: cp android/app/build/outputs/apk/debug/app-debug.apk VText.apk
+      - run: cp android/app/build/outputs/apk/debug/app-debug.apk Snapme.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: VText-apk
-          path: VText.apk
+          name: Snapme-apk
+          path: Snapme.apk
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: apk-${{ github.run_number }}
-          name: VText APK 1.0.${{ github.run_number }}
+          name: Snapme APK 1.0.${{ github.run_number }}
           body_path: release-notes.md
-          files: VText.apk
+          files: Snapme.apk

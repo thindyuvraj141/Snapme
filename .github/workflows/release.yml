@@ -37,11 +37,11 @@ jobs:
       - name: Sign AAB
         run: |
           echo "$KEYSTORE_BASE64" | base64 -d > release.jks
-          cp android/app/build/outputs/bundle/release/app-release.aab VText.aab
-          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 -keystore release.jks -storepass "$KS_PASS" -keypass "$KEY_PASS" VText.aab "$KEY_ALIAS"
-          jarsigner -verify VText.aab | tail -2
+          cp android/app/build/outputs/bundle/release/app-release.aab Snapme.aab
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 -keystore release.jks -storepass "$KS_PASS" -keypass "$KEY_PASS" Snapme.aab "$KEY_ALIAS"
+          jarsigner -verify Snapme.aab | tail -2
           rm release.jks
       - uses: actions/upload-artifact@v4
         with:
-          name: VText-aab
-          path: VText.aab
+          name: Snapme-aab
+          path: Snapme.aab
