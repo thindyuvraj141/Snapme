@@ -118,16 +118,28 @@ print('launcher icons written')
 
 import wave, math
 os.makedirs(os.path.join(RES, 'raw'), exist_ok=True)
-SR = 22050
-buf = [0.0] * int(SR * 0.7)
-for f, start in ((880, 0.0), (1318, 0.14)):
-    for i in range(int(SR * 0.45)):
-        t = i / SR
-        env = min(1.0, t / 0.015) * math.exp(-7 * t)
-        j = int((start + t) * SR)
-        if j < len(buf):
-            buf[j] += 0.45 * env * math.sin(2 * math.pi * f * t)
-with wave.open(os.path.join(RES, 'raw', 'vtext_msg.wav'), 'wb') as w:
+# Snapme message chime: a soft three-note rising bell (C6 - E6 - G6) with a little sparkle and a short echo.
+SR = 44100
+buf = [0.0] * int(SR * 1.3)
+def bell(buf, f, start, amp):
+    for k, (mul, g, dec) in enumerate(((1.0, 1.0, 5.5), (2.0, 0.34, 9.0), (3.01, 0.16, 13.0), (4.2, 0.07, 18.0))):
+        for i in range(int(SR * 0.75)):
+            t = i / SR
+            env = min(1.0, t / 0.006) * math.exp(-dec * t)
+            j = int((start + t) * SR)
+            if j < len(buf):
+                buf[j] += amp * g * env * math.sin(2 * math.pi * f * mul * t)
+for f, st, a in ((1046.5, 0.0, 0.5), (1318.5, 0.11, 0.5), (1568.0, 0.22, 0.55)):
+    bell(buf, f, st, a)
+D = int(SR * 0.17)
+for i in range(len(buf) - 1, D - 1, -1):
+    buf[i] += 0.26 * buf[i - D]
+peak = max(abs(x) for x in buf) or 1.0
+buf = [x / peak * 0.8 for x in buf]
+fade = int(SR * 0.05)
+for i in range(fade):
+    buf[len(buf) - 1 - i] *= i / fade
+with wave.open(os.path.join(RES, 'raw', 'snapme_chime.wav'), 'wb') as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
     w.writeframes(b''.join(int(max(-1, min(1, x)) * 32000).to_bytes(2, 'little', signed=True) for x in buf))
 print('notification sound written')

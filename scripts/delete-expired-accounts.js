@@ -1,6 +1,6 @@
 'use strict';
 /*
- * VText: deletes the accounts whose 7-day deletion period is over.
+ * Snapme: deletes the accounts whose 7-day deletion period is over.
  *
  * Runs once a day from .github/workflows/delete-accounts.yml (free GitHub Actions) with a Firebase service account key
  * stored in the GitHub secret FIREBASE_SERVICE_ACCOUNT.
@@ -12,9 +12,14 @@
  *   - current username, location, big photo, warnings, appeals, admin notes, ban record, moderator role
  *   - friend requests (sent and received), blocks, unfriend records
  *   - one-to-one chats (with all messages), the person is removed from groups (a group nobody is left in is deleted)
+ *   - their snaps in the Feed (posts where uid == the person); their Memories go with users/<uid>/memories
  *   - the Firebase Authentication login
  *   - users/<uid> with its sub-collections (last, so a failed run is found again)
  * Owner accounts (admins/<uid>.role == "owner") are never deleted automatically.
+ *
+ * Also every run (purgeOldSnaps): snaps are visible for 24 hours; the ones that are more than 24 hours past their end (48 hours old) are deleted,
+ * and Memories older than 30 days are deleted (that second step needs a one-time Firestore index for the collection group "memories"
+ * on `ts`; without it the step is skipped with a log line and the app still removes a person's old memories when they open Memories).
  *
  * Usage:  node scripts/delete-expired-accounts.js            (needs FIREBASE_SERVICE_ACCOUNT or GOOGLE_APPLICATION_CREDENTIALS)
  *         DRY_RUN=1 node scripts/delete-expired-accounts.js  (only lists what would be deleted)
@@ -43,6 +48,8 @@ async function purgeUser(ctx, uid) {
   for (const [col, f, op] of [['requests', 'from', '=='], ['requests', 'to', '=='], ['blocks', 'by', '=='], ['blocks', 'to', '=='], ['unfriends', 'members', 'array-contains']]) {
     for (const d of await docsOf(db.collection(col).where(f, op, uid))) await del(d.ref);
   }
+  // snaps in the Feed (the Memories copy lives under users/<uid> and goes with it)
+  for (const d of await docsOf(db.collection('posts').where('uid', '==', uid))) await tree(d.ref);
   // chats
   for (const d of await docsOf(db.collection('chats').where('members', 'array-contains', uid))) {
     const c = d.data() || {};
@@ -89,17 +96,46 @@ async function purgeExpired(ctx) {
   return out;
 }
 
-module.exports = { purgeExpired, purgeUser };
+/** Deletes snaps that ended more than 24 hours ago and Memories older than 30 days. Returns { posts, memories, memoriesSkipped }. */
+async function purgeOldSnaps(ctx) {
+  const { db, now = Date.now(), log = console.log, dry } = ctx;
+  const out = { posts: 0, memories: 0, memoriesSkipped: false };
+  const sweep = async (mk, key) => {
+    for (let round = 0; round < 50; round++) {          // at most 50 x 400 per run; the next run continues
+      const docs = await docsOf(mk().limit(400));
+      for (const d of docs) {
+        // a snap with a video also has its pieces under posts/<id>/parts
+        if (!dry) { if (key === 'posts' && typeof db.recursiveDelete === 'function') await db.recursiveDelete(d.ref); else await d.ref.delete(); }
+        out[key]++;
+      }
+      if (dry || docs.length < 400) break;
+    }
+  };
+  await sweep(() => db.collection('posts').where('exp', '<', now - DAY), 'posts');
+  try {
+    if (typeof db.collectionGroup !== 'function') throw new Error('no collection group');
+    await sweep(() => db.collectionGroup('memories').where('ts', '<', now - 30 * DAY), 'memories');
+  } catch (e) {
+    out.memoriesSkipped = true;
+    log('memories clean-up skipped (optional): ' + (e && e.message ? String(e.message).split('\n')[0].slice(0, 200) : e));
+  }
+  log((dry ? 'would delete ' : 'deleted ') + out.posts + ' old snaps and ' + out.memories + ' old memories');
+  return out;
+}
+
+module.exports = { purgeExpired, purgeUser, purgeOldSnaps };
 
 if (require.main === module) {
   (async () => {
     const admin = require('firebase-admin');
     const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
     admin.initializeApp(raw ? { credential: admin.credential.cert(JSON.parse(raw)) } : {});
-    const out = await purgeExpired({
+    const ctx = {
       db: admin.firestore(), auth: admin.auth(), FieldValue: admin.firestore.FieldValue, Timestamp: admin.firestore.Timestamp,
       dry: process.env.DRY_RUN === '1'
-    });
+    };
+    const out = await purgeExpired(ctx);
+    try { await purgeOldSnaps(ctx); } catch (e) { console.log('snap clean-up failed (will retry tomorrow): ' + (e && e.message ? e.message : e)); }
     process.exit(out.failed ? 1 : 0);
   })().catch(e => { console.error(e); process.exit(1); });
 }

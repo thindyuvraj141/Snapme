@@ -75,7 +75,7 @@ if push_on and native == 'full' and 'VTextFcmService' not in s:
            '        </service>\n')
     s = s.replace('</application>', fcm + '    </application>', 1)
 if push_on and 'default_notification_channel_id' not in s:
-    meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="messages"/>\n'
+    meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="snapme_msgs"/>\n'
             '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
     s = s.replace('</application>', meta + '    </application>', 1)
 mp.write_text(s)
