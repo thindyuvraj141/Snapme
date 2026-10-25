@@ -227,12 +227,16 @@ service cloud.firestore {
       allow get, list: if request.auth != null && (resource.data.pub == true || request.auth.uid in resource.data.to);
       allow create: if request.auth != null && notBanned()
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 'nm', 'un', 'img', 'vb', 'ts', 'exp', 'to', 'aud', 'pub', 'pd', 'au', 'ad', 'rx'])
+        && request.resource.data.keys().hasOnly(['uid', 'nm', 'un', 'img', 'vb', 'ts', 'exp', 'to', 'aud', 'pub', 'pd', 'au', 'ad', 'rx', 'vid', 'tg'])
         && request.resource.data.keys().hasAll(['uid', 'img', 'ts', 'exp', 'to', 'pub', 'rx'])
         && request.resource.data.ts == request.time
         && request.resource.data.img is string && request.resource.data.img.size() < 300000
         && request.resource.data.get('au', '').size() < 200000
         && request.resource.data.get('vb', '').size() <= 60
+        && (!('tg' in request.resource.data) || (request.resource.data.tg is list && request.resource.data.tg.size() <= 5))
+        && (!('vid' in request.resource.data) || (request.resource.data.vid is map && request.resource.data.vid.n is int
+            && request.resource.data.vid.n >= 1 && request.resource.data.vid.n <= 8
+            && request.resource.data.vid.mime is string && request.resource.data.vid.mime.size() < 30))
         && request.resource.data.to is list && request.resource.data.to.size() <= 401
         && request.auth.uid in request.resource.data.to
         && request.resource.data.rx.size() == 0
@@ -243,6 +247,20 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
         && request.resource.data.rx.diff(resource.data.rx).affectedKeys().hasOnly([request.auth.uid])
         && (!(request.auth.uid in request.resource.data.rx) || request.resource.data.rx[request.auth.uid] in ['f', 'h']);
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // A video snap is stored in small pieces (video of up to 3 MB, like videos in chats). The post itself keeps the cover picture.
+    // Whoever can see the snap can read its pieces; only the author (or an admin) can add or delete pieces.
+    match /posts/{p}/parts/{q} {
+      allow get, list: if request.auth != null && (isAdmin()
+        || get(/databases/$(db)/documents/posts/$(p)).data.pub == true
+        || request.auth.uid in get(/databases/$(db)/documents/posts/$(p)).data.to);
+      allow create: if request.auth != null && notBanned()
+        && request.resource.data.keys().hasOnly(['i', 'd', 'uid'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.i is int && request.resource.data.i >= 0 && request.resource.data.i < 8
+        && request.resource.data.d is string && request.resource.data.d.size() <= 720000;
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
     }
 

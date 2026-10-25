@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head>
 <meta charset="utf-8">
-<script>try{var _c=document.documentElement.classList;_c.add("boot");if(localStorage.getItem("vt_lock")==="1"&&!/[?&]bg=1(&|$)/.test(location.search))_c.add("locked")}catch(e){}</script>
+<script>try{var _c=document.documentElement.classList;_c.add("boot");_c.remove("locked")}catch(e){}</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>Snapme</title>
@@ -687,8 +687,8 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 #svm button,#snpvc button,#mvc button,.fvc button{width:30px;height:30px;border-radius:50%;border:0;background:var(--g1);color:#fff;font-size:.75rem;display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
 #svm #svrm{background:transparent;color:var(--sub);font-size:.9rem}
 #sct{display:flex;align-items:center;justify-content:space-around;flex:none;padding:4px 0 8px;margin-top:auto}
-#smic,#sfl{position:relative;width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--txt);display:flex;align-items:center;justify-content:center;cursor:pointer}
-#smic svg,#sfl svg{width:22px;height:22px}
+#smic,#sfl,#sgal{position:relative;width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--line);color:var(--txt);display:flex;align-items:center;justify-content:center;cursor:pointer}
+#smic svg,#sfl svg,#sgal svg{width:22px;height:22px}
 #smic.rc{background:#dc2626;border-color:#dc2626;color:#fff}
 #smic.rc::after{content:attr(data-t);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.7rem;font-weight:700;color:#f87171}
 #ssh{width:80px;height:80px;border-radius:50%;border:4px solid var(--g1);background:#ffffff1a;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 10px 26px -8px #a855f799;box-shadow:0 10px 26px -8px color-mix(in srgb,var(--g1) 60%,transparent);transition:transform .1s}
@@ -788,6 +788,46 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 .pr span small{display:block;font-size:.76rem;color:var(--sub);margin-top:2px}
 .pr em{font-style:normal;color:var(--sub);font-size:1.3rem}
 
+/* Round 11: Profile page holds every setting */
+#psets{display:flex;flex-direction:column;gap:2px;padding-bottom:10px}
+.psec{margin-top:10px}
+.psec>h3{font-size:1.2rem;font-weight:800;margin:8px 4px 2px;color:var(--txt);letter-spacing:0}
+.psec .ps{display:block}
+.psec .ps h4{margin:12px 4px 8px;font-size:.85rem;color:var(--sub);text-transform:none;letter-spacing:0;font-weight:700}
+.psec .ps .empty{padding:14px 4px}
+#pgprof>*{flex-shrink:0}
+/* the old round camera button of the Chats page is gone (the Snap tab is the camera) */
+#fab{display:none!important}
+/* gallery photo / video in the Snap tab */
+#snpvv{display:none;width:100%;height:100%;object-fit:cover;background:#000}
+.fim{position:relative}
+.fim .fvv{width:100%;height:100%;object-fit:cover;display:block;background:#000}
+.fpl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:64px;height:64px;border-radius:50%;border:2px solid #fff;background:#0009;color:#fff;font-size:1.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer;padding-left:4px}
+/* "Alice is typing to you…" popup */
+#tyb{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-160%);width:min(92%,420px);z-index:300;display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:0 14px 40px -10px #000;color:var(--txt);transition:transform .28s ease;cursor:pointer}
+#tyb.on{transform:translate(-50%,0)}
+#tyb .av{width:38px;height:38px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;background-size:cover}
+#tyb .tyt{min-width:0;flex:1}
+#tyb .tyt b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tyb .tyt span{display:block;font-size:.8rem;color:var(--sub)}
+#tyb .dots{display:flex;gap:4px}
+#tyb .dots i{width:6px;height:6px;border-radius:50%;background:var(--acc,#a855f7);animation:tyd 1s infinite ease-in-out}
+#tyb .dots i:nth-child(2){animation-delay:.15s}#tyb .dots i:nth-child(3){animation-delay:.3s}
+@keyframes tyd{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+/* tag people in a snap */
+#snptg{width:100%;display:flex;flex-direction:column;align-items:center;gap:8px}
+#snptc{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.tgc,.ftt{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;padding:5px 11px;font-size:.8rem;cursor:pointer}
+.ftt.me{background:var(--acc);border-color:var(--acc);color:#fff}
+.ftg{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem;color:var(--sub)}
+#tgp{position:fixed;inset:0;z-index:30;background:var(--bg);display:none;flex-direction:column}
+#tgp .sc{flex:1;min-height:0;overflow-y:auto;padding:4px 0 calc(28px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
+#tgp h4{margin:16px 16px 6px;font-size:.78rem;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
+#tgp .u .t{min-width:0}#tgp .u .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#tgp .u .t div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sub);font-size:.85rem}
+#tgp .u .t .tgnote{white-space:normal;color:var(--sub);font-size:.78rem;margin-top:2px}
+#tgm{min-height:1.2em;font-size:.82rem;color:#f87171;margin-top:6px}
+
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><linearGradient id="nvg" gradientUnits="userSpaceOnUse" x1="150" y1="96" x2="364" y2="420"><stop offset="0" stop-color="#d8b4fe"/><stop offset=".42" stop-color="#a855f7"/><stop offset="1" stop-color="#4ade80"/></linearGradient><filter id="nvf" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur in="SourceGraphic" stdDeviation="11" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><symbol id="vm" viewBox="126 84 260 344" overflow="visible"><path d="M340 160C330 125 295 108 256 108C205 108 168 135 168 178C168 222 205 238 256 252C310 266 346 284 346 334C346 380 306 404 256 404C212 404 175 384 164 346" fill="none" stroke="url(#nvg)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" filter="url(#nvf)"/><path d="M340 160C330 125 295 108 256 108C205 108 168 135 168 178C168 222 205 238 256 252C310 266 346 284 346 334C346 380 306 404 256 404C212 404 175 384 164 346" fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">Snapme is locked</h2><p class="sub" id="lkm"></p>
 <div id="lk-pw" style="display:none;width:100%;max-width:320px;padding:0 20px"><div class="pw"><input id="lkp" type="password" placeholder="Account password" autocomplete="current-password"><button type="button" class="eye" data-eye="lkp">Show</button></div><div class="er" id="lke"></div><button class="btn" id="lku" style="width:100%">Unlock</button></div>
@@ -804,12 +844,12 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 <div class="pg" id="pg-s2"><button class="bk" data-bk="pg-s1" aria-label="Back">←</button><h2>Email and password</h2><p class="sub">You will use these to log in.</p>
 <input id="se" type="email" placeholder="Email" autocomplete="email" inputmode="email" autocapitalize="none"><div class="pw"><input id="sp" type="password" placeholder="Password (min 6 characters)" autocomplete="new-password"><button type="button" class="eye" data-eye="sp">Show</button></div>
 <div class="sub" style="font-size:.8rem">By creating an account you agree to our <a href="#" data-doc="terms">Terms</a> and <a href="#" data-doc="privacy">Privacy Policy</a>.</div><div class="er" id="e-s2"></div><button class="btn" id="go2">Create account</button></div>
-<div class="pg" id="pg-bio"><div class="fpi" id="fpi"></div><h2>Use your fingerprint?</h2><p class="sub">Unlock Snapme with your fingerprint instead of typing your password. It stays on this phone only. You can change this any time in Settings &gt; Safety &amp; Visibility.</p><div class="er" id="e-bio"></div><button class="btn" id="bio1">Turn on fingerprint</button><button class="link" id="bio0">Not now</button></div>
+<div class="pg" id="pg-bio"><div class="fpi" id="fpi"></div><h2>Use your fingerprint?</h2><p class="sub">Unlock Snapme with your fingerprint instead of typing your password. It stays on this phone only. You can change this any time in Settings &gt; Privacy.</p><div class="er" id="e-bio"></div><button class="btn" id="bio1">Turn on fingerprint</button><button class="link" id="bio0">Not now</button></div>
 </div></div>
 <div id="anim"><svg class="vm"><use href="#vm"/></svg><b>Snapme</b><span>Welcome! Getting things ready…</span></div>
 <div id="app">
 <div id="side" data-n="snap"><div class="top w c" id="gh"><button class="ib" id="pbtn" aria-label="Profile"><div class="av" id="pav"></div></button><b class="g" id="ttl">Snapme</b><div id="stkp" aria-label="Day streak"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M12 2c.8 3.3 5.3 5.6 5.3 10.6A5.3 5.3 0 0112 18a5.3 5.3 0 01-5.3-5.4c0-2.2 1.1-3.8 2.3-4.9.3 1.9 1.2 2.7 2.1 2.7C10.7 9.2 10.9 5.2 12 2z" fill="currentColor"/></svg><span id="stkn">0</span> Day Streak</div><button class="ib" id="chb" type="button" aria-label="Chats"></button></div>
-<div id="cbar"><div id="cseg"><span data-v="fr" class="on">Friends</span><span data-v="chats">Chats</span></div><div class="cbt"><button class="ib" id="cloc" type="button" aria-label="Friends map"></button><button class="ib" id="cadd" type="button" aria-label="Add friend"></button><button class="ib" id="mm" aria-label="Menu">⋮</button></div></div><div id="sw2"><input id="search" placeholder="Search friends…" autocomplete="off"></div><div id="chips"><span class="on" data-f="all">All</span><span data-f="un">Unread</span><span data-f="gr">Groups</span></div><div id="list"></div><div class="np on" id="pgsnap"><div id="sbn"><div><p class="sbk">⚡ Time To Be Real</p><p class="sbm">Capture your raw moment!</p></div><div id="sbs">📸 Not yet today</div></div><div id="svw"><video id="swc" autoplay playsinline muted></video><div id="sph" role="button" tabindex="0" aria-label="Start the camera"><i id="sphi"></i><span>Tap Camera Icon to Start</span></div><div id="svb"><i id="svbi"></i><span id="svt">Late Night Grind ☕</span></div><button id="sdu" type="button" aria-label="Dual camera">Dual ✓</button><div id="scd"></div></div><div id="svc"></div><div id="svm"><button id="svpl" type="button" aria-label="Play voice vibe">▶</button><span id="svd"></span><button id="svrm" type="button" aria-label="Remove voice vibe">✕</button></div><div id="sct"><button id="smic" type="button" aria-label="Voice vibe (10 seconds)"></button><button id="ssh" type="button" aria-label="Take snap"><span></span></button><button id="sfl" type="button" aria-label="Flip camera"></button></div></div><div class="np" id="pgfeed"><div class="fph"><h2>Today’s Raw Feed</h2><div id="fchips"><span data-f="f" class="on">Friends</span><span data-f="p">Public</span></div></div><div id="fl"></div></div><div class="np" id="pgmem"><div class="fph"><h2>Time Capsule</h2><small id="mpc"></small></div><div id="ml"></div></div><div class="np" id="pgprof"></div><button id="fab" aria-label="Camera"></button><div id="nav"></div></div>
+<div id="cbar"><div id="cseg"><span data-v="fr" class="on">Friends</span><span data-v="chats">Chats</span></div><div class="cbt"><button class="ib" id="cloc" type="button" aria-label="Friends map"></button><button class="ib" id="cadd" type="button" aria-label="Add friend"></button><button class="ib" id="mm" aria-label="Menu">⋮</button></div></div><div id="sw2"><input id="search" placeholder="Search friends…" autocomplete="off"></div><div id="chips"><span class="on" data-f="all">All</span><span data-f="un">Unread</span><span data-f="gr">Groups</span></div><div id="list"></div><div class="np on" id="pgsnap"><div id="sbn"><div><p class="sbk">⚡ Time To Be Real</p><p class="sbm">Capture your raw moment!</p></div><div id="sbs">📸 Not yet today</div></div><div id="svw"><video id="swc" autoplay playsinline muted></video><div id="sph" role="button" tabindex="0" aria-label="Start the camera"><i id="sphi"></i><span>Tap Camera Icon to Start</span></div><div id="svb"><i id="svbi"></i><span id="svt">Late Night Grind ☕</span></div><button id="sdu" type="button" aria-label="Dual camera">Dual ✓</button><div id="scd"></div></div><div id="svc"></div><div id="svm"><button id="svpl" type="button" aria-label="Play voice vibe">▶</button><span id="svd"></span><button id="svrm" type="button" aria-label="Remove voice vibe">✕</button></div><div id="sct"><button id="sgal" type="button" aria-label="Photo or video from your gallery"></button><input id="sgf" type="file" accept="image/*,video/*" hidden><button id="smic" type="button" aria-label="Voice vibe (10 seconds)"></button><button id="ssh" type="button" aria-label="Take snap"><span></span></button><button id="sfl" type="button" aria-label="Flip camera"></button></div></div><div class="np" id="pgfeed"><div class="fph"><h2>Today’s Raw Feed</h2><div id="fchips"><span data-f="f" class="on">Friends</span><span data-f="p">Public</span></div></div><div id="fl"></div></div><div class="np" id="pgmem"><div class="fph"><h2>Time Capsule</h2><small id="mpc"></small></div><div id="ml"></div></div><div class="np" id="pgprof"></div><button id="fab" aria-label="Camera"></button><div id="nav"></div></div>
 <div id="chat"><div class="top"><button class="ib" id="back" aria-label="Back"></button><div class="av" id="cav"></div><div class="g" id="hd" style="cursor:pointer"><b id="cname"></b><small id="cst"></small></div><i id="cmu" aria-hidden="true"></i><button class="ib" id="cm" aria-label="Menu">⋮</button></div>
 <div id="msgs"></div><button id="dn">↓</button><div id="rp"></div><div id="emo"></div>
 <div id="bar"><button id="bcam" type="button" aria-label="Camera"></button><div class="in"><input id="txt" placeholder="Send chat" autocomplete="off"><button class="rb" id="snd" aria-label="Voice message"></button></div><button id="eb" aria-label="Emoji"></button><button id="at" type="button" aria-label="Attach"></button><input id="file" type="file" hidden></div></div>
@@ -841,7 +881,7 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 <div id="ctxo"><textarea id="cti2" maxlength="80" rows="3" placeholder="Type something"></textarea><div id="ctsy"></div><div id="ctco"></div><button id="ctok">Done</button></div>
 <div id="csend"><div class="top w"><button class="ib" id="csx" aria-label="Back">←</button><b style="flex:1;font-size:1.2rem;color:var(--txt)">Send to</b></div><div id="csl"></div><button class="btn" id="csgo">Choose who to send to</button></div>
 <div id="ccrop"><b>Move and zoom your photo</b><div id="crw"><canvas id="crv" width="300" height="300"></canvas><div id="crm"></div></div><input type="range" id="crz" min="1" max="4" step="0.01" value="1" aria-label="Zoom"><div class="bt"><button id="crc">Cancel</button><button id="cro">Use as profile picture</button></div></div></div>
-<div id="snpv"><div class="top w"><button class="ib" id="snpr" type="button" aria-label="Retake">←</button><b style="flex:1">Share your snap</b></div><div class="snpc"><div class="snpw"><img id="snpi" alt="Your snap"><div id="snpb"></div></div><div id="snpvc"><button id="snpvp" type="button" aria-label="Play voice vibe">▶</button><span id="snpvd"></span></div><div id="snpa"><button type="button" data-a="f" class="on">Friends</button><button type="button" data-a="i">Inner Circle</button></div><p id="snpn"></p><button class="snpl" id="snpt" type="button"></button><button class="btn" id="snpp" type="button">Post ⚡</button></div></div><div id="mvw"><div class="top w"><button class="ib" id="mvx" type="button" aria-label="Back">←</button><b style="flex:1;font-size:1rem" id="mvt"></b><button class="ib" id="mvdel" type="button" aria-label="Delete memory">🗑</button></div><div class="snpc"><div class="snpw"><img id="mvi" alt="Memory"></div><div id="mvv"></div><div id="mvc"><button id="mvp" type="button" aria-label="Play voice vibe">▶</button><span id="mvd"></span></div></div></div><div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button></div><div id="prrows"></div></div></div><div id="perm"><div class="pmc"><h2>Allow Snapme to use…</h2><p class="sub">So that photos, the camera and the friends map work. You can change this any time in Settings.</p><div class="pmr" data-k="camera"><i></i><div class="pmt"><b>Camera</b><small>Take photos and videos inside chats.</small><span class="pms"></span></div></div><div class="pmr" data-k="media"><i></i><div class="pmt"><b>Gallery</b><small>Choose photos and videos to send, and save them to your phone.</small><span class="pms"></span></div></div><div class="pmr" data-k="location"><i></i><div class="pmt"><b>Location</b><small>See where your friends are and who is nearby. Nothing is shared until you turn sharing on.</small><span class="pms"></span></div></div><div class="er" id="pm-note"></div><button class="btn" id="pm1">Allow</button><button class="link" id="pm0">Not now</button></div></div><div id="loc"><div id="lmap"></div><div class="lhd"><button class="ib" id="lx" aria-label="Back">←</button><b>Friends map</b></div><div id="lban"><span>You are not sharing your location. Friends cannot see where you are.</span><button id="lban1">Turn on</button></div><div id="lnote"></div><div class="lrt"><div class="ltip" id="ltip">Not sharing location</div><button class="lb" id="lsh" aria-label="Location sharing"></button><button class="lb" id="lme" aria-label="My position"></button></div><div class="lbl"><button class="lb" id="lpl" aria-label="Friends nearby"></button><button class="lpill" id="lad" aria-label="Add friends"></button></div><div id="lpn"><div class="lph"><b id="lpt">Friends nearby</b><button class="ib" id="lpx" aria-label="Close">✕</button></div><div id="lpl2"></div></div><div id="lcon"><div class="lcc"><h3>Share your location with friends?</h3><ul><li>Only your friends can see where you are. People you blocked never can.</li><li>You can choose which friends, and share an approximate spot (about 1 km) instead of the exact one.</li><li>Your location is updated while Snapme is open. You can stop any time.</li></ul><button class="btn" id="lcok">Share my location</button><button class="link" id="lcno">Not now</button></div></div></div><div id="lpick"><div class="top w"><button class="ib" id="lpkx" aria-label="Back">←</button><b style="flex:1">Share with…</b><button class="link" id="lpkd" style="width:auto;margin:0">Done</button></div><div class="sc" id="lpkl"></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
+<div id="snpv"><div class="top w"><button class="ib" id="snpr" type="button" aria-label="Retake">←</button><b style="flex:1">Share your snap</b></div><div class="snpc"><div class="snpw"><img id="snpi" alt="Your snap"><video id="snpvv" playsinline controls loop></video><div id="snpb"></div></div><div id="snpvc"><button id="snpvp" type="button" aria-label="Play voice vibe">▶</button><span id="snpvd"></span></div><div id="snpa"><button type="button" data-a="f" class="on">Friends</button><button type="button" data-a="i">Inner Circle</button></div><div id="snptg"><button type="button" id="snptb" class="snpl">🏷 Tag friends or public accounts</button><div id="snptc"></div></div><p id="snpn"></p><button class="snpl" id="snpt" type="button"></button><button class="btn" id="snpp" type="button">Post ⚡</button></div></div><div id="mvw"><div class="top w"><button class="ib" id="mvx" type="button" aria-label="Back">←</button><b style="flex:1;font-size:1rem" id="mvt"></b><button class="ib" id="mvdel" type="button" aria-label="Delete memory">🗑</button></div><div class="snpc"><div class="snpw"><img id="mvi" alt="Memory"></div><div id="mvv"></div><div id="mvc"><button id="mvp" type="button" aria-label="Play voice vibe">▶</button><span id="mvd"></span></div></div></div><div id="prf"><div class="sc" id="prb" style="padding-top:0"><div class="pcover"><button class="ib" id="prx" aria-label="Back">←</button><button class="ib" id="pbg" aria-label="Change profile background"></button></div><div class="hero"><div class="pavw"><div class="rng"><div class="av big" id="sav"></div></div><button class="pcam" id="pcam" aria-label="Change photo"></button></div><div id="sname"></div><div class="sub" id="su"></div></div><div class="pstats"><div><b id="ps1">0</b><span>Friends</span></div><div><b id="ps2">0</b><span>Groups</span></div><div><b id="ps3">0</b><span>Requests</span></div></div><div class="pbtns"><button class="btn" id="pedit">Edit profile</button></div><div id="prrows"></div></div></div><div id="perm"><div class="pmc"><h2>Allow Snapme to use…</h2><p class="sub">So that photos, the camera and the friends map work. You can change this any time in Settings.</p><div class="pmr" data-k="camera"><i></i><div class="pmt"><b>Camera</b><small>Take photos and videos inside chats.</small><span class="pms"></span></div></div><div class="pmr" data-k="media"><i></i><div class="pmt"><b>Gallery</b><small>Choose photos and videos to send, and save them to your phone.</small><span class="pms"></span></div></div><div class="pmr" data-k="location"><i></i><div class="pmt"><b>Location</b><small>See where your friends are and who is nearby. Nothing is shared until you turn sharing on.</small><span class="pms"></span></div></div><div class="er" id="pm-note"></div><button class="btn" id="pm1">Allow</button><button class="link" id="pm0">Not now</button></div></div><div id="loc"><div id="lmap"></div><div class="lhd"><button class="ib" id="lx" aria-label="Back">←</button><b>Friends map</b></div><div id="lban"><span>You are not sharing your location. Friends cannot see where you are.</span><button id="lban1">Turn on</button></div><div id="lnote"></div><div class="lrt"><div class="ltip" id="ltip">Not sharing location</div><button class="lb" id="lsh" aria-label="Location sharing"></button><button class="lb" id="lme" aria-label="My position"></button></div><div class="lbl"><button class="lb" id="lpl" aria-label="Friends nearby"></button><button class="lpill" id="lad" aria-label="Add friends"></button></div><div id="lpn"><div class="lph"><b id="lpt">Friends nearby</b><button class="ib" id="lpx" aria-label="Close">✕</button></div><div id="lpl2"></div></div><div id="lcon"><div class="lcc"><h3>Share your location with friends?</h3><ul><li>Only your friends can see where you are. People you blocked never can.</li><li>You can choose which friends, and share an approximate spot (about 1 km) instead of the exact one.</li><li>Your location is updated while Snapme is open. You can stop any time.</li></ul><button class="btn" id="lcok">Share my location</button><button class="link" id="lcno">Not now</button></div></div></div><div id="lpick"><div class="top w"><button class="ib" id="lpkx" aria-label="Back">←</button><b style="flex:1">Share with…</b><button class="link" id="lpkd" style="width:auto;margin:0">Done</button></div><div class="sc" id="lpkl"></div></div><div id="dlg"><div class="dl"><h3 id="dt"></h3><input id="di"><div class="bt"><button id="dc">Cancel</button><button id="dk">OK</button></div></div></div><div id="toast"></div><div id="doc"><div class="top w"><button class="ib" id="dcx">←</button><b id="dct" style="flex:1"></b></div><div class="sc" id="dcb"></div></div><div id="pv"><div class="top w"><button class="ib" id="pvx">←</button><b id="pvt" style="flex:1">Friend info</b></div><div class="sc"><div class="hero"><div class="rng"><div class="av big" id="pva"></div></div><div id="pvn" style="font-size:1.9rem;margin-top:6px"></div></div><div id="pvr"></div></div></div><div id="vw"><img alt=""><div class="vwb"><button id="vwx" aria-label="Close">✕ Close</button><button id="vws">⬇ Save</button></div></div><div id="st"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -914,123 +954,33 @@ async function checkUpdate(){
     if(await ask('A new version of Snapme is available (version 1.0.'+(j.n||'?')+'). Update now?','',true,false,['Later','Update']))applyUpdate()
   }catch(e){msgD('Couldn’t check for updates. Please check your internet connection.')}}
 const T0=Date.now();
-function afterSplash(){if(document.documentElement.classList.contains('locked'))unlockFlow()}
+function afterSplash(){}
 function hideSplash(){clearTimeout(hideSplash.t);const w=Math.max(0,T0+(FAST0?150:(get('in','')==='1'?2000:1500))-Date.now());hideSplash.t=setTimeout(()=>{const c=document.documentElement.classList;if(c.contains('boot')){c.remove('boot');afterSplash()}},w)}
 setTimeout(hideSplash,9000);
 try{if(get('fgs_try','')){put('keep','0');put('fgs_try','')}}catch(e){}
 const SHARE_URL='https://github.com/thindyuvraj141/VText/releases';
 const APP_URL='https://thindyuvraj141.github.io/VText/';
 try{const _a=new URLSearchParams(location.search).get('add');if(_a)localStorage.setItem('vt_add',_a.toLowerCase().replace(/[^a-z0-9_]/g,''))}catch(e){}
-let hiddenAt=0,lockBusy=false,lastUnlock=0,bioFails=0;
-const lockOn=()=>!BGM&&get('lock','0')==='1';
-const lockPw=()=>{try{return JSON.parse(get('lockpw','null'))}catch(e){return null}};
-const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
-async function pbk(pw,salt){const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']);return hex(await crypto.subtle.deriveBits({name:'PBKDF2',salt:new TextEncoder().encode(salt),iterations:100000,hash:'SHA-256'},k,256))}
-async function savePwHash(pw){const s=[...crypto.getRandomValues(new Uint8Array(8))].join('');put('lockpw',JSON.stringify({s,h:await pbk(pw,s)}))}
-async function pwOk(pw){if(!pw)return false;const h=lockPw();if(h&&(await pbk(pw,h.s))===h.h)return true;if(window.__reauth&&await window.__reauth(pw)){await savePwHash(pw);return true}return false}
-const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-const unb64u=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
-let bioWhy='';
-const BIO_WHY={11:'No fingerprint is saved on this phone. Add one in your phone Settings > Security, then come back.',12:'This phone has no fingerprint sensor.',1:'The fingerprint sensor is busy right now. Try again in a moment.',15:'Your phone needs a security update before the fingerprint can be used.'};
-async function bioProbe(w){
-  const V=plug('VTextBg');if(V&&V.bioStatus){try{const a=await V.bioStatus();if(a&&a.available)return'vt';w.why=BIO_WHY[a&&a.code]||'Fingerprint is not available on this phone.'}catch(e){}}
-  const N=plug('NativeBiometric');if(N){try{const a=await N.isAvailable({useFallback:false});if(a&&a.isAvailable)return'nb'}catch(e){}}
-  const B=plug('BiometricAuth');if(B){try{const a=await B.checkBiometry();if(a&&a.isAvailable)return'ba'}catch(e){}}
-  if(!isNative()){try{if(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())return'web'}catch(e){}
-    w.why='This browser cannot use the fingerprint for web apps. Open the Snapme Android app to use it.';return''}
-  if(!w.why)w.why='This Snapme app has no fingerprint support yet. Install the newest Snapme APK.';
-  return''}
-async function bioKind(){const w={why:''};const k=await bioProbe(w);bioWhy=k?'':w.why;return k}
-const bioPref=()=>get('lockbio','1')==='1';
-async function bioReady(){if(!bioPref())return false;const k=await bioKind();return k==='web'?!!get('wacred',''):!!k}
-async function webEnroll(){try{const w=(window.__who&&window.__who())||{};const cr=await navigator.credentials.create({publicKey:{rp:{name:'Snapme'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:w.email||'user',displayName:w.name||'Snapme user'},challenge:crypto.getRandomValues(new Uint8Array(32)),pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});put('wacred',b64u(cr.rawId));return true}catch(e){return false}}
-async function bioVerify(reason){const k=await bioKind();
-  if(k==='vt'){await plug('VTextBg').bioAuth({title:'Snapme',reason,cancel:'Use password'});return true}
-  if(k==='nb'){await plug('NativeBiometric').verifyIdentity({reason,title:'Snapme',subtitle:reason,description:'',useFallback:false,maxAttempts:3});return true}
-  if(k==='ba'){await plug('BiometricAuth').authenticate({reason,cancelTitle:'Cancel',allowDeviceCredential:false,androidTitle:'Snapme',androidSubtitle:reason});return true}
-  if(k==='web'){const id=get('wacred','');if(!id)throw Error('not enrolled');await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{id:unb64u(id),type:'public-key',transports:['internal']}],userVerification:'required',timeout:60000}});return true}
-  throw Error('no biometric')}
-const cancelled=e=>/cancel/i.test(String(e&&(e.message||e.code||e)));
-async function bioVerifyN(reason,n){for(let i=0;i<(n||2);i++){try{await bioVerify(reason);return true}catch(e){if(cancelled(e))return false}}return false}
-async function lockAuth(reason){
-  if(await bioReady()){if(await bioVerifyN(reason,2))return true;toast('Fingerprint not recognized. Use your account password.')}
-  for(let i=0;i<3;i++){const p=await ask(reason+'. Enter your account password'+(i?' ('+(3-i)+' tries left)':''),'',false,true);if(p===null)return false;if(await pwOk(p))return true;toast('Wrong password')}return false}
-async function enableLock(pw){const k=await bioKind();
-  if(pw==null){pw=await ask('Enter your account password to turn on the lock','',false,true);if(pw===null)return false}
-  if(!(await pwOk(pw))){toast('Wrong password');return false}
-  if(k==='web'&&!(await webEnroll())){toast('Couldn’t set up the fingerprint');return false}
-  if(k&&!(await bioVerifyN('Confirm it’s you',2))){toast('Fingerprint not confirmed');return false}
-  await savePwHash(pw);put('lockbio',k?'1':'0');put('lock','1');return true}
-async function setBio(v){
-  if(!v){put('lockbio','0');return true}
-  const k=await bioKind();if(!k){toast(bioWhy||'Fingerprint is not available here');return false}
-  if(!lockOn())return enableLock();
-  if(k==='web'&&!get('wacred','')&&!(await webEnroll())){toast('Couldn’t set up the fingerprint');return false}
-  if(!(await bioVerifyN('Confirm it’s you',2))){toast('Fingerprint not confirmed');return false}
-  put('lockbio','1');return true}
-async function disableLock(){if(!(await lockAuth('Turn off the lock')))return false;put('lock','0');document.documentElement.classList.remove('locked');return true}
-function lockUI(mode,msg){$('lkm').textContent=msg||'';$('lk-pw').style.display=mode==='pw'?'block':'none';$('unl').style.display=mode==='bio'?'':'none';$('lkpw').style.display=mode==='bio'?'':'none';$('lke').textContent='';if(mode==='pw')setTimeout(()=>{try{$('lkp').focus()}catch(e){}},80)}
-function unlocked(){$('lkp').value='';bioFails=0;pausedAt=0;document.documentElement.classList.remove('locked');lastUnlock=Date.now();hiddenAt=0}
-async function unlockFlow(){
-  if(lockBusy)return;lockBusy=true;
-  try{
-    if(bioFails<2&&await bioReady()){
-      lockUI('bio','Touch the fingerprint sensor to unlock Snapme.');
-      try{await bioVerify('Unlock Snapme');unlocked();return}
-      catch(e){if(!cancelled(e))bioFails++;
-        const why=cancelled(e)?'':String(e&&(e.message||e.errorMessage||e)||'').slice(0,90);
-        if(bioFails>=2){lockUI('pw','Fingerprint was not recognized. Enter your account password to unlock.');if(why)$('lke').textContent='('+why+')';return}
-        lockUI('bio',bioFails?'Fingerprint not recognized. Try again or use your account password.':'Unlock with your fingerprint or use your account password.');if(why)$('lke').textContent='('+why+')';return}}
-    lockUI('pw','Enter your account password to unlock Snapme.')
-  }finally{lockBusy=false}}
-/* the lock follows the real app lifecycle: Android pause/resume (when available), otherwise the page visibility.
-   lockGrace() stops the lock from kicking in while the phone shows its own screens (photo picker, camera, permission prompts). */
-let pausedAt=0,graceUntil=0;
-const lockGrace=ms=>{graceUntil=Math.max(graceUntil,Date.now()+ms)};
-function onPaused(){if(!lockOn()||lockBusy||Date.now()<graceUntil||Date.now()-lastUnlock<600)return;if(!pausedAt)pausedAt=Date.now();hiddenAt=pausedAt;if(+get('lockdelay','0')===0)document.documentElement.classList.add('locked')}
-function onResumed(){if(!lockOn()||lockBusy||!pausedAt)return;
-  const was=pausedAt;pausedAt=0;
-  if(document.documentElement.classList.contains('locked')||Date.now()-was>=+get('lockdelay','0')){document.documentElement.classList.add('locked');bioFails=0;unlockFlow()}}
-let nativeLife=false;
-window.__vtLife=st=>{nativeLife=true;st==='pause'?onPaused():onResumed()};
-try{const AP=plug('App');if(isNative()&&AP&&AP.addListener){AP.addListener('pause',()=>{nativeLife=true;onPaused()});AP.addListener('resume',()=>{nativeLife=true;onResumed()})}}catch(e){}
-document.addEventListener('visibilitychange',()=>{if(nativeLife)return;document.hidden?onPaused():onResumed()});
-try{const oc=HTMLInputElement.prototype.click;HTMLInputElement.prototype.click=function(){if(this.type==='file')lockGrace(120000);return oc.apply(this,arguments)};
-  const md=navigator.mediaDevices;if(md&&md.getUserMedia){const og=md.getUserMedia.bind(md);md.getUserMedia=function(){lockGrace(30000);return og.apply(null,arguments)}}
-  if(window.Notification&&Notification.requestPermission){const orq=Notification.requestPermission.bind(Notification);Notification.requestPermission=function(){lockGrace(30000);return orq.apply(null,arguments)}}}catch(e){}
-function lockNow(){if(!lockOn())return;pausedAt=0;document.documentElement.classList.add('locked');bioFails=0;unlockFlow()}
-$('unl').onclick=unlockFlow;$('lkpw').onclick=()=>lockUI('pw','Enter your account password to unlock Snapme.');
-let pwTry=0;$('lku').onclick=async()=>{const p=$('lkp').value;if(!p){$('lke').textContent='Enter your password.';return}$('lku').disabled=true;const ok=await pwOk(p);$('lku').disabled=false;if(ok){pwTry=0;unlocked()}else{pwTry++;$('lke').textContent=pwTry>=5?'Wrong password. Forgot it? Log out below and use “Forgot password”.':'Wrong password. Try again.'}};
-$('lklo').onclick=async()=>{if(await confirmD('Log out of Snapme? The lock will be turned off.')&&window.__logout)window.__logout()};
-let bioK='';bioKind().then(k=>{bioK=k});
-
-/* Settings > Safety > "Check app lock": says what this phone / this app can do, and tests the fingerprint */
-async function lockCheck(){
-  const V=plug('VTextBg');let ph='unknown';
-  if(V&&V.bioStatus){try{const a=await V.bioStatus();ph=a&&a.available?'ready':'not ready (code '+(a&&a.code)+'): '+(BIO_WHY[a&&a.code]||'Fingerprint is not available on this phone.')}catch(e){ph='error: '+String(e&&(e.message||e)).slice(0,80)}}
-  const L=['Android app: '+(isNative()?'yes':'no, this is a browser'),
-    'Fingerprint part in this app: '+(V&&V.bioStatus?'found':'MISSING. Install the newest Snapme APK'),
-    'Phone fingerprint: '+ph,
-    'App lock: '+(lockOn()?'on':'off')+'. Fingerprint unlock: '+(bioPref()?'on':'off'),
-    'Leaving and coming back to Snapme detected: '+(nativeLife?'yes':'not yet. Open another app, come back, then check again')];
-  const t=await ask(L.join('\n'),'',true,false,['Close','Test fingerprint']);
-  if(t){try{await bioVerify('Test the fingerprint');await msgD('Fingerprint works.')}catch(e){await msgD(cancelled(e)?'Cancelled.':'Fingerprint failed: '+String(e&&(e.message||e.errorMessage||e)).slice(0,120))}}}
+/* Snapme has no app lock and no fingerprint lock. If an older version saved a lock on this phone, clear it, so nobody stays locked. */
+try{['lock','lockpw','lockbio','wacred','lck','lockdelay'].forEach(k=>localStorage.removeItem('vt_'+k));document.documentElement.classList.remove('locked')}catch(e){}
+const lockOn=()=>false;
 function svgToPng(svg,n){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>{const c=document.createElement('canvas');c.width=c.height=n;c.getContext('2d').drawImage(i,0,0,n,n);res(c.toDataURL('image/png'))};i.onerror=()=>rej(Error('Avatar render failed'));i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg)})}
 function cropSquare(url,n){return new Promise((res,rej)=>{const m=new Image();m.onload=()=>{const c=document.createElement('canvas');c.width=c.height=n;const q=Math.min(m.width,m.height);c.getContext('2d').drawImage(m,(m.width-q)/2,(m.height-q)/2,q,q,0,0,n,n);res(c.toDataURL('image/jpeg',.75))};m.onerror=()=>rej(Error('Image error'));m.src=url})}
 function shrinkCanvas(c){let q=.88,o;for(let i=0;i<7;i++){o=c.toDataURL('image/jpeg',q);if(o.length<800000)return o;q-=.1;if(q<.4){const t=document.createElement('canvas');t.width=Math.round(c.width*.8);t.height=Math.round(c.height*.8);t.getContext('2d').drawImage(c,0,0,t.width,t.height);c=t;q=.8}}return o}
 const SUPPORT_EMAIL='VVaultweb@gmail.com';
 const mail=SUPPORT_EMAIL.includes('YOUR_')?'':'<p>Contact: <b>'+SUPPORT_EMAIL+'</b></p>';
 const DOCS={
-privacy:['Privacy Policy','<p>Last updated: 24 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages. (Documents can no longer be sent; ones sent with older versions may still be in old chats.)</li><li>Snaps and the Feed: when you post a snap we save its picture (a compressed photo, or two photos when you use the dual camera), the mood label, an optional voice vibe of up to 10 seconds, your name and username, and the time. A snap is shown for 24 hours and is then hidden and removed. If your account is Public, your snap appears in the Public feed that every Snapme account can open, and in your friends’ Feed. If your account is Private (Settings > Safety & Visibility & Security), only your friends see it. You can also share a snap with your Inner Circle only; the list of your Inner Circle is saved privately and only you can read it. People who can see a snap can react to it, and you can delete your own snaps at any time.</li><li>Memories: every snap you post is also kept in your own private Memories (picture, mood and voice vibe) for 30 days. Only you can see them, and you can delete a memory at any time.</li><li>Day Streak: a counter of the days in a row you posted a snap is saved with your profile.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while Snapme is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and Snapme is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in Settings > Account > Current sessions, and turn seen ticks off in Settings > Safety & Visibility.</li><li>Lock: if you turn on the fingerprint lock, your fingerprint is checked by your phone and never leaves it. Snapme only keeps a salted hash of your account password on this phone so you can unlock offline.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Friend suggestions: accounts that joined recently can be suggested to other people on the Add friend page (name, username and, if your photo is visible to everyone, your photo). Private accounts are suggested too, but adding one only sends a friend request. While an account is waiting to be deleted it is not suggested.</li><li>Copy on your phone: so Snapme also opens without internet, a copy of your chats, friends and loaded messages is kept on your phone until you clear Snapme’s data or uninstall the app.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the Snapme admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a snap or photo, record a voice message or voice vibe, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Snaps are shown for 24 hours and are removed shortly after; Memories are kept for 30 days. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Settings &gt; Account &gt; Delete account. Your account is deleted 7 days later; log in again before then to cancel. After that your profile, username, requests, one-to-one chats, shared location, snaps and Memories are removed. Messages you sent in groups may remain until they expire.</p><h4>Children</h4><p>Snapme is not for children under 13.</p>'+mail],
+privacy:['Privacy Policy','<p>Last updated: 24 October 2026.</p><h4>Data we collect</h4><ul><li>Account: email, password (handled by Firebase Authentication), name, username and an optional photo.</li><li>Messages: text, photos, videos, voice messages. (Documents can no longer be sent; ones sent with older versions may still be in old chats.)</li><li>Snaps and the Feed: when you post a snap we save its picture (a compressed photo from the camera or your gallery, or two photos when you use the dual camera) or a short video of up to 3 MB that you pick from your gallery (the video is stored in small pieces together with the snap and is removed with it; its first picture is the cover), the mood label, an optional voice vibe of up to 10 seconds, your name and username, and the time. A snap is shown for 24 hours and is then hidden and removed. If your account is Public, your snap appears in the Public feed that every Snapme account can open, and in your friends’ Feed. If your account is Private (the switch at the top of your Profile page), only your friends see it. You can also share a snap with your Inner Circle only; the list of your Inner Circle is saved privately and only you can read it. You can tag up to 5 friends or Public accounts in a snap; their username is saved in the snap and they can see it. People who can see a snap can react to it, and you can delete your own snaps at any time.</li><li>Memories: every snap you post is also kept in your own private Memories (picture, mood and voice vibe) for 30 days. Only you can see them, and you can delete a memory at any time.</li><li>Day Streak: a counter of the days in a row you posted a snap is saved with your profile.</li><li>Push token: if notifications are on, a Firebase Cloud Messaging token of your phone or browser is stored with your account so message notifications can reach you while Snapme is closed. It is deleted when you turn notifications off, log out or delete your account.</li><li>Location (only if you turn it on): on the Location page you can share where you are with your friends. While sharing is on and Snapme is open, your latitude and longitude are saved and can be seen only by the friends you choose (all or selected; exact or rounded to about 1 km). It is deleted when you stop sharing, log out or delete your account. The map pictures are loaded from OpenStreetMap, whose servers can see your IP address and the map area you look at (not your name or your friends).</li><li>Activity: a green dot shows when you are online, plus typing and read status. You can turn the activity indicator off in your Profile page > Devices & activity, and turn seen ticks off in your Profile page > Safety & Visibility.</li><li>Usernames: when you change your username, the old one is retired and nobody can use it again.</li><li>Friend suggestions: accounts that joined recently can be suggested to other people on the Add friend page (name, username and, if your photo is visible to everyone, your photo). Private accounts are suggested too, but adding one only sends a friend request. While an account is waiting to be deleted it is not suggested.</li><li>Copy on your phone: so Snapme also opens without internet, a copy of your chats, friends and loaded messages is kept on your phone until you clear Snapme’s data or uninstall the app.</li><li>Reports you send about users or messages: the report (your name, the other person’s name, a short piece of the reported text and the time) is stored and can be read by the Snapme admins, who can open that one reported message. Admins cannot browse anybody’s chats. If an account is suspended, the reason, the date and the end time (if there is one) are stored with it, together with any appeal you send, any warning the admins send you and private admin notes about the account. The admins also keep a log of the actions they take, and they can give an account a verified badge.</li><li>Login activity: device name, login and logout times and last-active time, shown only to you in Settings > Account > Current sessions. You can turn the activity indicator off.</li><li>Blocks: who you block, so blocked people cannot see your username, email, photo or online status.</li></ul><p>Your name, username, email and photo are visible to people you chat with.</p><h4>Permissions</h4><p>Camera, microphone, photos and location are used only when you use the related feature (take a snap or photo, record a voice message or voice vibe, pick or save photos, show or share your location on the Location page). Notifications are optional.</p><h4>How we use data</h4><p>Only to run the chat service. We do not sell data and we show no ads.</p><h4>Where data is stored</h4><p>Google Firebase (Authentication and Cloud Firestore).</p><h4>Retention</h4><p>Messages expire after the time you choose (default 24 hours) and are then hidden and removed. Snaps are shown for 24 hours and are removed shortly after; Memories are kept for 30 days. Profile data stays until you delete your account.</p><h4>Delete your account</h4><p>Profile page &gt; Account &gt; Delete account. Your account is deleted 7 days later; log in again before then to cancel. After that your profile, username, requests, one-to-one chats, shared location, snaps and Memories are removed. Messages you sent in groups may remain until they expire.</p><h4>Children</h4><p>Snapme is not for children under 13.</p>'+mail],
 terms:['Terms & community rules','<p>By using Snapme you agree to these rules.</p><ul><li>No harassment, threats, hate speech or bullying.</li><li>No sexual content involving minors and no sexually explicit content.</li><li>No violence, illegal activity, scams, spam or impersonation.</li><li>Do not share other people’s private information.</li><li>Post only snaps you are allowed to share. Do not show other people without their permission. Public snaps can be seen by everybody on Snapme.</li><li>You are responsible for what you send and post.</li></ul><p>You can block and report any user, message or snap in the app. We may remove content or suspend accounts that break these rules.</p>'+mail],
-delete:['Delete your account','<h4>In the app</h4><p>Open Settings &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>7 days to change your mind</h4><p>Your account is deleted 7 days after you ask. You are logged out and the app shows the exact date. If you log in again before that date, the deletion is cancelled and nothing is lost. While it is pending, nobody can find you by username or in friend suggestions.</p><h4>What is deleted</h4><p>After the 7 days your login, profile (name, username, photo, about), username, friend requests, blocks, your shared location, your one-to-one chats, your snaps and Memories, and your place in groups are deleted. Messages you sent in groups may remain until they expire.</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
-bg:['Background notifications','<p>On the Android app, Snapme keeps running in the background with a small “Snapme is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Settings &gt; Notifications: keep “Keep running in the background” turned on.</li><li>Settings &gt; Notifications &gt; Battery optimisation: tap and choose Allow, so Android does not pause Snapme when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; Snapme &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; Snapme &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock Snapme in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe Snapme away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open Snapme again.</p>']};
+delete:['Delete your account','<h4>In the app</h4><p>Open your Profile page &gt; Account &gt; <b>Delete account</b> and enter your password.</p><h4>7 days to change your mind</h4><p>Your account is deleted 7 days after you ask. You are logged out and the app shows the exact date. If you log in again before that date, the deletion is cancelled and nothing is lost. While it is pending, nobody can find you by username or in friend suggestions.</p><h4>What is deleted</h4><p>After the 7 days your login, profile (name, username, photo, about), username, friend requests, blocks, your shared location, your one-to-one chats, your snaps and Memories, and your place in groups are deleted. Messages you sent in groups may remain until they expire.</p>'+(mail?'<h4>Need help?</h4>'+mail:'')],
+bg:['Background notifications','<p>On the Android app, Snapme keeps running in the background with a small “Snapme is running” notification, so new messages can reach you while the app is closed to the home screen. For this to work well:</p><ul><li>Profile page &gt; Notifications: keep “Keep running in the background” turned on.</li><li>When Snapme asks about battery optimisation, tap Allow (it asks only once), so Android does not pause Snapme when the phone is idle.</li><li>Phone Settings &gt; Apps &gt; Snapme &gt; Notifications: allow all.</li><li>Phone Settings &gt; Apps &gt; Snapme &gt; Battery: choose Unrestricted (or Don’t optimise).</li><li>On Xiaomi, Oppo, Vivo, Realme and Samsung phones, also turn on Auto-start and lock Snapme in the recent apps list.</li><li>Do not force-stop the app.</li></ul><p>Note: free servers cannot wake an app that was force-stopped. If you swipe Snapme away from the recent apps list on some phones, or force-stop it, you will not get notifications until you open Snapme again.</p>']};
 function openDoc(k){const d=DOCS[k];if(!d)return;$('dct').textContent=d[0];$('dcb').innerHTML=d[1];$('doc').style.display='flex'}
 $('dcx').onclick=()=>$('doc').style.display='none';
 document.addEventListener('click',e=>{const a=e.target.closest('[data-doc]');if(a){e.preventDefault();openDoc(a.dataset.doc)}});
 const lset=k=>{try{return new Set(JSON.parse(get(k,'[]')))}catch(e){return new Set()}},tog=(k,v)=>{const q=lset(k);q.has(v)?q.delete(v):q.add(v);put(k,JSON.stringify([...q]));if(k==='mut'){try{snapMute()}catch(e){}}if(k==='mut'||k==='lck'){try{xpSyncSoon()}catch(e){}}if(k==='mut'||k==='lck'){try{pushPrefsSoon()}catch(e){}}return q.has(v)};
 function linkify(e,t){t.split(/(https?:\/\/\S+)/g).forEach(p=>{if(/^https?:\/\//.test(p)){const a=document.createElement('a');a.href=p;a.target='_blank';a.rel='noopener';a.textContent=p;a.style.color='var(--acc)';a.onclick=ev=>ev.stopPropagation();e.appendChild(a)}else e.appendChild(document.createTextNode(p))})}
-function beep(){if(get('snd','1')!=='1')return;try{const a=new(window.AudioContext||window.webkitAudioContext)(),t=a.currentTime;[[880,0],[1318,.14]].forEach(([f,d])=>{const o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;o.connect(g);g.connect(a.destination);g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.2,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.4);o.start(t+d);o.stop(t+d+.45)})}catch(e){}}
+function beep(){if(get('snd','1')!=='1')return;try{const a=new(window.AudioContext||window.webkitAudioContext)(),t=a.currentTime,m=a.createGain();m.gain.value=.5;m.connect(a.destination);
+  [[1046.5,0,.9],[1318.5,.11,.9],[1568,.22,1]].forEach(([f,d,g])=>{[[1,1],[2,.34],[3.01,.16]].forEach(([mul,gg])=>{const o=a.createOscillator(),e=a.createGain();o.type='sine';o.frequency.value=f*mul;o.connect(e);e.connect(m);e.gain.setValueAtTime(0,t+d);e.gain.linearRampToValueAtTime(.22*gg*g,t+d+.006);e.gain.exponentialRampToValueAtTime(.0008,t+d+.75);o.start(t+d);o.stop(t+d+.8)})})}catch(e){}}
 if(typeof firebase==='undefined'){$('e-w').textContent='Firebase failed to load. Check your internet, VPN or ad-blocker.';$('wl').disabled=true;$('ws').disabled=true}
 else if(!window.FIREBASE_CONFIG||FIREBASE_CONFIG.apiKey==='YOUR_API_KEY'){$('e-w').textContent='Firebase config not found.';$('wl').disabled=true;$('ws').disabled=true}
 else{
@@ -1073,10 +1023,9 @@ const beat=()=>{if(!me||document.hidden||!active)return;if(me.actOn!==false){db.
 let lo,manual=false,delAcc=false,delSched=false;
 function showApp(){$('auth').style.display='none';$('app').style.display='flex'}
 let pendErr='';
-const goLogin=reset=>{stop();delSched=false;try{$('adf').style.display='none'}catch(e){}try{locReset()}catch(e){}try{PUSH.state='';PUSH.tok=''}catch(e){}me=null;put('in','0');put('lock','0');put('lockpw','');put('wacred','');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
+const goLogin=reset=>{stop();delSched=false;try{$('adf').style.display='none'}catch(e){}try{locReset()}catch(e){}try{PUSH.state='';PUSH.tok=''}catch(e){}me=null;put('in','0');put('pinok','');keepAlive(false);const c=document.documentElement.classList;c.remove('locked');$('anim').classList.remove('show','out');$('app').style.display='none';$('auth').style.display='flex';if(reset){['n1','lp','nm','un','se','sp'].forEach(i=>$(i).value='');step('pg-w');if(pendErr){aerr('e-w',pendErr);pendErr=''}}hideSplash()};
 function showAnim(ms){return new Promise(res=>{const a=$('anim');a.classList.add('show');setTimeout(()=>{a.classList.add('out');setTimeout(()=>{a.classList.remove('show','out');res()},350)},FAST0?250:ms)})}
 async function postAuth(){hideSplash();
-  if(!lockOn()&&await bioKind()){step('pg-bio');await new Promise(res=>{$('bio0').onclick=res;$('bio1').onclick=async()=>{$('bio1').disabled=true;aerr('e-bio','');let ok=false;try{ok=await enableLock(creds)}catch(e){}$('bio1').disabled=false;if(ok)res();else aerr('e-bio','Couldn’t turn on the fingerprint. Try again or tap “Not now”.')}})}
   creds=null;await showAnim(3000);showApp()}
 try{auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(e){}
 auth.onAuthStateChanged(u=>{
@@ -1147,7 +1096,7 @@ async function changeUsername(){
   try{const x=await db.doc('usernames/'+nu).get();if(x.exists)return msgD('@'+nu+' is not available. Please choose another username.')}catch(e){}
   try{const old=me.username,b=db.batch();b.set(db.doc('usernames/'+nu),{uid:me.uid});b.update(db.doc('usernames/'+old),{retired:true});b.set(db.doc('users/'+me.uid),{username:nu},{merge:true});await b.commit();
     me.username=nu;try{const b2=db.batch();chats.forEach(c=>b2.update(db.doc('chats/'+c.id),{['unames.'+me.uid]:nu}));await b2.commit()}catch(e){}
-    toast('Your username is now @'+nu);if(cp2==='acc')drawPanel('acc');if($('prf').style.display==='flex')drawProfileRows()
+    toast('Your username is now @'+nu);if(cpIs('acc'))drawPanel('acc');if($('prf').style.display==='flex')drawProfileRows()
   }catch(e){msgD('Couldn’t change your username. It may already be taken.')}}
 function startReqs(){let f1=true,f2=true;
   unsubR=db.collection('requests').where('to','==',me.uid).onSnapshot(q=>{reqs=q.docs.map(d=>({id:d.id,...d.data()})).filter(r=>r.status==='pending');
@@ -1176,7 +1125,7 @@ async function setBlock(uid){const on=!lset('blk').has(uid);tog('blk',uid);rende
 function startBlocks(){let f=true;
   unsubB1=db.collection('blocks').where('by','==',me.uid).onSnapshot(q=>{const srv=q.docs.map(d=>d.data().to);if(f){[...lset('blk')].forEach(u=>{if(!srv.includes(u))db.doc('blocks/'+me.uid+'_'+u).set({by:me.uid,to:u,ts:SV()}).catch(()=>{})})}f=false;put('blk',JSON.stringify([...new Set([...srv,...(f?[]:[])])]));renderM();renderList()},()=>{});
   unsubB2=db.collection('blocks').where('to','==',me.uid).onSnapshot(q=>{blockedBy=new Set(q.docs.map(d=>d.data().by));if(cur){av($('cav'),title(cur),cur.type==='group',cp(cur));stat();renderM()}renderList()},()=>{})}
-function drawProfileRows(){paintProfile();stRows($('prrows'),[['Account',[{t:'Email',s:(auth.currentUser?auth.currentUser.email:'')},{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername}]],['Settings',[{t:'Settings',s:'Safety & Visibility, chat style, notifications and more',tap:()=>{$('prf').style.display='none';openSet()}}]]]);const sr=[...$('prrows').querySelectorAll('.st.tp')].pop();if(sr)sr.id='pset'}
+function drawProfileRows(){paintProfile();stRows($('prrows'),[['Account',[{t:'Email',s:(auth.currentUser?auth.currentUser.email:'')},{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername}]]]);}
 function openProfile(){$('sn').value=me.name;drawProfileRows();$('prf').style.display='flex'}
 const rid=()=>Math.random().toString(36).slice(2,12)+Date.now().toString(36);
 function deviceName(){const ua=navigator.userAgent,os=/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Mac/.test(ua)?'Mac':/Linux/.test(ua)?'Linux':'Device',br=/Edg\//.test(ua)?'Edge':/Chrome\//.test(ua)?'Chrome':/Firefox\//.test(ua)?'Firefox':/Safari\//.test(ua)?'Safari':'Browser';return(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform())?'Snapme app on '+os:br+' on '+os}
@@ -1195,7 +1144,7 @@ async function drawSessions(){const host=$('p-sess');host.innerHTML='<div class=
   const secs=[['Activity indicator',[{t:'Activity indicator',s:on?'On: a green dot shows when you and your friends are online, and you get alerts about new logins and logouts.':'Off: no green dot for you or your friends, and no login alerts.',sw:1,on,set:v=>{setU({actOn:v});setTimeout(drawSessions,300)}}]]];
   if(mine)secs.push(['This device',[{t:mine.device+' (this device)',s:lines(mine),ok:act(mine)}]]);
   secs.push(['Recent logins and logouts',others.length?others.map(x=>({t:x.device,s:lines(x),ok:act(x),tap:x.logoutAt?null:()=>sheet([[x.device],['Log out this device',()=>sessRef(x.id).set({rl:true},{merge:true}).then(()=>toast('Logout requested'))]])})):[{t:'No other sessions yet',s:'When someone logs in or out of your account, it appears here.'}]]);
-  if(cp2==='sess')stRows(host,secs)}
+  if(cpIs('sess'))stRows(host,secs)}
 async function applyPhoto(p,big){await setU({photo:p});savePhotoBig(big||'');if(me.pv_photo!=='nobody'){const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:p}));await b.commit()}av($('sav'),me.name,false,p);av($('pav'),me.name,false,p)}
 (()=>{
 const LENS=[
@@ -1453,9 +1402,9 @@ const setU=o=>{Object.assign(me,o);return db.doc('users/'+me.uid).set(o,{merge:t
 async function setPhotoPriv(v){await setU({pv_photo:v});try{const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['photos.'+me.uid]:(v==='nobody'||!me.photo)?firebase.firestore.FieldValue.delete():me.photo}));await b.commit()}catch(e){toast(e.message)}}
 function choose(title,opts,cur,cb){sheet([[title]].concat(opts.map(o=>[(o[0]===cur?'✓  ':'      ')+o[1],()=>cb(o[0])])))}
 function hid(id,v){const e=$(id);if(e.type==='checkbox')e.checked=v;else e.value=v;e.dispatchEvent(new Event('change'))}
-function stRows(host,secs){host.innerHTML='';secs.forEach(([h,items])=>{if(h){const e=document.createElement('h4');e.textContent=h;host.appendChild(e)}const g=document.createElement('div');g.className='sgrp';items.forEach(it=>{const d=document.createElement('div');d.className='st'+(it.tap&&!it.sw?' tp':'');const t=document.createElement('div'),b=document.createElement('b');b.textContent=it.t;if(it.red)b.style.color='#e11d48';t.appendChild(b);if(it.s){const sm=document.createElement('small');sm.textContent=it.s;t.appendChild(sm)}d.appendChild(t);if(it.ok){const k=document.createElement('span');k.className='okb';k.textContent='✓';d.appendChild(k)}
+function stRows(host,secs){host.innerHTML='';secs.forEach(([h,items])=>{if(h&&h!==host.dataset.hd){const e=document.createElement('h4');e.textContent=h;host.appendChild(e)}const g=document.createElement('div');g.className='sgrp';items.forEach(it=>{const d=document.createElement('div');d.className='st'+(it.tap&&!it.sw?' tp':'');const t=document.createElement('div'),b=document.createElement('b');b.textContent=it.t;if(it.red)b.style.color='#e11d48';t.appendChild(b);if(it.s){const sm=document.createElement('small');sm.textContent=it.s;t.appendChild(sm)}d.appendChild(t);if(it.ok){const k=document.createElement('span');k.className='okb';k.textContent='✓';d.appendChild(k)}
   if(it.sw){const i=document.createElement('input');i.type='checkbox';i.className='sw2';i.checked=!!it.on;i.onclick=e=>e.stopPropagation();i.onchange=()=>it.set(i.checked);d.appendChild(i);d.onclick=()=>{i.checked=!i.checked;i.onchange()}}else if(it.tap)d.onclick=it.tap;g.appendChild(d)});host.appendChild(g)})}
-function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app','notif','acs','sess'].includes(p))return;if(p==='sess')return drawSessions();if(p==='priv')bioKind().then(k=>{if(k!==bioK){bioK=k;if(cp2==='priv')drawPanel('priv')}});if(p==='notif')batRefresh();
+function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app','notif','acs','sess'].includes(p))return;if(p==='sess')return drawSessions();if(p==='notif')batRefresh();
   const opt=id=>[...$(id).options].map(o=>[o.value,o.textContent]),lab=id=>(opt(id).find(o=>o[0]===$(id).value)||['',''])[1];
   const ch=(t,id)=>({t,s:lab(id),tap:()=>choose(t,opt(id),$(id).value,v=>{hid(id,v);drawPanel(p)})});
   const tg=(t,s,id)=>({t,s,sw:1,on:$(id).checked,set:v=>hid(id,v)});
@@ -1467,15 +1416,14 @@ function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app
      ['Your account',[{t:'Username',s:'@'+me.username+' · Tap to change',tap:changeUsername},{t:'Delete account',s:'Permanently delete your account and data',red:1,tap:()=>$('da').click()},{t:'How account deletion works',tap:()=>openDoc('delete')}]]],
    priv:[['Who can see my profile',[pc('My profile photo','pv_photo','everyone',thr,setPhotoPriv)]],
      ['',[tg('Seen ticks','If turned off, you won’t send or receive seen ticks.','rr')]],
-     ['Friends',[tg('Private account','Your snaps are shown to friends only, and people must send a request before they can chat with you.','pr'),{t:'Blocked accounts',s:'See and unblock people',tap:()=>$('bk').click()}]],
-     ['Groups',[pc('Group invites from','pv_groups','everyone',thr)]],
-     ['Lock',lockRows()]],
+     ['Friends',[{t:'Blocked accounts',s:'See and unblock people',tap:()=>$('bk').click()}]],
+     ['Groups',[pc('Group invites from','pv_groups','everyone',thr)]]],
    chats:[['Auto-delete',[ch('Default timer for new chats','ex')]],['Chat look',[ch('Wallpaper','wp'),tg('Enter is send','Pressing Enter sends the message','en')]]],
    app:[['Appearance',[ch('App theme','th'),ch('Accent colour','tc')]]],
-   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),...(isNative()&&plug('VTextBg')?[{t:'Keep running in the background',s:'Shows a small “Snapme is running” notification so Android keeps Snapme alive and you get messages while the app is in the background.',sw:1,on:get('keep','1')==='1',set:async v=>{put('keep',v?'1':'0');const ok=await keepAlive(v);if(v&&!ok){put('keep','0');toast('Couldn’t start background mode on this phone')}drawPanel('notif')}},{t:'Battery optimisation',s:batIgn===null?'Checking…':batIgn?'Snapme is allowed to run in the background ✅':'Android may stop Snapme when your phone is idle. Tap to fix this.',tap:()=>batteryAsk(true)}]:[]),{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
+   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),{t:'Typing alerts',s:'Show “Alice is typing to you…” while someone is writing to you',sw:1,on:get('typa','1')==='1',set:v=>put('typa',v?'1':'0')},...(isNative()&&plug('VTextBg')?[{t:'Keep running in the background',s:'Shows a small “Snapme is running” notification so Android keeps Snapme alive and you get messages while the app is in the background.',sw:1,on:get('keep','1')==='1',set:async v=>{put('keep',v?'1':'0');const ok=await keepAlive(v);if(v&&!ok){put('keep','0');toast('Couldn’t start background mode on this phone')}drawPanel('notif')}}]:[]),...(isNative()&&plug('VTextBg')&&batIgn===false&&get('batask','')!=='1'?[{t:'Battery optimisation',s:'Android may stop Snapme when your phone is idle. Tap to fix this.',tap:()=>batteryAsk(true)}]:[]),{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
    acs:[['Accessibility',[ch('Font size','fs')]]]};
   stRows(host,D[p]);
-  if(p==='acc'&&auth.currentUser&&auth.currentUser.reload&&!ver)auth.currentUser.reload().then(()=>{if(cp2==='acc'&&auth.currentUser.emailVerified)drawPanel('acc')}).catch(()=>{})}
+  if(p==='acc'&&auth.currentUser&&auth.currentUser.reload&&!ver)auth.currentUser.reload().then(()=>{if(cpIs('acc')&&auth.currentUser.emailVerified)drawPanel('acc')}).catch(()=>{})}
 async function changeEmail(){const ne=((await ask('New email address'))||'').trim();if(!ne)return;const pw=await ask('Enter your password to confirm','',false,true);if(!pw)return;
   try{const u=auth.currentUser;await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw));await u.verifyBeforeUpdateEmail(ne);toast('Verification link sent to '+ne+'. Your email changes after you open it.')}catch(e){toast(E[e.code]||e.message)}}
 async function verifyEmail(){const u=auth.currentUser;try{await u.reload();if(u.emailVerified){toast('Your email is already verified ✓');drawPanel('acc');return}await u.sendEmailVerification();toast('Verification email sent to '+u.email)}catch(e){toast(E[e.code]||e.message)}}
@@ -1498,12 +1446,12 @@ async function mkProfile(u){hideSplash();const name=((await ask('Welcome! Enter 
   if(!name||!/^[a-z0-9_]{3,20}$/.test(un))return bad('A name and a valid username are required. Please log in again.');
   try{const b=db.batch();b.set(db.doc('usernames/'+un),{uid:u.uid});b.set(db.doc('users/'+u.uid),{name,username:un,created:SV()});await b.commit()}catch(e){bad('That username is taken. Log in again and choose another.')}}
 let active=!BGM,nid=1;const LN=()=>plug('LocalNotifications');
-async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'messages',name:'Messages',importance:5,sound:'vtext_msg.wav',vibration:true,visibility:1})}catch(e){}}else if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
+async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'snapme_msgs',name:'Messages',importance:5,sound:'snapme_chime.wav',vibration:true,visibility:1});await L.createChannel({id:'snapme_typing',name:'Typing alerts',description:'A quiet alert when a friend is typing to you',importance:2,vibration:false,visibility:1});if(get('chv','')!=='2'){try{await L.deleteChannel({id:'messages'})}catch(e){}put('chv','2')}}catch(e){}}else if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
   try{pushInit()}catch(e){}}
-function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;
+function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;try{typDone(chat)}catch(e){}
   if(BGM&&window.VTBg&&VTBg.notify){try{VTBg.notify(String(t||'Snapme'),String(b||'New message'),String(chat||''))}catch(e){}return}   /* hidden background page: the Android service shows it */
   const L=LN();
-  if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'messages',sound:'vtext_msg.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
+  if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'snapme_msgs',sound:'snapme_chime.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
   else if(window.Notification&&Notification.permission==='granted'){try{const n=new Notification(t,{body:b,icon:'logo.svg'});n.onclick=()=>{window.focus();if(chat)openChatById(chat)}}catch(e){}}}
 function openChatById(id){const c=chats.find(x=>x.id===id);if(c){showLock=lset('lck').has(id);tab='chats';goN('circ');openChat(c)}}
 try{const L=LN();if(L&&L.addListener)L.addListener('localNotificationActionPerformed',e=>{const id=e&&e.notification&&e.notification.extra&&e.notification.extra.chat;if(id)setTimeout(()=>openChatById(id),400)})}catch(e){}
@@ -1511,10 +1459,13 @@ let batIgn=null;
 async function keepAlive(on){if(BGM&&!on&&window.VTBg&&VTBg.stop){try{VTBg.stop()}catch(e){}return true}   /* hidden background page: the person is logged out, stop the service */
   const F=plug('VTextBg');if(!F)return false;
   try{if(on){put('fgs_try',String(Date.now()));await F.start();setTimeout(()=>put('fgs_try',''),5000);setTimeout(()=>batteryAsk(false),6000)}else{await F.stop();put('fgs_try','')}return true}catch(e){put('fgs_try','');return false}}
-async function batRefresh(){const F=plug('VTextBg');if(!F)return;try{const r=await F.batteryStatus();if(r.ignoring!==batIgn){batIgn=r.ignoring;if(cp2==='notif')drawPanel('notif')}}catch(e){}}
+async function batRefresh(){const F=plug('VTextBg');if(!F)return;try{const r=await F.batteryStatus();if(r.ignoring)put('batask','1');if(r.ignoring!==batIgn){batIgn=r.ignoring;if(cpIs('notif'))drawPanel('notif')}}catch(e){}}
+/* Battery question: asked once. After Allow, Not now, or when Snapme is already allowed, it never comes back and its row disappears. */
 async function batteryAsk(force){const F=plug('VTextBg');if(!F)return;
-  try{const r=await F.batteryStatus();batIgn=r.ignoring;if(r.ignoring){if(force)toast('Snapme is already allowed to run in the background ✅');return}
-    if(!force&&get('batask','')==='1')return;put('batask','1');
+  try{const r=await F.batteryStatus();batIgn=r.ignoring;
+    if(r.ignoring){put('batask','1');if(force)toast('Snapme is already allowed to run in the background ✅');if(cpIs('notif'))drawPanel('notif');return}
+    if(!force&&get('batask','')==='1')return;
+    put('batask','1');if(cpIs('notif'))drawPanel('notif');
     if(await ask('To get messages while your phone is idle, Snapme must be excluded from battery optimisation. Tap Allow, then choose Allow on the next screen.','',true,false,['Not now','Allow']))await F.batteryExempt()}catch(e){if(force)toast('This setting isn’t available on your phone')}}
 const title=c=>c.type==='group'?c.name:(c.names[c.members.find(x=>x!==me.uid)]||'User'),cp=c=>c.type==='group'?c.photo:(blockedBy.has(c.members.find(x=>x!==me.uid))?null:(c.photos||{})[c.members.find(x=>x!==me.uid)]);
 function start(){
@@ -1526,6 +1477,7 @@ function start(){
   const ln={};unsubC=db.collection('chats').where('members','array-contains',me.uid).onSnapshot(q=>{
     q.docs.forEach(d=>{const c=d.data();if((c.emails||{})[me.uid]!==auth.currentUser.email||(c.unames||{})[me.uid]!==me.username)db.doc('chats/'+d.id).update({['emails.'+me.uid]:auth.currentUser.email,['unames.'+me.uid]:me.username}).catch(()=>{})});
     q.docChanges().forEach(ch=>{const c=ch.doc.data(),id=ch.doc.id,t=M(c.lastTs);
+      if(ch.type==='modified'){try{typCheck(c,id)}catch(e){}}
       if(c.lastFrom&&c.lastFrom!==me.uid&&t>M(c.deliv&&c.deliv[me.uid])&&t>(ln[id]||0)){db.doc('chats/'+id).update({['deliv.'+me.uid]:SV()}).catch(()=>{});
         if(ch.type==='modified'&&!lset('mut').has(id)){if(!active||document.hidden){if(lset('lck').has(id))pushNote('Snapme','New message',id);else pushNote(title({...c,id}),c.last,id)}else if(!(cur&&cur.id===id))beep()}}
       if(t)ln[id]=t});
@@ -1544,7 +1496,7 @@ function renderList(){
   try{locSync()}catch(e){}try{adRefresh()}catch(e){}hdr();const q=$('search').value.trim().toLowerCase(),l=$('list');l.innerHTML='';nbadge();clearTimeout(typT);if(tab==='fr')return renderFriends(l,q);
   const pn=lset('pin'),mu=lset('mut'),lk=lset('lck');
   const f=chats.filter(c=>title(c).toLowerCase().includes(q)&&(showLock?lk.has(c.id):!lk.has(c.id))&&(fl==='all'||(fl==='gr'?c.type==='group':c.lastFrom&&c.lastFrom!==me.uid&&M(c.lastTs)>M(c.seen&&c.seen[me.uid])))).sort((a,b)=>(pn.has(b.id)-pn.has(a.id))||M(b.lastTs)-M(a.lastTs));
-  lrow(l);let anyTyping=false;
+  let anyTyping=false;
   if(!f.length){const e=document.createElement('div');e.className='empty';e.innerHTML=showLock?'No locked chats.':(q||fl!=='all'?'No chats found.':'No chats yet.<br>Tap the add-friend icon at the top to find a friend by username.');l.appendChild(e);return}
   f.forEach(c=>{const d=document.createElement('div');d.className='u';d.dataset.cid=c.id;
     const a=document.createElement('div');a.className='av';av(a,title(c),c.type==='group',cp(c),c.type==='dm'&&isOnline(peerOf(c)));
@@ -1588,27 +1540,10 @@ async function showProfile(uid){const cs=(u,k)=>{const v=u['pv_'+k]||'everyone';
   if(uid!==me.uid&&c.type==='dm'){const bl=lset('blk').has(uid);rows.push([bl?'Unblock':'Block','Tap to '+(bl?'unblock':'block')+' this friend',()=>{setBlock(uid).then(()=>showProfile(uid))},1],['Report','Report this user',()=>reportIt(uid),1],['Unfriend','Remove from your friends and delete this chat for both of you',()=>unfriend(uid),1])}
   pvRows(rows)}
 $('cm').onclick=()=>{if(!cur)return;const id=cur.id,g=cur.type==='group',ad=g&&(cur.admins||[]).includes(me.uid),o=g?null:peerOf(cur);
-  const r=[[g?'Group info':'Friend info',()=>$('hd').onclick()],[lset('mut').has(id)?'Unmute notifications':'Mute notifications',()=>{tog('mut',id);renderList()}],['Photos & videos · save',mediaGallery],['Auto-delete · '+expName(cur),timerM],[lset('pin').has(id)?'Unpin chat':'Pin chat',()=>{tog('pin',id);renderList()}],[lset('lck').has(id)?'Unlock chat':'Lock chat',()=>lockChat(id)],
+  const r=[[g?'Group info':'Friend info',()=>$('hd').onclick()],[lset('mut').has(id)?'Unmute notifications':'Mute notifications',()=>{tog('mut',id);renderList()}],['Photos & videos · save',mediaGallery],['Auto-delete · '+expName(cur),timerM],[lset('pin').has(id)?'Unpin chat':'Pin chat',()=>{tog('pin',id);renderList()}],
   ['More…',()=>{const m=[['Clear chat',()=>{put('clr_'+id,Date.now());renderM()}]];if(g){if(ad)m.push(['Add participants',addM],['Change group name',renG],['Change group photo',()=>{pt='g';$('pf').click()}]);m.push(['Exit group',()=>leaveG()])}else m.push([lset('blk').has(o)?'Unblock':'Block',()=>{setBlock(o)}],['Report',()=>reportIt(o)],['Unfriend',()=>unfriend(o)]);sheet(m,'pop')}]];
   sheet(r,'pop')};
 $('nav').onclick=e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.n;if(n==='new'){addOpen();return}if(n==='prof'){openProfile();return}if(n==='loc'){locOpen();return}tab=n;[...$('nav').children].forEach(x=>x.classList.toggle('on',x===b));$('search').placeholder=n==='fr'?'Search friends…':'Search chats…';renderList()};
-let bioShown='';
-const lockRows=()=>{bioShown=bioK+'|'+bioWhy;bioKind().then(k=>{if(k+'|'+bioWhy!==bioShown){bioK=k;if(cp2==='priv')drawPanel('priv')}});
-  const bioOn=!!bioK&&lockOn()&&bioPref();
-  const r=[{t:'App lock',s:lockOn()?'On. Snapme asks for '+(bioOn?'your fingerprint (or your account password)':'your account password')+' every time you open it.':'Ask for your account password every time Snapme is opened.',sw:1,on:lockOn(),set:v=>(v?enableLock():disableLock()).then(()=>drawPanel('priv'))},
-    {t:'Fingerprint unlock',s:bioK?(bioOn?'On. Touch the sensor to open Snapme. Your account password is the backup.':'Use your fingerprint instead of typing the password.'):(bioWhy||'Checking your phone…'),sw:1,on:bioOn,set:v=>setBio(v).then(()=>drawPanel('priv'))}];
-  r.push({t:'Check app lock',s:'Shows what works on this phone and lets you test the fingerprint.',tap:lockCheck});
-  if(lockOn())r.push({t:'Lock now',s:'Lock Snapme right away',tap:lockNow});
-  r.push({t:'Lock after',s:({'0':'Immediately','60000':'1 minute','300000':'5 minutes','1800000':'30 minutes'})[get('lockdelay','0')],tap:()=>choose('Lock after',[['0','Immediately'],['60000','1 minute'],['300000','5 minutes'],['1800000','30 minutes']],get('lockdelay','0'),v=>{put('lockdelay',v);drawPanel('priv')})},
-    {t:'Locked chats',s:lset('lck').size+' chat(s) locked. Long-press a chat, or use ⋮ > Lock chat inside a chat.'});
-  return r};
-function lrow(l){let d=null;if(showLock){d=urow(null,'← Back to chats','Locked chats are shown below',[])}else if(lset('lck').size){d=urow(null,'Locked chats',lset('lck').size+' locked · tap to open',[])}
-  if(!d)return;const a=d.querySelector('.av');a.style.background='var(--acc)';a.innerHTML=showLock?'←':ic('lock');d.onclick=()=>showLock?(showLock=false,renderList()):viewLocked();l.appendChild(d)}
-async function viewLocked(){if(await lockAuth('View locked chats')){showLock=true;renderList()}}
-async function lockChat(id){if(lset('lck').has(id)){if(!(await lockAuth('Unlock this chat')))return;tog('lck',id);toast('Chat unlocked');renderList();return}
-  tog('lck',id);toast('Chat locked. Find it under “Locked chats”.');if(cur&&cur.id===id)$('back').onclick();renderList()}
-async function unlockPicker(){const ids=[...lset('lck')].filter(id=>chats.some(c=>c.id===id));if(!ids.length)return toast('You have no locked chats');if(!(await lockAuth('Unlock a chat')))return;
-  sheet([['Choose a chat to unlock']].concat(ids.map(id=>{const c=chats.find(x=>x.id===id);return['🔓 '+title(c),()=>{tog('lck',id);toast('Chat unlocked');renderList()}]})))}
 const clean=x=>x.trim().toLowerCase().replace(/^@/,'');
 async function newG(){if(featBlock('groups'))return;
   const name=((await ask('Group name'))||'').trim();if(!name)return;
@@ -1630,12 +1565,11 @@ $('fab').onclick=()=>sheet([['New chat',addC],['New group',newG]]);
 function chatMenu(c){const id=c.id,g=c.type==='group',o=g?null:peerOf(c),r=[[title(c)]];
   r.push([lset('pin').has(id)?'Unpin chat':'Pin chat',()=>{tog('pin',id);renderList()}]);
   r.push([lset('mut').has(id)?'Unmute notifications':'Mute notifications',()=>{tog('mut',id);renderList()}]);
-  r.push([lset('lck').has(id)?'Unlock chat':'Lock chat',()=>lockChat(id)]);
   if(g)r.push(['Exit group',()=>leaveG(c)]);else r.push([lset('blk').has(o)?'Unblock':'Block',()=>setBlock(o)],['Unfriend',()=>unfriend(o)]);
   sheet(r)}
 function closeSearch(){if($('search').value){$('search').value='';renderList()}}
 $('search').oninput=renderList;
-$('mm').onclick=()=>sheet([['New group',newG],['Clear unread',readAll]].concat(lset('lck').size?[['Unlock chat',unlockPicker]]:[],[]),'pop');
+$('mm').onclick=()=>sheet([['Clear unread',readAll]],'pop');
 function readAll(){chats.forEach(c=>{if(c.lastFrom&&c.lastFrom!==me.uid&&M(c.lastTs)>M(c.seen&&c.seen[me.uid]))db.doc('chats/'+c.id).update({['seen.'+me.uid]:SV()}).catch(()=>{})})}
 const col2=()=>db.collection('chats/'+cur.id+'/messages');
 setInterval(()=>cur&&stat(),3000);
@@ -1739,7 +1673,7 @@ $('file').onchange=async e=>{
 };
 function openSet(){$('sn').value=me.name;$('hv').textContent='Snapme version '+verLabel()+' · messages expire automatically.';$('su').textContent='@'+me.username;av($('sav'),me.name,false,me.photo);
   $('th').value=get('th2','dark');$('fs').value=get('fs','16');$('ex').value=['read','86400000','604800000'].includes(get('exp','86400000'))?get('exp','86400000'):'86400000';$('en').checked=get('enter','1')==='1';$('nt').checked=get('notif','1')==='1';$('wp').value=get('wp','');$('tc').value=get('ac2','p');$('sd').checked=get('snd','1')==='1';$('rr').checked=get('rr','1')==='1';$('pr').checked=!!me.private;$('sname').textContent=me.name;closeP();
-  $('rows').innerHTML=[['acc','key','Account','Password, email, login PIN'],['priv','lock','Safety & Visibility','Profile photo, private account, app lock, blocked'],['perm','cam','App permissions','Camera, gallery and location'],['chats','chat','Chat Style','Auto-delete, wallpaper, enter key'],['app','palette','Appearance','Chat theme, app theme'],['notif','bell','Notifications','Messages, sounds, background'],['acs','access','Accessibility','Font size'],['pp','lock','Privacy policy','How your data is used'],['tc','help','Terms & community rules','Rules for using Snapme'],['upd','refresh','App update','Version '+verLabel()+' · tap to check for updates'],['help','help','About Snapme','Privacy policy, terms, version'],['inv','com','Share Snapme','Share your Snapme link'],['out','out','Log out','']].map(a=>'<div class="rw" data-p="'+a[0]+'" data-t="'+a[2]+'">'+ic(a[1])+'<div>'+a[2]+(a[3]?'<small>'+a[3]+'</small>':'')+'</div></div>').join('');
+  $('rows').innerHTML=[['acc','key','Account','Password, email, login PIN'],['priv','lock','Safety & Visibility','Profile photo, private account, blocked'],['perm','cam','App permissions','Camera, gallery and location'],['chats','chat','Chat Style','Auto-delete, wallpaper, enter key'],['app','palette','Appearance','Chat theme, app theme'],['notif','bell','Notifications','Messages, sounds, background'],['acs','access','Accessibility','Font size'],['pp','lock','Privacy policy','How your data is used'],['tc','help','Terms & community rules','Rules for using Snapme'],['upd','refresh','App update','Version '+verLabel()+' · tap to check for updates'],['help','help','About Snapme','Privacy policy, terms, version'],['inv','com','Share Snapme','Share your Snapme link'],['out','out','Log out','']].map(a=>'<div class="rw" data-p="'+a[0]+'" data-t="'+a[2]+'">'+ic(a[1])+'<div>'+a[2]+(a[3]?'<small>'+a[3]+'</small>':'')+'</div></div>').join('');
   paintCard();$('ssr').value='';$('scard').style.display='';$('set').style.display='flex'}
 let cp2=null;
 function openP(p,t){cp2=p;$('sm').style.display='none';document.querySelectorAll('.ps').forEach(x=>x.style.display=x.id==='p-'+p?'block':'none');$('stt').textContent=t;$('spe').style.display=p==='prof'?'none':'none';drawPanel(p)}
@@ -1748,7 +1682,7 @@ $('sx').onclick=()=>{if(cp2)closeP();else $('set').style.display='none'};$('spe'
 $('rows').onclick=async e=>{const r=e.target.closest('[data-p]');if(!r)return;const p=r.dataset.p;if(p==='pp'||p==='tc'){openDoc(p==='pp'?'privacy':'terms');return}if(p==='perm'){permShow();return}if(p==='upd'){checkUpdate();return}if(p==='inv'){shareLink();return}if(p==='out'){if(await confirmD('Log out of Snapme?')){$('set').style.display='none';logout()}return}openP(p,r.dataset.t)};
 $('th').onchange=e=>{put('th2',e.target.value);look()};$('fs').onchange=e=>{put('fs',e.target.value);look()};
 $('ex').onchange=e=>put('exp',e.target.value);$('en').onchange=e=>put('enter',e.target.checked?'1':'0');
-$('nt').onchange=e=>{if(!e.target.checked){put('notif','0');pushStop().then(()=>{PUSH.state='off';if(cp2==='notif')drawPanel('notif')});return}put('notif','1');setupNotif()};
+$('nt').onchange=e=>{if(!e.target.checked){put('notif','0');pushStop().then(()=>{PUSH.state='off';if(cpIs('notif'))drawPanel('notif')});return}put('notif','1');setupNotif()};
 $('ss').onclick=async()=>{const name=$('sn').value.trim();if(!name)return toast('Enter a name');
   try{await db.doc('users/'+me.uid).set({name},{merge:true});
     const b=db.batch();chats.forEach(c=>b.update(db.doc('chats/'+c.id),{['names.'+me.uid]:name}));await b.commit();toast('Profile saved ✅')}catch(e){toast(e.message)}};
@@ -2173,8 +2107,8 @@ async function pushNative(){const P=PN();
   if(!pm||pm.receive!=='granted'){try{pm=await P.requestPermissions()}catch(e){pm={}}}
   if(!pm||pm.receive!=='granted'){PUSH.state='perm';return}
   if(!PUSH.wired){PUSH.wired=true;
-    P.addListener('registration',t=>{if(!t||!t.value)return;PUSH.state='on';PUSH.err='';pushSave(t.value,'android').then(()=>{if(cp2==='notif')drawPanel('notif')});try{xpRegister(t.value)}catch(e){}});
-    P.addListener('registrationError',e=>{PUSH.state='err';PUSH.err=(e&&e.error)||'error';if(cp2==='notif')drawPanel('notif')});
+    P.addListener('registration',t=>{if(!t||!t.value)return;PUSH.state='on';PUSH.err='';pushSave(t.value,'android').then(()=>{if(cpIs('notif'))drawPanel('notif')});try{xpRegister(t.value)}catch(e){}});
+    P.addListener('registrationError',e=>{PUSH.state='err';PUSH.err=(e&&e.error)||'error';if(cpIs('notif'))drawPanel('notif')});
     P.addListener('pushNotificationActionPerformed',a=>{const d=a&&a.notification&&a.notification.data;if(d&&d.chat)pushOpen(String(d.chat))});
     P.addListener('pushNotificationReceived',()=>{})}                         /* app is open: the live chat listener already shows it */
   await P.register()}
@@ -2196,7 +2130,7 @@ function pushHash(){const m=/[#&]chat=([\w-]+)/.exec(location.hash||'');if(m){tr
 async function pushInit(){if(!me||PUSH.busy)return;PUSH.busy=true;pushHash();
   try{if(get('notif','1')!=='1'){await pushStop();PUSH.state='off'}else if(isNative())await pushNative();else await pushWeb()}
   catch(e){PUSH.state='err';PUSH.err=String((e&&e.message)||e)}
-  PUSH.busy=false;try{if(cp2==='notif')drawPanel('notif')}catch(e){}}
+  PUSH.busy=false;try{if(cpIs('notif'))drawPanel('notif')}catch(e){}}
 async function pushStop(){const P=PN();
   if(P&&PUSH.wired&&isNative()){try{await P.unregister()}catch(e){}}            /* drops this phone's token at Google, so a different account on this phone gets its own */
   try{await xpForget()}catch(e){}await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
@@ -2469,7 +2403,7 @@ async function xpRegister(fcm){
     if(typeof t!=='string'||!/^Expo(nent)?PushToken\[[^\]]+\]$/.test(t))throw new Error('Expo did not return a push token');
     XP.tok=t;XP.state='on';XP.err='';XP.fail=0;xpSyncSoon(true)}
   catch(e){XP.tok='';XP.state='err';XP.err=String((e&&e.message)||e)}
-  try{if(cp2==='notif')drawPanel('notif')}catch(e){}}
+  try{if(cpIs('notif'))drawPanel('notif')}catch(e){}}
 /* keep chats/<id>.xpt.<me> equal to: token (not muted) / no entry (muted); only writes what differs */
 function xpSyncSoon(now){if(!xpActive())return;clearTimeout(XP.tm);XP.tm=setTimeout(xpSync,now?200:1500)}
 async function xpSync(){
@@ -2492,14 +2426,14 @@ function xpSend(c,p){
   if(!xpOn()||!c||!me)return;
   const x=c.xpt||{},g=c.type==='group',pv=String(p||'New message').replace(/\s+/g,' ').slice(0,140),out=[];
   (c.members||[]).forEach(m=>{const e=x[m];if(m===me.uid||!e||typeof e.t!=='string'||blockedBy.has(m))return;
-    const o={to:e.t,data:{chat:c.id},channelId:'messages',priority:'high',sound:'default',ttl:86400};
+    const o={to:e.t,data:{chat:c.id},channelId:'snapme_msgs',priority:'high',sound:'default',ttl:86400};
     if(e.l){o.title='Snapme';o.body='New message'}else if(g){o.title=title(c);o.body=String(me.name||'').split(' ')[0]+': '+pv}else{o.title=me.name||'Snapme';o.body=pv}
     out.push(o)});
   for(let i=0;i<out.length;i+=100)xpPost('https://exp.host/--/api/v2/push/send',out.slice(i,i+100)).catch(()=>{})}
 /* Settings > Notifications row: "Expo push" with a test button */
 async function xpTest(){
   if(!xpActive()){toast(XP.state==='err'?'Expo push: '+XP.err:'Expo push is not registered on this phone yet');return}
-  try{const r=await xpPost('https://exp.host/--/api/v2/push/send',[{to:XP.tok,title:'Snapme',body:'Test: Expo push works ✅',data:{chat:''},channelId:'messages',priority:'high',sound:'default',ttl:600}]);
+  try{const r=await xpPost('https://exp.host/--/api/v2/push/send',[{to:XP.tok,title:'Snapme',body:'Test: Expo push works ✅',data:{chat:''},channelId:'snapme_msgs',priority:'high',sound:'default',ttl:600}]);
     const t=r&&r.data&&(Array.isArray(r.data)?r.data[0]:r.data);
     if(t&&t.status==='error')toast('Expo push: '+(t.message||'error'));else toast('Test sent. It arrives in a few seconds. Close Snapme to see it as a notification.')}
   catch(e){toast('Expo push: '+((e&&e.message)||e))}}
@@ -2625,16 +2559,16 @@ $('cadd').innerHTML=ic('userplus');$('cloc').innerHTML=ic('mappin');
 $('cadd').onclick=()=>addOpen();$('cloc').onclick=()=>locOpen();
 /* ---- Profile tab: picture, name, streak, Public / Private account, shortcuts ---- */
 function accSet(v){return db.doc('users/'+me.uid).set({private:!v},{merge:true}).then(()=>{me.private=!v;toast(v?'Your account is now public':'Your account is now private');profPaint();try{$('pr').checked=!v}catch(e){}}).catch(x=>toast(x.message))}
-function profOpen(){if(!me)return;profPaint();stkPaint()}
+function profOpen(){if(!me)return;profPaint();profSettings();stkPaint()}
 function profPaint(){
   const p=$('pgprof');if(!p||!me)return;const pub=!me.private;
   if(!p.firstChild){
     p.innerHTML='<div class="pph"><div class="rng"><div class="av pbig" id="ppav"></div></div><b id="ppn"></b><span id="ppu"></span><div id="psk"></div></div>'
       +'<div class="pps"><div><b id="pp1">0</b><span>Friends</span></div><div><b id="pp2">0</b><span>Groups</span></div><div><b id="pp3">0</b><span>Requests</span></div></div>'
       +'<div class="pac" id="pac"><div class="pat"><b id="pat"></b><span id="pad"></span></div><label class="sw" aria-label="Public account"><input type="checkbox" id="pas"><i></i></label></div>'
-      +'<div class="pa" id="pact"></div>';
+      +'<div class="pa" id="pact"></div><div id="psets"></div>';
     $('pas').onchange=e=>{const v=e.target.checked;e.target.checked=!v;accSet(v)};
-    const rows=[['edit','user','Edit profile','Name, photo and background',()=>openProfile()],['chats','chat','Chats','Your messages and groups',()=>circGo('chats')],['add','userplus','Add friend','Find people by username',()=>addOpen()],['loc','mappin','Friends map','See friends who share their location',()=>locOpen()],['set','gear','Settings','Safety, notifications, chat style and more',()=>openSet()]];
+    const rows=[['edit','user','Edit profile','Name, photo and background',()=>openProfile()],['chats','chat','Chats','Your messages and groups',()=>circGo('chats')],['add','userplus','Add friend','Find people by username',()=>addOpen()],['loc','mappin','Friends map','See friends who share their location',()=>locOpen()]];
     rows.forEach(r=>{const b=document.createElement('button');b.type='button';b.className='pr';b.dataset.k=r[0];b.innerHTML='<i>'+ic(r[1])+'</i><span><b>'+r[2]+'</b><small>'+r[3]+'</small></span><em>›</em>';b.onclick=r[4];$('pact').appendChild(b)})}
   av($('ppav'),me.name,false,me.photo);$('ppav').onclick=()=>photoView(me.uid,me.name,avPhoto($('ppav')));
   $('ppn').textContent=me.name||'';vbPut($('ppn'),me.uid);$('ppu').textContent='@'+(me.username||'');
@@ -2672,7 +2606,7 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden){try{snapSt
 /* ===== Snap tab: camera, mood chips, 10 s voice vibe, shutter, flip, dual capture, preview, post ===== */
 const VIBES=['Late Night Grind ☕','Chai Break 🍵','Code & Chill 💻'];
 const SM_IMG=/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/,SM_AUD=/^data:audio\/[a-z0-9.+-]+(;codecs=[a-z0-9.,-]+)?;base64,[A-Za-z0-9+\/=]+$/i;
-const swc=$('swc');$('smic').innerHTML=ic('mic');$('sfl').innerHTML=ic('flip');$('sphi').innerHTML=ic('cam');$('svbi').innerHTML=ic('bolt');
+const swc=$('swc');$('smic').innerHTML=ic('mic');$('sfl').innerHTML=ic('flip');$('sphi').innerHTML=ic('cam');$('svbi').innerHTML=ic('bolt');Object.assign(IC,{gal:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/>'});$('sgal').innerHTML=ic('gal');
 const smD=n=>{n=Math.max(0,n|0);return Math.floor(n/60)+':'+String(n%60).padStart(2,'0')};
 /* the idle camera screen: the camera itself only starts when the person taps it */
 function snapOpen(){snapChips();$('svt').textContent=SM.vibe;$('sdu').classList.toggle('on',SM.dual);$('sdu').textContent=SM.dual?'Dual ✓':'Dual';voiceChip();stkPaint()}
@@ -2714,7 +2648,7 @@ async function snapShoot(){
       $('scd').textContent=f2==='user'?'Now smile 😊':'Now show your view 🌄';$('scd').classList.add('on');
       try{if(await snapStart(f2,true)){await sleep(1300);if(swc.videoWidth){const b=snapFrame(swc,SM.face==='user',576,768);out=f1==='environment'?snapCompose(a,b):snapCompose(b,a)}}}catch(e){}
       $('scd').classList.remove('on')}
-    const url=snapJpeg(out);snapStop();snapPreview(url)}
+    const url=snapJpeg(out);snapStop();vidClear();SM.fromGal=false;snapPreview(url)}
   catch(e){toast((e&&e.message)||'Couldn’t take the snap')}
   finally{SM.busy=false;$('ssh').classList.remove('busy');$('scd').classList.remove('on')}}
 /* ---- 10 second voice vibe ---- */
@@ -2742,32 +2676,74 @@ function smPlay(src,btn){if(smAu){const same=smAb===btn;smAu.pause();if(smAb)smA
   const end=()=>{if(smAu===a){btn.textContent='▶';smAu=null;smAb=null}};a.onended=end;a.onerror=end;a.play().catch(end)}
 const SM_AU_OK=s=>typeof s==='string'&&s.length<200000&&SM_AUD.test(s);
 /* ---- preview + post ---- */
-function snapPreview(url){SM.img=url;$('snpi').src=url;$('snpb').textContent=SM.vibe;snapAud(SM.aud);voiceChip();$('snpv').style.display='flex'}
+function snapPreview(url){SM.img=url;SM.tags=[];try{tgChips()}catch(e){}$('snpi').src=url;
+  const sv=$('snpvv');if(SM.vf){if(SM.vu){try{URL.revokeObjectURL(SM.vu)}catch(e){}}SM.vu=URL.createObjectURL(SM.vf);sv.src=SM.vu;sv.style.display='block';$('snpi').style.display='none'}else{sv.style.display='none';$('snpi').style.display=''}
+  $('snpb').textContent=SM.vibe;snapAud(SM.aud);voiceChip();$('snpv').style.display='flex'}
 /* who sees the snap: Inner Circle = only those close friends; Friends = all friends, and everybody in the Public feed when your account is Public */
-function snapAud(a){SM.aud=a;[...$('snpa').children].forEach(b=>b.classList.toggle('on',b.dataset.a===a));snapNote()}
+function snapAud(a){SM.aud=a;if(a==='i'&&SM.tags.length){SM.tags=SM.tags.filter(tgOk);try{tgChips()}catch(e){}}[...$('snpa').children].forEach(b=>b.classList.toggle('on',b.dataset.a===a));snapNote()}
 function snapNote(){const pub=!me.private&&SM.aud==='f';
   $('snpn').textContent=SM.aud==='i'?'Only your Inner Circle can see this snap.':(pub?'🌐 Your account is Public: everybody can see this snap in the Public feed, and your friends see it in Friends.':'🔒 Your account is Private: only your friends can see this snap.');
   const t=$('snpt');t.style.display=SM.aud==='i'?'none':'';t.textContent=me.private?'Switch to Public account':'Switch to Private account'}
-function snapRetake(){$('snpv').style.display='none';SM.img='';if(SM.n==='snap')snapStart()}
+function vidClear(){SM.vf=null;const sv=$('snpvv');try{sv.pause();sv.removeAttribute('src');sv.load()}catch(e){}sv.style.display='none';$('snpi').style.display='';if(SM.vu){try{URL.revokeObjectURL(SM.vu)}catch(e){}SM.vu=''}}
+function snapRetake(){$('snpv').style.display='none';SM.img='';const g=SM.fromGal;vidClear();SM.fromGal=false;if(SM.n==='snap'&&!g)snapStart()}
 async function snapPost(){
   if(SM.posting||!SM.img||!me)return;
   if(featBlock('post'))return;
   if(navigator.onLine===false)return toast('You are offline. Connect to the internet to post your snap.');
   SM.posting=true;const pb=$('snpp');pb.disabled=true;pb.textContent='Posting…';
   try{const fr=friendUids(),inner=SM.inner;if(SM.aud==='i'&&!fr.some(u=>inner.has(u)))throw Error('Your Inner Circle is empty. Add close friends in Circles first.');
-    const to=[...new Set((SM.aud==='i'?fr.filter(u=>inner.has(u)):fr).concat(me.uid))].slice(0,400),now=Date.now(),pub=!me.private&&SM.aud==='f';
-    const ref=db.collection('posts').doc(),p={uid:me.uid,nm:String(me.name||'').slice(0,30),un:String(me.username||'').slice(0,20),img:SM.img,vb:String(SM.vibe).slice(0,40),ts:SV(),exp:now+864e5,to,aud:SM.aud,pub,rx:{}};
+    const tg=SM.tags.filter(tgOk).slice(0,5),to=[...new Set([me.uid].concat(tg.map(t=>t.u),SM.aud==='i'?fr.filter(u=>inner.has(u)):fr))].slice(0,400),now=Date.now(),pub=!me.private&&SM.aud==='f';
+    const ref=db.collection('posts').doc();let vparts=[],vmeta=null;
+    if(SM.vf){const r=await snapVidParts(ref,SM.vf);vparts=r.refs;vmeta={n:r.n,mime:r.mime}}
+    const p={uid:me.uid,nm:String(me.name||'').slice(0,30),un:String(me.username||'').slice(0,20),img:SM.img,vb:String(SM.vibe).slice(0,40),ts:SV(),exp:now+864e5,to,aud:SM.aud,pub,rx:{}};
     if(pub)p.pd=dayUTC(now);
+    if(vmeta)p.vid=vmeta;
+    if(tg.length)p.tg=tg.map(t=>({u:t.u,n:t.n}));
     if(SM.voice&&SM_AU_OK(SM.voice.d)){p.au=SM.voice.d;p.ad=SM.voice.dur}
     const mem={ts:now,img:p.img,vb:p.vb};if(p.au){mem.au=p.au;mem.ad=p.ad}
     const b=db.batch();b.set(ref,p);b.set(db.doc('users/'+me.uid+'/memories/'+ref.id),mem);
-    const w=await Promise.race([b.commit().then(()=>'ok'),sleep(15000).then(()=>'slow')]);
+    let w;try{w=await Promise.race([b.commit().then(()=>'ok'),sleep(15000).then(()=>'slow')])}catch(e){vparts.forEach(r=>r.delete().catch(()=>{}));throw e}
     try{await stkBump()}catch(e){}
-    SM.voice=null;SM.img='';$('snpv').style.display='none';
+    SM.voice=null;SM.img='';SM.tags=[];tgChips();vidClear();SM.fromGal=false;$('snpv').style.display='none';
     toast(w==='slow'?'Slow connection: your snap will be posted when you are back online':(to.length<2&&!pub?'Snap posted. Add friends so they can see it ⚡':'Snap posted ⚡'));
     goN('feed')}
   catch(e){toast(e&&e.message?e.message:'Couldn’t post your snap')}
   finally{SM.posting=false;pb.disabled=false;pb.textContent='Post ⚡'}}
+/* ---- photo or video from the gallery (next to the shutter) ---- */
+const SM_MAXV=3*1024*1024,SM_PART=700000,SM_VIDT=/^video\/(mp4|webm|3gpp|quicktime)$/;
+/* any gallery photo becomes the same 3:4 picture the camera makes */
+function snapPhotoFile(f){return new Promise((res,rej)=>{const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{try{const W=576,H=768,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),iw=im.naturalWidth,ih=im.naturalHeight,ca=W/H;let sw=iw,sh=ih,sx=0,sy=0;
+    if(iw/ih>ca){sw=ih*ca;sx=(iw-sw)/2}else{sh=iw/ca;sy=(ih-sh)/2}x.drawImage(im,sx,sy,sw,sh,0,0,W,H);URL.revokeObjectURL(u);res(snapJpeg(c))}catch(e){URL.revokeObjectURL(u);rej(e)}};
+  im.onerror=()=>{URL.revokeObjectURL(u);rej(Error('Couldn’t read this photo'))};im.src=u})}
+/* the first picture of a video is its cover (the feed, the Memories tab and the preview use it) */
+function snapVideoCover(f){return new Promise((res,rej)=>{const u=URL.createObjectURL(f),v=document.createElement('video');let done=false,tm=0;
+  const end=(fn,a)=>{if(done)return;done=true;clearTimeout(tm);URL.revokeObjectURL(u);try{v.removeAttribute('src');v.load()}catch(e){}fn(a)};
+  tm=setTimeout(()=>end(rej,Error('Couldn’t read this video')),9000);
+  v.muted=true;v.playsInline=true;v.preload='auto';v.onerror=()=>end(rej,Error('Couldn’t read this video'));
+  v.onloadedmetadata=()=>{try{v.currentTime=Math.min(.3,(isFinite(v.duration)?v.duration:1)/2)}catch(e){}};
+  v.onseeked=()=>{try{const W=576,H=768,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),vw=v.videoWidth,vh=v.videoHeight,ca=W/H;if(!vw||!vh)throw Error('Couldn’t read this video');
+    let sw=vw,sh=vh,sx=0,sy=0;if(vw/vh>ca){sw=vh*ca;sx=(vw-sw)/2}else{sh=vw/ca;sy=(vh-sh)/2}x.drawImage(v,sx,sy,sw,sh,0,0,W,H);end(res,snapJpeg(c))}catch(e){end(rej,e)}};
+  v.src=u})}
+async function snapGallery(f){
+  if(!f||SM.busy||SM.posting||!me)return;
+  try{
+    if(f.type.startsWith('image/')){const url=await snapPhotoFile(f);snapStop();vidClear();SM.fromGal=true;snapPreview(url)}
+    else if(f.type.startsWith('video/')){
+      if(f.size>SM_MAXV)return toast('Video must be under 3 MB (about 10-15 seconds)');
+      if(!SM_VIDT.test(f.type))return toast('Please choose an MP4, WebM or 3GP video');
+      const url=await snapVideoCover(f);snapStop();vidClear();SM.vf=f;SM.fromGal=true;snapPreview(url)}
+    else toast('Only photos and videos can be posted')}
+  catch(e){toast(e&&e.message?e.message:'Couldn’t open this file')}}
+/* a video is stored in small pieces under posts/<id>/parts (like videos in chats); the post itself keeps the cover picture */
+async function snapVidParts(ref,f){
+  const url=await new Promise((r,j)=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>j(Error('Couldn’t read this video'));fr.readAsDataURL(f)});
+  const b64=String(url).split(',')[1]||'',n=Math.ceil(b64.length/SM_PART);if(!n||n>8)throw Error('This video is too big');
+  const refs=[];try{for(let i=0;i<n;i++){$('snpp').textContent='Uploading video '+(i+1)+'/'+n+'…';const r=ref.collection('parts').doc('p'+i);await r.set({i,d:b64.slice(i*SM_PART,(i+1)*SM_PART),uid:me.uid});refs.push(r)}}
+  catch(e){refs.forEach(r=>r.delete().catch(()=>{}));throw e}
+  return{n,mime:f.type,refs}}
+$('sgal').onclick=()=>{if(SM.busy||SM.posting)return;$('sgf').click()};
+$('sgf').onchange=e=>{const f=e.target.files&&e.target.files[0];e.target.value='';snapGallery(f)};
 $('sph').onclick=()=>snapStart();
 $('sfl').onclick=()=>{if(!SM.cs)return snapStart();snapStart(SM.face==='user'?'environment':'user')};
 $('ssh').onclick=snapShoot;$('smic').onclick=snapMic;
@@ -2780,11 +2756,13 @@ $('snpr').onclick=snapRetake;$('snpp').onclick=snapPost;$('snpt').onclick=()=>ac
                   pub (true = the account is Public: also in the Public feed), pd (UTC day, only when pub), au/ad (voice vibe), rx {uid: 'f' | 'h'} }
    Friends feed: posts where `to` contains me, from people who are my friends.  Public feed: pub == true for today's and yesterday's UTC day (no composite index needed).
    users/<me>/memories/<postId> = { ts (ms), img, vb, au?, ad? }: a private copy of each snap you post, kept 30 days (Memories tab). */
-SM.fl={};SM.cards=new Map();SM.gone=new Set();
+SM.fl={};SM.cards=new Map();SM.gone=new Set();SM.vurls=new Map();
 const FEEDMAX=80;
-function feedStop(){Object.keys(SM.fl||{}).forEach(k=>{try{SM.fl[k]&&SM.fl[k]()}catch(e){}});SM.fl={};SM.feedOn=false;SM.cards=new Map();SM.gone=new Set();SM.pdays=null;try{$('fl').innerHTML=''}catch(e){}
+function feedStop(){Object.keys(SM.fl||{}).forEach(k=>{try{SM.fl[k]&&SM.fl[k]()}catch(e){}});SM.fl={};SM.feedOn=false;SM.cards=new Map();try{SM.vurls.forEach(u=>URL.revokeObjectURL(u))}catch(e){}SM.vurls=new Map();SM.gone=new Set();SM.pdays=null;try{$('fl').innerHTML=''}catch(e){}
 }
 function feedErr(e){SM.fErr=(e&&e.code==='permission-denied')?'Snaps are not switched on yet. The app owner has to publish the newest firestore.rules.':'Couldn’t load snaps. Check your internet connection.';feedDraw()}
+/* an own snap that ended: remove it (and the pieces of its video) */
+function feedGone(p){const go=()=>db.doc('posts/'+p.id).delete().catch(()=>{});if(!vidOk(p.vid))return go();db.collection('posts/'+p.id+'/parts').get().then(q=>{const b=db.batch();q.docs.forEach(z=>b.delete(z.ref));return q.empty?null:b.commit()}).catch(()=>{}).then(go)}
 const pdoc=d=>({id:d.id,...d.data({serverTimestamps:'estimate'})});
 function feedFriends(){if(SM.fl.f)return;SM.fl.f=db.collection('posts').where('to','array-contains',me.uid).onSnapshot(q=>{SM.fa=q.docs.map(pdoc);SM.fErr='';feedDraw()},feedErr)}
 function feedPublic(){const days=[dayUTC(Date.now()),dayUTC(Date.now()-864e5)];
@@ -2793,10 +2771,12 @@ function feedPublic(){const days=[dayUTC(Date.now()),dayUTC(Date.now()-864e5)];
   [['a',days[0],'pa'],['b',days[1],'pb']].forEach(([k,dd,s])=>{if(SM.fl[k])return;SM.fl[k]=db.collection('posts').where('pub','==',true).where('pd','==',dd).limit(60).onSnapshot(q=>{SM[s]=q.docs.map(pdoc);SM.fErr='';feedDraw()},feedErr)})}
 function feedOpen(){if(!me)return;SM.feedOn=true;feedFriends();if(SM.fv==='p')feedPublic();feedDraw()}
 $('fchips').onclick=e=>{const s=e.target.closest('span');if(!s)return;SM.fv=s.dataset.f==='p'?'p':'f';put('fv',SM.fv);if(SM.fv==='p')feedPublic();feedDraw()};
+/* the people tagged in a snap: [{u, n}] (checked, at most 5) */
+const feedTags=p=>Array.isArray(p.tg)?p.tg.filter(t=>t&&typeof t.u==='string'&&typeof t.n==='string'&&/^[a-z0-9_]{3,20}$/.test(t.n)).slice(0,5):[];
 function feedList(){const now=Date.now(),blk=lset('blk'),hid=lset('hid'),seen=new Set(),pv=SM.fv==='p',fr=new Set(friendUids()),src=pv?SM.pa.concat(SM.pb):SM.fa;
   return src.filter(p=>{if(!p||!p.id||seen.has(p.id)||typeof p.uid!=='string'||typeof p.img!=='string')return false;seen.add(p.id);
-    if(!pv&&p.uid!==me.uid&&!fr.has(p.uid))return false;
-    const ex=typeof p.exp==='number'?p.exp:0;if(ex<=now){if(p.uid===me.uid&&!SM.gone.has(p.id)){SM.gone.add(p.id);db.doc('posts/'+p.id).delete().catch(()=>{})}return false}
+    if(!pv&&p.uid!==me.uid&&!fr.has(p.uid)&&!feedTags(p).some(t=>t.u===me.uid))return false;
+    const ex=typeof p.exp==='number'?p.exp:0;if(ex<=now){if(p.uid===me.uid&&!SM.gone.has(p.id)){SM.gone.add(p.id);feedGone(p)}return false}
     return !blk.has(p.uid)&&!blockedBy.has(p.uid)&&!hid.has(p.id)}).sort((a,b)=>(M(b.ts)||now)-(M(a.ts)||now))}
 const ago=t=>{const s=Math.max(0,(Date.now()-t)/1000);return s<60?'Just now':s<3600?Math.floor(s/60)+'m ago':s<86400?Math.floor(s/3600)+'h ago':'Yesterday'};
 /* who posted: name, picture and blue tick of a friend come from the chat, anybody else is read once from their profile */
@@ -2813,7 +2793,7 @@ function feedDraw(){
   if(SM.n!=='feed'||!me)return;
   const l=$('fl'),a=feedList().slice(0,FEEDMAX);
   [...$('fchips').children].forEach(s=>s.classList.toggle('on',s.dataset.f===SM.fv));
-  if(!a.length){SM.cards=new Map();l.replaceChildren(emptyFeed(SM.fErr||(SM.fv==='p'?'No public snaps right now. Switch on “Public account” in Settings > Safety & Visibility and post one ⚡':'No snaps yet today. Tap Snap and share your raw moment ⚡')));return}
+  if(!a.length){SM.cards=new Map();l.replaceChildren(emptyFeed(SM.fErr||(SM.fv==='p'?'No public snaps right now. Switch on “Public account” on your Profile page and post one ⚡':'No snaps yet today. Tap Snap and share your raw moment ⚡')));return}
   const next=new Map(),nodes=a.map(p=>{let c=SM.cards.get(p.id);if(!c){c={el:feedCard(p)}}c.p=p;feedRx(c.el,p);next.set(p.id,c);return c.el});
   SM.cards=next;l.replaceChildren(...nodes)}
 function feedCard(p){
@@ -2823,8 +2803,10 @@ function feedCard(p){
   r.className='fr2';tm.className='ftm';const ts=M(p.ts)||Date.now();tm.dataset.t=ts;tm.textContent=ago(ts);mn.className='fmn';mn.type='button';mn.setAttribute('aria-label','More');mn.textContent='⋮';r.append(tm,mn);h.append(who,r);d.appendChild(h);
   const im=document.createElement('div');im.className='fim';
   if(SM_IMG.test(p.img)){const i=document.createElement('img');i.src=p.img;i.alt='Snap';i.onclick=()=>photoView(null,'@'+(p.un||'user')+' · '+(p.vb||''),p.img);im.appendChild(i)}
+  if(vidOk(p.vid)){const pl=document.createElement('button');pl.type='button';pl.className='fpl';pl.setAttribute('aria-label','Play video');pl.textContent='▶';pl.onclick=e=>{e.stopPropagation();feedPlay(p.id,im,pl)};im.appendChild(pl)}
   d.appendChild(im);
   const vb=document.createElement('div');vb.className='fvb';vb.textContent='⚡ '+String(p.vb||'Raw moment ⚡');d.appendChild(vb);
+  const tgs=feedTags(p);if(tgs.length){const g=document.createElement('div');g.className='ftg';g.append('🏷 ');tgs.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='ftt'+(t.u===me.uid?' me':'');b.textContent=t.u===me.uid?'You':'@'+t.n;b.onclick=()=>{if(t.u!==me.uid)addOpen(t.n)};g.appendChild(b)});d.appendChild(g)}
   if(typeof p.au==='string'&&SM_AU_OK(p.au)){const v=document.createElement('div');v.className='fvc';const b=document.createElement('button');b.type='button';b.textContent='▶';b.setAttribute('aria-label','Play voice vibe');const s=document.createElement('span');s.textContent='Voice vibe · '+smD(p.ad|0);b.onclick=()=>smPlay(p.au,b);v.append(b,s);d.appendChild(v)}
   const rx=document.createElement('div');rx.className='frx';
   [['f','🔥'],['h','❤️']].forEach(([k,e])=>{const b=document.createElement('button');b.type='button';b.className='frb frb'+k;b.setAttribute('aria-label',k==='f'?'Fire':'Heart');b.innerHTML=e+'<b></b>';b.onclick=()=>feedReact(d.id?SM.cards.get(p.id).p:p,k,d);rx.appendChild(b)});d.appendChild(rx);
@@ -2836,8 +2818,20 @@ function feedRx(d,p){const rx=p.rx&&typeof p.rx==='object'?p.rx:{},c={f:0,h:0};O
 function feedReact(p,k,el){const cur=(p.rx||{})[me.uid],nv=cur===k?null:k,F=firebase.firestore.FieldValue;
   p.rx=Object.assign({},p.rx);if(nv)p.rx[me.uid]=nv;else delete p.rx[me.uid];feedRx(el,p);
   db.doc('posts/'+p.id).update({['rx.'+me.uid]:nv||F.delete()}).catch(e=>toast('Couldn’t react: '+e.message))}
+/* video snaps: the video lives in posts/<id>/parts; it is loaded when somebody taps ▶ */
+const vidOk=v=>!!v&&typeof v==='object'&&Number.isInteger(v.n)&&v.n>=1&&v.n<=8&&SM_VIDT.test(String(v.mime||''));
+async function vidUrl(p){let u=SM.vurls.get(p.id);if(u)return u;
+  const s=await db.collection('posts/'+p.id+'/parts').orderBy('i').get();if(s.size!==p.vid.n)throw Error('The video isn’t ready yet. Try again in a moment.');
+  const arr=s.docs.map(z=>{const d=z.data().d;if(typeof d!=='string'||!/^[A-Za-z0-9+\/=]+$/.test(d))throw Error('This video isn’t available');return Uint8Array.from(atob(d),c=>c.charCodeAt(0))});
+  u=URL.createObjectURL(new Blob(arr,{type:p.vid.mime}));SM.vurls.set(p.id,u);
+  if(SM.vurls.size>6){const k=SM.vurls.keys().next().value;try{URL.revokeObjectURL(SM.vurls.get(k))}catch(e){}SM.vurls.delete(k)}
+  return u}
+async function feedPlay(id,im,btn){const c=SM.cards.get(id),p=c&&c.p;if(!p||!vidOk(p.vid)||btn.dataset.b)return;btn.dataset.b='1';btn.textContent='…';
+  try{const u=await vidUrl(p),v=document.createElement('video');v.src=u;v.controls=true;v.autoplay=true;v.loop=true;v.playsInline=true;v.setAttribute('playsinline','');v.className='fvv';im.replaceChildren(v);v.play().catch(()=>{})}
+  catch(e){delete btn.dataset.b;btn.textContent='▶';toast(e&&e.message?e.message:'Couldn’t load the video')}}
 async function feedDel(p){if(!(await confirmD('Delete this snap? It is removed for everybody. It stays in your Memories.')))return;
-  try{await db.doc('posts/'+p.id).delete();SM.fa=SM.fa.filter(x=>x.id!==p.id);SM.pa=SM.pa.filter(x=>x.id!==p.id);SM.pb=SM.pb.filter(x=>x.id!==p.id);feedDraw();toast('Snap deleted')}catch(e){toast(e.message)}}
+  try{if(vidOk(p.vid)){const q=await db.collection('posts/'+p.id+'/parts').get();if(!q.empty){const b=db.batch();q.docs.forEach(z=>b.delete(z.ref));await b.commit()}}
+    await db.doc('posts/'+p.id).delete();SM.fa=SM.fa.filter(x=>x.id!==p.id);SM.pa=SM.pa.filter(x=>x.id!==p.id);SM.pb=SM.pb.filter(x=>x.id!==p.id);feedDraw();toast('Snap deleted')}catch(e){toast(e.message)}}
 async function feedReport(p){if(!(await confirmD('Report this snap?')))return;
   db.collection('reports').add({by:me.uid,byName:me.name||'',byUn:me.username||'',against:p.uid,againstName:p.nm||'',againstUn:p.un||'',chat:null,msg:null,post:p.id,text:('Snap: '+String(p.vb||'')).slice(0,200),status:'new',ts:SV()}).then(()=>toast('Report sent. Thank you.')).catch(e=>toast(e.message))}
 setInterval(()=>{if(SM.n!=='feed')return;document.querySelectorAll('#fl .ftm').forEach(t=>{t.textContent=ago(+t.dataset.t)});if(SM.feedOn&&(Date.now()%864e5)<6e4)feedDraw()},3e4);
@@ -2864,6 +2858,123 @@ function memView(m){mvCur=m;$('mvi').src=SM_IMG.test(m.img)?m.img:'';$('mvt').te
 function memClose(){if(smAu){try{smAu.pause()}catch(e){}smAu=null;smAb=null}$('mvw').style.display='none';$('mvi').removeAttribute('src');mvCur=null}
 $('mvx').onclick=memClose;$('mvp').onclick=()=>{if(mvCur&&mvCur.au)smPlay(mvCur.au,$('mvp'))};
 $('mvdel').onclick=async()=>{if(!mvCur)return;if(!(await confirmD('Delete this memory? Friends who already saw the snap keep seeing it until it expires.')))return;const id=mvCur.id;memClose();await memDel(id);memOpen()};
+/* ---- Profile = one long scrolling page. Every setting is on it; there is no separate Settings screen ---- */
+const cpIs=p=>!!($('pgprof')&&$('pgprof').classList.contains('on')&&$('p-'+p));
+const PSEC=[['acc','Account'],['priv','Safety & Visibility'],['notif','Notifications'],['chats','Chat Style'],['app','Appearance'],['acs','Accessibility'],['sess','Devices & activity'],['more','More']];
+let psT=0;
+/* the hidden inputs that hold every setting's value (the settings panels read and write them) */
+function setSync(){
+  $('sn').value=me.name;$('hv').textContent='Snapme version '+verLabel()+' · messages expire automatically.';
+  $('th').value=get('th2','dark');$('fs').value=get('fs','16');
+  const ex=get('exp','86400000');$('ex').value=['read','86400000','604800000'].includes(ex)?ex:'86400000';
+  $('en').checked=get('enter','1')==='1';$('nt').checked=get('notif','1')==='1';$('wp').value=get('wp','');$('tc').value=get('ac2','p');
+  $('sd').checked=get('snd','1')==='1';$('rr').checked=get('rr','1')==='1';$('pr').checked=!!me.private}
+function drawMore(){
+  const h=$('p-more');if(!h)return;
+  stRows(h,[['',[
+    {t:'App permissions',s:'Camera, gallery and location',tap:()=>permShow()},
+    {t:'Share Snapme',s:'Share your Snapme link',tap:()=>shareLink()},
+    {t:'App update',s:'Version '+verLabel()+' · tap to check for updates',tap:()=>checkUpdate()},
+    {t:'Privacy policy',s:'How your data is used',tap:()=>openDoc('privacy')},
+    {t:'Terms & community rules',s:'Rules for using Snapme',tap:()=>openDoc('terms')},
+    {t:'Log out',s:'Sign out of Snapme on this phone',red:1,tap:async()=>{if(await confirmD('Log out of Snapme?')){$('set').style.display='none';logout()}}}]]])}
+function profSettings(){
+  const box=$('psets');if(!box||!me)return;
+  if(!box.firstChild){
+    PSEC.forEach(([p,t])=>{
+      const sec=document.createElement('section');sec.className='psec';sec.id='ps-'+p;
+      const h=document.createElement('h3');h.textContent=t;sec.appendChild(h);
+      let host=$('p-'+p);if(!host){host=document.createElement('div');host.id='p-'+p}
+      host.className='ps';host.style.display='block';host.dataset.hd=t;sec.appendChild(host);box.appendChild(sec)})}
+  setSync();
+  ['acc','priv','notif','chats','app','acs'].forEach(p=>{try{drawPanel(p)}catch(e){}});drawMore();
+  /* the activity list reads Firestore, so refresh it at most once a minute */
+  if(Date.now()-psT>6e4){psT=Date.now();try{drawSessions()}catch(e){}}}
+/* any old caller that wants a settings screen lands on the Profile page instead */
+function openSet(){goN('prof')}
+function openP(p){goN('prof');setTimeout(()=>{const e=$('ps-'+p);if(e)e.scrollIntoView()},50)}
+/* ---- "Alice is typing to you…": a popup on any screen while Snapme is open, and a quiet notification while it is in the background ---- */
+const TYP={seen:{},tm:0,id:'',ln:{}};
+const typHash=id=>{let h=0;for(let i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))|0;return 1000000+Math.abs(h)%900000};
+function typCheck(c,id){
+  if(!me||get('typa','1')!=='1'||(c.type!=='dm'&&c.type!=='group'))return;
+  const now=Date.now(),blk=lset('blk');let who='';
+  for(const [u,t] of Object.entries(c.typing||{})){if(u===me.uid||blk.has(u)||blockedBy.has(u))continue;const ts=M(t);if(ts&&now-ts<6000&&now-ts>-3000){who=u;break}}
+  if(!who||lset('mut').has(id))return;
+  const k=id+':'+who;if(now-(TYP.seen[k]||0)<25000)return;
+  if(cur&&cur.id===id&&$('app').classList.contains('open')&&!document.hidden)return;   /* that chat is open: its top bar already says "Typing…" */
+  TYP.seen[k]=now;
+  const nm=String((c.names&&c.names[who])||'Someone').slice(0,30),grp=c.type==='group',msg=grp?'is typing in '+String(title({...c,id})||'the group').slice(0,30)+'…':'is typing to you…';
+  if(!active||document.hidden){if(get('notif','1')==='1')typNote(nm,msg,id)}
+  else typBanner(nm,msg,c,who,id)}
+function typBanner(nm,msg,c,who,id){
+  let b=$('tyb');
+  if(!b){b=document.createElement('div');b.id='tyb';b.setAttribute('role','status');
+    b.innerHTML='<div class="av" id="tyav"></div><div class="tyt"><b id="tynm"></b><span id="tymsg"></span></div><div class="dots"><i></i><i></i><i></i></div>';document.body.appendChild(b);
+    b.onclick=()=>{b.classList.remove('on');if(TYP.id)openChatById(TYP.id)}}
+  TYP.id=id;av($('tyav'),nm,false,(c.photos||{})[who]||null);$('tynm').textContent=nm;$('tymsg').textContent=msg;
+  b.classList.add('on');clearTimeout(TYP.tm);TYP.tm=setTimeout(()=>b.classList.remove('on'),4500)}
+/* quiet notification: no sound, it removes itself after a few seconds (the Android channel is "Typing alerts") */
+function typNote(nm,msg,id){
+  if(BGM){if(window.VTBg&&VTBg.typing){try{VTBg.typing(nm,msg,id)}catch(e){}}return}
+  const L=LN();if(!L)return;const n=typHash(id);TYP.ln[id]=n;
+  L.schedule({notifications:[{id:n,title:nm,body:msg,channelId:'snapme_typing',smallIcon:'ic_stat_vtext',extra:{chat:id}}]}).catch(()=>{});
+  setTimeout(()=>{L.cancel({notifications:[{id:n}]}).catch(()=>{})},9000)}
+function typReset(){TYP.seen={}}
+function typDone(id){const L=LN(),n=TYP.ln[id];if(L&&n){delete TYP.ln[id];L.cancel({notifications:[{id:n}]}).catch(()=>{})}}
+/* ---- Tag people in a snap: friends, or public accounts found by @username (up to 5) ----
+   posts/<id>.tg = [{u: uid, n: username}]. A tagged person is added to the snap's `to` list, so a public account you tag can see it too.
+   With the Inner Circle audience only Inner Circle friends can be tagged. */
+SM.tags=[];
+const TG_MAX=5,TG_UN=/^[a-z0-9_]{3,20}$/;
+const tgBlocked=u=>lset('blk').has(u)||blockedBy.has(u);
+const tgOk=t=>!!t&&!tgBlocked(t.u)&&(SM.aud!=='i'||SM.inner.has(t.u));
+(function(){const p=document.createElement('div');p.id='tgp';
+  p.innerHTML='<div class="top w"><button class="ib" id="tgx" type="button" aria-label="Done">←</button><b style="flex:1">Tag people</b><button class="adb" id="tgd" type="button">Done</button></div>'
+   +'<div class="sc" id="tgb"><div class="adc"><label for="tgu">Tag a public account or a friend by username</label><div class="adq"><span aria-hidden="true">@</span>'
+   +'<input id="tgu" placeholder="username" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" maxlength="20" enterkeyhint="search"><button class="adb" id="tgg" type="button">Find</button></div><div id="tgm" role="status"></div></div>'
+   +'<div id="tgr"></div><h4 id="tgh">Your friends</h4><div id="tgl"></div></div>';
+  document.body.appendChild(p)})();
+function tgChips(){const c=$('snptc');if(!c)return;c.innerHTML='';
+  SM.tags.forEach(t=>{const s=document.createElement('button');s.type='button';s.className='tgc';s.textContent='@'+t.n+' ✕';s.setAttribute('aria-label','Remove tag @'+t.n);s.onclick=()=>tgToggle(t.u,t.n);c.appendChild(s)});
+  $('snptb').textContent=SM.tags.length?'🏷 Tagged '+SM.tags.length+' · change':'🏷 Tag friends or public accounts'}
+function tgToggle(u,n){const i=SM.tags.findIndex(t=>t.u===u);
+  if(i>=0)SM.tags.splice(i,1);else{if(SM.tags.length>=TG_MAX)return toast('You can tag up to '+TG_MAX+' people');SM.tags.push({u,n})}
+  tgChips();if($('tgp').style.display==='flex')tgDraw()}
+function tgBtn(u,n){const on=SM.tags.some(t=>t.u===u);return adBtn(on?'Tagged ✓':'Tag',()=>tgToggle(u,n),on)}
+function tgDraw(){
+  const l=$('tgl');l.innerHTML='';
+  $('tgh').textContent=SM.aud==='i'?'Your Inner Circle':'Your friends';
+  const seen=new Set();
+  chats.filter(c=>c.type==='dm').forEach(c=>{const u=friendOf(c),n=(c.unames||{})[u];
+    if(!u||seen.has(u)||!n||!TG_UN.test(n)||tgBlocked(u)||(SM.aud==='i'&&!SM.inner.has(u)))return;seen.add(u);
+    l.appendChild(adRow({photo:(c.photos||{})[u]||null,name:(c.names||{})[u]||n,verified:isVer(u),uid:u},'@'+n,[tgBtn(u,n)]))});
+  if(!seen.size){const e=document.createElement('div');e.className='empty';e.textContent=SM.aud==='i'?'Your Inner Circle is empty.':'No friends yet. You can still tag a public account by its username.';l.appendChild(e)}
+  const r=$('tgr');if(TG.res){r.innerHTML='';r.appendChild(tgCard(TG.res))}}
+const TG={res:null};
+function tgCard(o){
+  const fr=friendUids().includes(o.uid);let b;
+  if(tgBlocked(o.uid))b=null;
+  else if(SM.aud==='i'&&!SM.inner.has(o.uid))b=null;
+  else if(!fr&&o.private)b=null;
+  else b=tgBtn(o.uid,o.username);
+  const sub='@'+o.username+(fr?' · Friend':(o.private?' · Private account':' · Public account'));
+  const d=adRow({photo:o.photo,pv_photo:o.pv_photo,name:o.name,verified:o.verified,uid:o.uid},sub,b?[b]:[]);
+  if(!b){const n=document.createElement('div');n.className='tgnote';n.textContent=SM.aud==='i'&&!SM.inner.has(o.uid)?'Only people in your Inner Circle can be tagged in this snap.':(tgBlocked(o.uid)?'You can’t tag this person.':'Only friends and public accounts can be tagged.');d.querySelector('.t').appendChild(n)}
+  return d}
+async function tgFind(){
+  const un=clean($('tgu').value).replace(/[^a-z0-9_]/g,''),m=$('tgm'),r=$('tgr');m.textContent='';r.innerHTML='';TG.res=null;
+  if(!un){m.textContent='Enter a username.';return}
+  if(!TG_UN.test(un)){m.textContent='Usernames have 3 to 20 characters: a-z, 0-9 and _ only.';return}
+  if(un===me.username){m.textContent='You can’t tag yourself.';return}
+  const b=$('tgg');b.disabled=true;b.textContent='Finding…';
+  try{const o=await find(un);TG.res=o;r.appendChild(tgCard(o))}catch(e){m.textContent=e.message}
+  finally{b.disabled=false;b.textContent='Find'}}
+function tgOpen(){TG.res=null;$('tgr').innerHTML='';$('tgm').textContent='';$('tgu').value='';tgDraw();$('tgp').style.display='flex';$('tgb').scrollTop=0}
+function tgClose(){$('tgp').style.display='none';try{$('tgu').blur()}catch(e){}tgChips()}
+$('tgx').onclick=tgClose;$('tgd').onclick=tgClose;$('tgg').onclick=tgFind;$('snptb').onclick=tgOpen;
+$('tgu').oninput=function(){const v=this.value.toLowerCase().replace(/[^a-z0-9_]/g,'');if(v!==this.value)this.value=v;$('tgm').textContent=''};
+$('tgu').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();tgFind()}};
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f,n,q){n=n||128;q=q||.7;return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=n;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n);res(cv.toDataURL('image/jpeg',q))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
