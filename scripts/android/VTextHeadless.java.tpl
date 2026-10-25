@@ -31,7 +31,8 @@ import androidx.core.app.NotificationManagerCompat;
  * notifications through window.VTBg.notify().  Everything runs on the main thread.
  */
 final class VTextHeadless {
-    static final String MSG_CHANNEL = "vtext_msgs";
+    static final String MSG_CHANNEL = "snapme_msgs";
+    static final String TYPING_CHANNEL = "snapme_typing";
     private static int counter = 0;
 
     private final Context ctx;
@@ -178,6 +179,12 @@ final class VTextHeadless {
             post(c, title, body, chat);
         }
 
+        /** A friend is typing to you: a quiet notification (no sound) that removes itself after a few seconds. */
+        @JavascriptInterface
+        public void typing(String title, String body, String chat) {
+            postTyping(c, title, body, chat);
+        }
+
         /** The hidden page found out the person is logged out (for example another device logged this one out): stop the service. */
         @JavascriptInterface
         public void stop() {
@@ -187,6 +194,52 @@ final class VTextHeadless {
             } catch (Throwable t) {
                 // ignore
             }
+        }
+    }
+
+    /** Shows a quiet "is typing" notification: no sound, no vibration, and it disappears by itself after 10 seconds. */
+    @SuppressLint("MissingPermission")
+    static void postTyping(Context c, String title, String body, String chat) {
+        try {
+            if (!NotificationManagerCompat.from(c).areNotificationsEnabled()) return;
+            if (title == null || title.length() == 0) title = "Snapme";
+            if (body == null || body.length() == 0) body = "is typing…";
+            if (title.length() > 120) title = title.substring(0, 120);
+            if (body.length() > 200) body = body.substring(0, 200);
+            if (chat == null) chat = "";
+            if (chat.length() > 128) chat = chat.substring(0, 128);
+            NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm == null) return;
+            String pkg = c.getPackageName();
+            if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(TYPING_CHANNEL) == null) {
+                NotificationChannel ch = new NotificationChannel(TYPING_CHANNEL, "Typing alerts", NotificationManager.IMPORTANCE_LOW);
+                ch.enableVibration(false);
+                ch.setSound(null, null);
+                nm.createNotificationChannel(ch);
+            }
+            int icon = c.getResources().getIdentifier("ic_stat_vtext", "drawable", pkg);
+            if (icon == 0) icon = c.getApplicationInfo().icon;
+            int id = 2000000 + (chat.hashCode() & 0xFFFFF);
+            Intent li = c.getPackageManager().getLaunchIntentForPackage(pkg);
+            PendingIntent pi = null;
+            if (li != null) {
+                li.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                li.putExtra("vt_chat", chat);
+                pi = PendingIntent.getActivity(c, id, li, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+            NotificationCompat.Builder b = new NotificationCompat.Builder(c, TYPING_CHANNEL)
+                    .setSmallIcon(icon)
+                    .setContentTitle(title)
+                    .setContentText(body)
+                    .setAutoCancel(true)
+                    .setOnlyAlertOnce(true)
+                    .setTimeoutAfter(10000)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setCategory(NotificationCompat.CATEGORY_STATUS);
+            if (pi != null) b.setContentIntent(pi);
+            NotificationManagerCompat.from(c).notify(id, b.build());
+        } catch (Throwable t) {
+            // a notification that fails must never crash the service
         }
     }
 
@@ -207,7 +260,7 @@ final class VTextHeadless {
             if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(MSG_CHANNEL) == null) {
                 NotificationChannel ch = new NotificationChannel(MSG_CHANNEL, "Messages", NotificationManager.IMPORTANCE_HIGH);
                 ch.enableVibration(true);
-                int raw = c.getResources().getIdentifier("vtext_msg", "raw", pkg);
+                int raw = c.getResources().getIdentifier("snapme_chime", "raw", pkg);
                 if (raw != 0) {
                     AudioAttributes aa = new AudioAttributes.Builder()
                             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -216,10 +269,16 @@ final class VTextHeadless {
                     ch.setSound(Uri.parse("android.resource://" + pkg + "/" + raw), aa);
                 }
                 nm.createNotificationChannel(ch);
+                nm.deleteNotificationChannel("vtext_msgs");   // the old channel had the old sound, and a channel's sound cannot be changed
             }
             int icon = c.getResources().getIdentifier("ic_stat_vtext", "drawable", pkg);
             if (icon == 0) icon = c.getApplicationInfo().icon;
             int id = chat.length() > 0 ? 10000 + (chat.hashCode() & 0xFFFFF) : 30000 + (counter++ % 1000);
+            try {
+                NotificationManagerCompat.from(c).cancel(2000000 + (chat.hashCode() & 0xFFFFF));   // the quiet "is typing" notification of this chat is no longer needed
+            } catch (Throwable ignore) {
+                // ignore
+            }
             Intent li = c.getPackageManager().getLaunchIntentForPackage(pkg);
             PendingIntent pi = null;
             if (li != null) {

@@ -30,7 +30,7 @@ import java.util.Map;
  * Only installed when the push plugin is part of the build; it replaces Capacitor's own MessagingService (see patch_android.py).
  */
 public class VTextFcmService extends FirebaseMessagingService {
-    static final String MSG_CHANNEL = "vtext_msgs";   // the same channel the background page uses, so both look and sound the same
+    static final String MSG_CHANNEL = "snapme_msgs";   // the same channel the background page uses, so both look and sound the same
     private static final String CAP = "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin";
 
     @Override
@@ -91,7 +91,7 @@ public class VTextFcmService extends FirebaseMessagingService {
             if (Build.VERSION.SDK_INT >= 26 && nm.getNotificationChannel(MSG_CHANNEL) == null) {
                 NotificationChannel ch = new NotificationChannel(MSG_CHANNEL, "Messages", NotificationManager.IMPORTANCE_HIGH);
                 ch.enableVibration(true);
-                int raw = c.getResources().getIdentifier("vtext_msg", "raw", pkg);
+                int raw = c.getResources().getIdentifier("snapme_chime", "raw", pkg);
                 if (raw != 0) {
                     AudioAttributes aa = new AudioAttributes.Builder()
                             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -100,11 +100,17 @@ public class VTextFcmService extends FirebaseMessagingService {
                     ch.setSound(Uri.parse("android.resource://" + pkg + "/" + raw), aa);
                 }
                 nm.createNotificationChannel(ch);
+                nm.deleteNotificationChannel("vtext_msgs");   // the old channel had the old sound, and a channel's sound cannot be changed
             }
             int icon = c.getResources().getIdentifier("ic_stat_vtext", "drawable", pkg);
             if (icon == 0) icon = c.getApplicationInfo().icon;
             // same id as the background page uses for this chat: if both show the message, the second replaces the first
             int id = chat.length() > 0 ? 10000 + (chat.hashCode() & 0xFFFFF) : 30000 + (int) (System.currentTimeMillis() % 1000);
+            try {
+                NotificationManagerCompat.from(c).cancel(2000000 + (chat.hashCode() & 0xFFFFF));   // the quiet "is typing" notification of this chat is no longer needed
+            } catch (Throwable ignore) {
+                // ignore
+            }
             Intent li = c.getPackageManager().getLaunchIntentForPackage(pkg);
             PendingIntent pi = null;
             if (li != null) {
