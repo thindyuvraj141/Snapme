@@ -1,5 +1,5 @@
 'use strict';
-// Pure helpers for the VText push function (no Firebase libraries here, so they can be tested with plain Node).
+// Pure helpers for the Snapme push function (no Firebase libraries here, so they can be tested with plain Node).
 
 const STALE = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token'];
 const isStale = code => STALE.includes(code);
@@ -23,8 +23,8 @@ function preview(m, showText) {
 
 /** Notification title and body. Locked chats show no names and no text (same as the app's own notification). */
 function titleBody(chat, m, locked, showText) {
-  if (locked) return { title: 'VText', body: 'New message' };
-  const from = (chat.names && chat.names[m.from]) || m.fromName || 'VText';
+  if (locked) return { title: 'Snapme', body: 'New message' };
+  const from = (chat.names && chat.names[m.from]) || m.fromName || 'Snapme';
   const p = preview(m, showText);
   if (chat.type === 'group') return { title: chat.name || 'Group', body: from + ': ' + p };
   return { title: from, body: p };
@@ -48,12 +48,12 @@ function build(chatId, chat, m, push, opts) {
       // browsers get data-only messages: firebase-messaging-sw.js builds the notification and opens the chat on tap
       message = { token: e.k, data: { title, body, chat: chatId }, webpush: { headers: { Urgency: 'high', TTL: '3600' } } };
     } else {
-      // the Android app: shown by the phone itself, even when VText is closed
+      // the Android app: shown by the phone itself, even when Snapme is closed
       message = {
         token: e.k,
         notification: { title, body },
         data: { chat: chatId },
-        android: { priority: 'high', ttl: 3600 * 1000, notification: { channelId: 'messages', icon: 'ic_stat_vtext', tag: chatId } }
+        android: { priority: 'high', ttl: 3600 * 1000, notification: { channelId: 'snapme_msgs', icon: 'ic_stat_vtext', tag: chatId } }
       };
     }
     out.push({ devId, message });
