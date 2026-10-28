@@ -3001,13 +3001,32 @@ async function snapPost(){
     const old=new Set((SM.fa||[]).filter(x=>x.uid===me.uid&&x.lt===true).map(x=>x.id));
     if(me.lp&&!old.has(me.lp)){try{const s0=await db.doc('posts/'+me.lp).get();if(s0.exists&&s0.data().lt===true)old.add(me.lp)}catch(e){}}
     old.forEach(id=>b.update(db.doc('posts/'+id),{lt:false}));b.set(db.doc('users/'+me.uid),{lp:ref.id},{merge:true});
-    let w;try{w=await Promise.race([b.commit().then(()=>'ok'),sleep(15000).then(()=>'slow')])}catch(e){vparts.forEach(r=>r.delete().catch(()=>{}));throw e}
+    let w;try{w=await Promise.race([b.commit().then(()=>'ok'),sleep(15000).then(()=>'slow')])}
+    catch(e){if(e&&e.code==='permission-denied')w=await snapPostSplit(ref,p,mem,old,cp,vparts);else{vparts.forEach(r=>r.delete().catch(()=>{}));throw e}}
     me.lp=ref.id;try{xpSnap(ref.id,to.filter(u=>u!==me.uid))}catch(e){}
     SM.voice=null;SM.img='';SM.tags=[];tgChips();capReset();vidClear();SM.fromGal=false;$('snpv').style.display='none';
-    toast(w==='slow'?'Slow connection: your snap will be posted when you are back online':(to.length<2&&!pub?'Snap posted. Add friends so they can see it ⚡':'Snap posted ⚡'));
+    const pm=SM.postMiss;SM.postMiss=null;
+    toast(pm&&pm.length?'Snap posted ⚡ but Firebase refused: '+pm.join(', ')+'. Publish the newest firestore.rules.':w==='slow'?'Slow connection: your snap will be posted when you are back online':(to.length<2&&!pub?'Snap posted. Add friends so they can see it ⚡':'Snap posted ⚡'));
     goN('feed')}
   catch(e){toast(e&&e.message?e.message:'Couldn’t post your snap')}
   finally{SM.posting=false;pb.disabled=false;pb.textContent='Post ⚡'}}
+/* Firebase refused the whole batch (permission denied). Write the pieces one by one, so that the snap itself still gets posted when only a side part is refused
+   (typically a firestore.rules that was not published yet and does not know the caption `cp` / newest-snap `lt` / memory `o`, `tg` fields), and remember what was refused. */
+async function snapPostSplit(ref,p,mem,old,cp,vparts){
+  const miss=[],denied=e=>!!e&&e.code==='permission-denied',undo=()=>vparts.forEach(r=>r.delete().catch(()=>{}));
+  try{await ref.set(p)}
+  catch(e){
+    if(!denied(e)){undo();throw e}
+    const q=Object.assign({},p);delete q.cp;delete q.lt;if(cp)q.vb=cp.slice(0,60);                 /* what an older rules file accepts: the caption travels as the old mood text */
+    try{await ref.set(q);miss.push('the caption and newest-snap fields of the snap')}
+    catch(e2){undo();throw Error(denied(e2)?'Firebase refused this snap (rules for posts). Check that the newest firestore.rules are published.':(e2&&e2.message)||'Couldn’t post your snap')}}
+  const mref=db.doc('users/'+me.uid+'/memories/'+ref.id);
+  try{await mref.set(mem)}
+  catch(e){const m2={ts:mem.ts,img:mem.img};if(mem.au){m2.au=mem.au;m2.ad=mem.ad}if(cp)m2.vb=cp.slice(0,60);
+    try{await mref.set(m2);miss.push('the Memories flags (own post, caption, tags)')}catch(e2){miss.push('the Memories copy')}}
+  for(const id of old){try{await db.doc('posts/'+id).update({lt:false})}catch(e){}}
+  try{await db.doc('users/'+me.uid).set({lp:ref.id},{merge:true})}catch(e){}
+  SM.postMiss=miss;return 'ok'}
 /* ---- photo or video from the gallery (next to the shutter) ---- */
 const SM_MAXV=3*1024*1024,SM_PART=700000,SM_VIDT=/^video\/(mp4|webm|3gpp|quicktime)$/;
 /* any gallery photo becomes the same 3:4 picture the camera makes */
