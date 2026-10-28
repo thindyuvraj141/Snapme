@@ -18,8 +18,11 @@
  * Owner accounts (admins/<uid>.role == "owner") are never deleted automatically.
  *
  * Also every run (purgeOldSnaps): snaps are visible for 24 hours; the ones that are more than 24 hours past their end (48 hours old) are deleted,
- * and Memories older than 30 days are deleted (that second step needs a one-time Firestore index for the collection group "memories"
- * on `ts`; without it the step is skipped with a log line and the app still removes a person's old memories when they open Memories).
+ * EXCEPT the newest snap of each person (posts.lt == true): it stays in the Feed until that person posts a new one, for 30 days at most,
+ * and notifications (users/<uid>/notifs) older than 30 days are deleted (that step needs a one-time Firestore index for the collection group
+ * "notifs" on `ts`; without it the step is skipped with a log line and the app still removes a person's old notifications when they open the
+ * Notifications page).
+ * Memories (users/<uid>/memories) are NEVER deleted by this job: they stay until the person deletes them or the account is deleted.
  *
  * Usage:  node scripts/delete-expired-accounts.js            (needs FIREBASE_SERVICE_ACCOUNT or GOOGLE_APPLICATION_CREDENTIALS)
  *         DRY_RUN=1 node scripts/delete-expired-accounts.js  (only lists what would be deleted)
@@ -37,6 +40,9 @@ async function purgeUser(ctx, uid) {
 
   // username (a retired username stays retired for good)
   for (const d of await docsOf(db.collection('usernames').where('uid', '==', uid))) {
+    // the "log in with a username" lookup (logins/<username> = { uid, em }) holds the email: it goes with the account
+    const lg = db.doc('logins/' + d.id), ls = await lg.get();
+    if (ls.exists && (ls.data() || {}).uid === uid) await del(lg);
     if (!(d.data() || {}).retired) await del(d.ref);
   }
   // single documents
@@ -49,7 +55,7 @@ async function purgeUser(ctx, uid) {
     for (const d of await docsOf(db.collection(col).where(f, op, uid))) await del(d.ref);
   }
   // snaps in the Feed (the Memories copy lives under users/<uid> and goes with it)
-  for (const d of await docsOf(db.collection('posts').where('uid', '==', uid))) await del(d.ref);
+  for (const d of await docsOf(db.collection('posts').where('uid', '==', uid))) await tree(d.ref);
   // chats
   for (const d of await docsOf(db.collection('chats').where('members', 'array-contains', uid))) {
     const c = d.data() || {};
@@ -96,26 +102,47 @@ async function purgeExpired(ctx) {
   return out;
 }
 
-/** Deletes snaps that ended more than 24 hours ago and Memories older than 30 days. Returns { posts, memories, memoriesSkipped }. */
+/** Deletes snaps that ended more than 24 hours ago (except the NEWEST snap of a person: it stays until he posts a new one, for 30 days at most)
+ *  and notifications older than 30 days. Memories are kept (only the person can delete them). Returns { posts, kept, notifs, notifsSkipped }. */
 async function purgeOldSnaps(ctx) {
-  const { db, now = Date.now(), log = console.log, dry } = ctx;
-  const out = { posts: 0, memories: 0, memoriesSkipped: false };
-  const sweep = async (mk, key) => {
-    for (let round = 0; round < 50; round++) {          // at most 50 x 400 per run; the next run continues
-      const docs = await docsOf(mk().limit(400));
-      for (const d of docs) { if (!dry) await d.ref.delete(); out[key]++; }
-      if (dry || docs.length < 400) break;
+  const { db, Timestamp, now = Date.now(), log = console.log, dry } = ctx;
+  const out = { posts: 0, kept: 0, notifs: 0, notifsSkipped: false };
+  const rm = async (d, key) => {
+    // a snap with a video also has its pieces under posts/<id>/parts
+    if (!dry) { if (key === 'posts' && typeof db.recursiveDelete === 'function') await db.recursiveDelete(d.ref); else await d.ref.delete(); }
+    out[key]++;
+  };
+  // snaps: walk through them in pages (the kept ones stay, so a page cannot simply be re-read)
+  let last = null;
+  for (let round = 0; round < 50; round++) {          // at most 50 x 400 per run; the next run continues
+    let q = db.collection('posts').where('exp', '<', now - DAY).orderBy('exp').limit(400);
+    if (last) q = q.startAfter(last);
+    const docs = await docsOf(q);
+    for (const d of docs) {
+      const x = d.data() || {};
+      if (x.lt === true && (x.exp || 0) > now - 29 * DAY) { out.kept++; continue; }
+      await rm(d, 'posts');
+    }
+    if (docs.length < 400) break;
+    last = docs[docs.length - 1];
+  }
+  // optional sweep over a collection group (needs a one-time Firestore index on `ts`; without it the step is skipped with a log line)
+  const sweep = async (name, key, skipKey, cutoff) => {
+    try {
+      if (typeof db.collectionGroup !== 'function') throw new Error('no collection group');
+      for (let round = 0; round < 50; round++) {
+        const docs = await docsOf(db.collectionGroup(name).where('ts', '<', cutoff).limit(400));
+        for (const d of docs) await rm(d, key);
+        if (dry || docs.length < 400) break;
+      }
+    } catch (e) {
+      out[skipKey] = true;
+      log(name + ' clean-up skipped (optional): ' + (e && e.message ? String(e.message).split('\n')[0].slice(0, 200) : e));
     }
   };
-  await sweep(() => db.collection('posts').where('exp', '<', now - DAY), 'posts');
-  try {
-    if (typeof db.collectionGroup !== 'function') throw new Error('no collection group');
-    await sweep(() => db.collectionGroup('memories').where('ts', '<', now - 30 * DAY), 'memories');
-  } catch (e) {
-    out.memoriesSkipped = true;
-    log('memories clean-up skipped (optional): ' + (e && e.message ? String(e.message).split('\n')[0].slice(0, 200) : e));
-  }
-  log((dry ? 'would delete ' : 'deleted ') + out.posts + ' old snaps and ' + out.memories + ' old memories');
+  // notifications: ts is a server timestamp, so the cut-off must be a Timestamp / Date
+  await sweep('notifs', 'notifs', 'notifsSkipped', Timestamp && Timestamp.fromMillis ? Timestamp.fromMillis(now - 30 * DAY) : new Date(now - 30 * DAY));
+  log((dry ? 'would delete ' : 'deleted ') + out.posts + ' old snaps (' + out.kept + ' newest snaps kept) and ' + out.notifs + ' old notifications');
   return out;
 }
 

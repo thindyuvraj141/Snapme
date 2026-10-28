@@ -66,7 +66,7 @@ service cloud.firestore {
       // Any admin can clean up a bad name, username or photo (the person's app then fixes the copies in his chats).
       // Only the owner can do this to another admin.
       allow update: if isAdmin() && request.auth.uid != u && (isOwner() || !exists(/databases/$(db)/documents/admins/$(u)))
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'username', 'photo', 'cover', 'modAt']);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name', 'username', 'photo', 'cover', 'bio', 'modAt']);
     }
 
     // A username is claimed once. When its owner changes it, the old one is marked "retired"
@@ -82,6 +82,22 @@ service cloud.firestore {
         && request.resource.data.get('retired', false) == true;
       allow delete: if request.auth != null && ((resource.data.uid == request.auth.uid
         && !resource.data.get('retired', false)) || isOwner());
+    }
+
+    // Log in with a username (Round 14): the login page, before anybody is signed in, reads logins/<username> = { uid, em } to find the email of that
+    // username. One document at a time: it cannot be listed. Only the owner of the username writes it, and `em` must be his own sign-in email.
+    // The owner can switch it off (Settings > Safety & Visibility): the app then deletes the document.
+    match /logins/{n} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if request.auth != null
+        && request.resource.data.keys().hasOnly(['uid', 'em'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.em is string
+        && request.resource.data.em.lower() == request.auth.token.email.lower()
+        && get(/databases/$(db)/documents/usernames/$(n)).data.uid == request.auth.uid
+        && get(/databases/$(db)/documents/usernames/$(n)).data.get('retired', false) == false;
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
     }
 
     match /reports/{r} {
@@ -157,6 +173,20 @@ service cloud.firestore {
       allow create: if isAdmin() && request.resource.data.by == request.auth.uid;
     }
 
+    // The friends list of a person, shown on his profile: users/<u>/friends/<friendUid> = { n: name, un: username }.
+    // Written only by the person himself (his app keeps it equal to his friends). Everybody signed in can read it when his account is Public;
+    // when it is Private only the people on the list (his friends) can.
+    match /users/{u}/friends/{f} {
+      allow read: if request.auth != null && (request.auth.uid == u
+        || get(/databases/$(db)/documents/users/$(u)).data.get('private', false) == false
+        || exists(/databases/$(db)/documents/users/$(u)/friends/$(request.auth.uid)));
+      allow create, update: if request.auth != null && request.auth.uid == u && f != u
+        && request.resource.data.keys().hasOnly(['n', 'un'])
+        && request.resource.data.n is string && request.resource.data.n.size() <= 60
+        && request.resource.data.un is string && request.resource.data.un.size() <= 30;
+      allow delete: if request.auth != null && (request.auth.uid == u || isAdmin());
+    }
+
     match /users/{u}/sessions/{s} {
       allow read, write: if request.auth != null && request.auth.uid == u;
     }
@@ -219,7 +249,7 @@ service cloud.firestore {
       allow delete: if request.auth != null && request.auth.uid == u;
     }
 
-    // Snaps (the Feed). A snap can be read by the people in its `to` list (the author's friends, or only the Inner Circle) and,
+    // Snaps (the Feed). A snap stays 30 days (`exp`; older snaps lasted 24 hours). `cp` = the caption the author wrote. `lt` = true marks the newest snap of its author. A snap can be read by the people in its `to` list (the author's friends, or only the Inner Circle) and,
     // when `pub` is true (the author's account was Public when posting), by every signed-in person (the Public feed).
     // The author can only post as himself, with a picture under 300 KB, and may not make a snap public while his account is Private.
     // Everybody who can see a snap may react to it (only their own reaction); only the author (or an admin) can delete it.
@@ -227,12 +257,13 @@ service cloud.firestore {
       allow get, list: if request.auth != null && (resource.data.pub == true || request.auth.uid in resource.data.to);
       allow create: if request.auth != null && notBanned()
         && request.resource.data.uid == request.auth.uid
-        && request.resource.data.keys().hasOnly(['uid', 'nm', 'un', 'img', 'vb', 'ts', 'exp', 'to', 'aud', 'pub', 'pd', 'au', 'ad', 'rx', 'vid', 'tg'])
+        && request.resource.data.keys().hasOnly(['uid', 'nm', 'un', 'img', 'vb', 'ts', 'exp', 'to', 'aud', 'pub', 'pd', 'au', 'ad', 'rx', 'vid', 'tg', 'lt', 'cp'])
         && request.resource.data.keys().hasAll(['uid', 'img', 'ts', 'exp', 'to', 'pub', 'rx'])
         && request.resource.data.ts == request.time
         && request.resource.data.img is string && request.resource.data.img.size() < 300000
         && request.resource.data.get('au', '').size() < 200000
         && request.resource.data.get('vb', '').size() <= 60
+        && request.resource.data.get('cp', '').size() <= 150
         && (!('tg' in request.resource.data) || (request.resource.data.tg is list && request.resource.data.tg.size() <= 5))
         && (!('vid' in request.resource.data) || (request.resource.data.vid is map && request.resource.data.vid.n is int
             && request.resource.data.vid.n >= 1 && request.resource.data.vid.n <= 8
@@ -242,6 +273,10 @@ service cloud.firestore {
         && request.resource.data.rx.size() == 0
         && (request.resource.data.pub != true
             || get(/databases/$(db)/documents/users/$(request.auth.uid)).data.get('private', false) == false);
+      // The author clears the `lt` flag ("newest snap") of his previous snap when he posts a new one.
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lt'])
+        && request.resource.data.lt == false;
       allow update: if request.auth != null
         && (resource.data.pub == true || request.auth.uid in resource.data.to)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
@@ -264,13 +299,71 @@ service cloud.firestore {
       allow delete: if request.auth != null && (resource.data.uid == request.auth.uid || isAdmin());
     }
 
-    // Memories: a private copy of every snap you post, kept 30 days. Only you can read, create or delete them.
+    // Memories: a copy of every snap you post (`o` = true) and of every snap you are tagged in (`by` = who tagged you), kept 30 days.
+    // Only you can read, create or delete them. The snaps you posted yourself (`o` = true) can also be read by your friends and, when your account
+    // is Public, by everybody, so they can show on your profile. You can switch that off (`hideMem`). Tagged copies are never shared.
     match /users/{u}/memories/{m} {
-      allow read, delete: if request.auth != null && request.auth.uid == u;
+      allow read: if request.auth != null && (request.auth.uid == u
+        || (resource.data.get('o', false) == true
+            && get(/databases/$(db)/documents/users/$(u)).data.get('hideMem', false) == false
+            && (get(/databases/$(db)/documents/users/$(u)).data.get('private', false) == false
+                || exists(/databases/$(db)/documents/users/$(u)/friends/$(request.auth.uid)))));
+      allow delete: if request.auth != null && request.auth.uid == u;
       allow create: if request.auth != null && request.auth.uid == u && notBanned()
-        && request.resource.data.keys().hasOnly(['ts', 'img', 'vb', 'au', 'ad'])
+        && request.resource.data.keys().hasOnly(['ts', 'img', 'vb', 'cp', 'au', 'ad', 'by', 'o', 'tg'])
         && request.resource.data.img is string && request.resource.data.img.size() < 300000
+        && request.resource.data.get('cp', '').size() <= 150
+        && (!('tg' in request.resource.data) || (request.resource.data.tg is list && request.resource.data.tg.size() <= 5))
         && request.resource.data.get('au', '').size() < 200000;
+    }
+
+    // Comments on a snap: whoever can see the snap can read and write comments. The commenter or the author of the snap can delete a comment.
+    match /posts/{p}/comments/{c} {
+      allow get, list: if request.auth != null
+        && (get(/databases/$(db)/documents/posts/$(p)).data.pub == true
+            || request.auth.uid in get(/databases/$(db)/documents/posts/$(p)).data.to);
+      allow create: if request.auth != null && notBanned()
+        && request.resource.data.keys().hasOnly(['uid', 'nm', 'un', 't', 'ts'])
+        && request.resource.data.keys().hasAll(['uid', 't', 'ts'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.t is string && request.resource.data.t.size() > 0 && request.resource.data.t.size() <= 300
+        && request.resource.data.get('nm', '').size() <= 60 && request.resource.data.get('un', '').size() <= 30
+        && request.resource.data.ts == request.time
+        && (get(/databases/$(db)/documents/posts/$(p)).data.pub == true
+            || request.auth.uid in get(/databases/$(db)/documents/posts/$(p)).data.to);
+      allow delete: if request.auth != null && (resource.data.uid == request.auth.uid
+        || get(/databases/$(db)/documents/posts/$(p)).data.uid == request.auth.uid || isAdmin());
+    }
+
+    // Notifications: users/<u>/notifs/<id>. Written by the OTHER person (the one who liked, commented or accepted) and read / cleared by <u>.
+    // The id says what it is, so one person can only create ONE notification per like (lk_<post>_<liker>), one per real comment (cm_<comment>)
+    // and one per accepted request (ac_<accepter>): nobody can fill another person's list with junk. The sender can take it back (un-like, delete comment).
+    match /users/{u}/notifs/{n} {
+      allow read: if request.auth != null && request.auth.uid == u;
+      allow delete: if request.auth != null && (request.auth.uid == u || resource.data.from == request.auth.uid);
+      allow create: if request.auth != null && request.auth.uid != u && notBanned()
+        && request.resource.data.keys().hasOnly(['t', 'from', 'n', 'un', 'p', 'c', 'r', 'x', 'ts'])
+        && request.resource.data.keys().hasAll(['t', 'from', 'ts'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.ts == request.time
+        && request.resource.data.get('n', '').size() <= 60 && request.resource.data.get('un', '').size() <= 30 && request.resource.data.get('x', '').size() <= 120
+        && ((request.resource.data.t == 'like'
+              && n == 'lk_' + request.resource.data.p + '_' + request.auth.uid
+              && request.resource.data.r in ['f', 'h']
+              && get(/databases/$(db)/documents/posts/$(request.resource.data.p)).data.uid == u
+              && (get(/databases/$(db)/documents/posts/$(request.resource.data.p)).data.pub == true
+                  || request.auth.uid in get(/databases/$(db)/documents/posts/$(request.resource.data.p)).data.to))
+            || (request.resource.data.t == 'comment'
+              && n == 'cm_' + request.resource.data.c
+              && get(/databases/$(db)/documents/posts/$(request.resource.data.p)).data.uid == u
+              && get(/databases/$(db)/documents/posts/$(request.resource.data.p)/comments/$(request.resource.data.c)).data.uid == request.auth.uid)
+            || (request.resource.data.t == 'accept'
+              && n == 'ac_' + request.auth.uid
+              && get(/databases/$(db)/documents/requests/$(u + '_' + request.auth.uid)).data.status == 'accepted'));
+      // changing the reaction (fire <-> heart) of an existing like
+      allow update: if request.auth != null && resource.data.from == request.auth.uid && resource.data.t == 'like'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['r', 'ts', 'n', 'un'])
+        && request.resource.data.r in ['f', 'h'] && request.resource.data.ts == request.time;
     }
 
     match /chats/{c} {
