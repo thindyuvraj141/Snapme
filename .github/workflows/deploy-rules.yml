@@ -1,0 +1,58 @@
+name: Deploy Firestore rules
+# Publishes the file firestore.rules (repo root) to Firebase, without the Firebase console editor.
+# It runs by itself when firestore.rules changes on main, and when you press "Run workflow".
+# The real Firebase compiler checks the file first: a mistake is reported with its line number and NOTHING is published.
+# Needs the secret FIREBASE_SERVICE_ACCOUNT = the whole JSON key file of the Firebase service account (the same secret the
+# "Delete accounts after 7 days" job uses: Firebase console > Project settings > Service accounts > Generate new private key).
+on:
+  push:
+    branches: [main]
+    paths: ['firestore.rules']
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: 'Only check the file (1 = check only, 0 = check and publish)'
+        default: '0'
+permissions:
+  contents: read
+concurrency:
+  group: deploy-rules
+  cancel-in-progress: false
+jobs:
+  rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install firebase-admin
+        run: npm install --no-save --no-package-lock firebase-admin@12
+      - name: Check and publish firestore.rules
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          VALIDATE_ONLY: ${{ github.event.inputs.validate_only }}
+        run: |
+          cat > deploy-rules.js <<'EOF'
+          const fs = require('fs'), admin = require('firebase-admin');
+          (async () => {
+            const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+            if (!raw) { console.error('Secret FIREBASE_SERVICE_ACCOUNT is missing (repo Settings > Secrets and variables > Actions).'); process.exit(1); }
+            let key; try { key = JSON.parse(raw); } catch (e) { console.error('The secret FIREBASE_SERVICE_ACCOUNT is not the JSON key file.'); process.exit(1); }
+            admin.initializeApp({ credential: admin.credential.cert(key) });
+            const src = fs.readFileSync('firestore.rules', 'utf8');
+            console.log('firestore.rules: ' + src.length + ' characters, ' + src.split('\n').length + ' lines');
+            const sr = admin.securityRules();
+            const set = await sr.createRuleset(sr.createRulesFileFromSource('firestore.rules', src));   // the real Firebase compiler checks the file here
+            console.log('The file compiles. New ruleset: ' + set.name);
+            if (process.env.VALIDATE_ONLY === '1') { console.log('Only checked (validate_only = 1): nothing was published.'); return; }
+            await sr.releaseFirestoreRuleset(set);
+            const live = await sr.getFirestoreRuleset();
+            const text = ((live.source || [])[0] || {}).content || '';
+            console.log('Published. Live ruleset: ' + live.name + ' (created ' + live.createTime + ')');
+            console.log('Live rules know the new fields: cp=' + /'cp'/.test(text) + ', lt=' + /'lt'/.test(text) + ', logins=' + /match \/logins/.test(text));
+            if (text.trim() !== src.trim()) { console.error('WARNING: the live rules text differs from firestore.rules'); process.exit(1); }
+            console.log('OK: the live rules are exactly the file firestore.rules.');
+          })().catch(e => { console.error('FAILED: ' + (e && e.message ? e.message : e)); if (e && e.errorInfo) console.error(JSON.stringify(e.errorInfo)); process.exit(1); });
+          EOF
+          node deploy-rules.js
