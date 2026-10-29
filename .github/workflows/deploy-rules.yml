@@ -1,13 +1,14 @@
 name: Deploy Firestore rules
 # Publishes the file firestore.rules (repo root) to Firebase, without the Firebase console editor.
-# It runs by itself when firestore.rules changes on main, and when you press "Run workflow".
+# It runs by itself when firestore.rules OR this file changes on main, and when you press "Run workflow".
 # The real Firebase compiler checks the file first: a mistake is reported with its line number and NOTHING is published.
+# The result is written in plain words at the bottom of the run page (Actions > the run > "Summary"): you do not need to open the log.
 # Needs the secret FIREBASE_SERVICE_ACCOUNT = the whole JSON key file of the Firebase service account (the same secret the
 # "Delete accounts after 7 days" job uses: Firebase console > Project settings > Service accounts > Generate new private key).
 on:
   push:
     branches: [main]
-    paths: ['firestore.rules']
+    paths: ['firestore.rules', '.github/workflows/deploy-rules.yml']
   workflow_dispatch:
     inputs:
       validate_only:
@@ -35,24 +36,38 @@ jobs:
         run: |
           cat > deploy-rules.js <<'EOF'
           const fs = require('fs'), admin = require('firebase-admin');
+          const say = t => { console.log(t); try { if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, t + '\n\n'); } catch (e) {} };
+          const bad = t => { console.error(t); try { if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '**' + t + '**\n\n'); } catch (e) {} process.exit(1); };
+          // what the app needs from the rules (Round 15): the caption + newest-snap flag on posts, the flags on Memories
+          const NEED = [
+            ['Posts accept the caption (cp) and the newest-snap flag (lt)', /hasOnly\(\['uid', 'nm'[^\]]*'lt'[^\]]*'cp'[^\]]*\]\)/],
+            ['Memories accept the flags o (own post), cp (caption) and tg (tags)', /hasOnly\(\['ts', 'img', 'vb'[^\]]*'cp'[^\]]*'o'[^\]]*'tg'[^\]]*\]\)/],
+            ['Log in with a username (logins)', /match \/logins/]
+          ];
+          const check = txt => NEED.map(n => [n[0], n[1].test(txt)]);
           (async () => {
             const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
-            if (!raw) { console.error('Secret FIREBASE_SERVICE_ACCOUNT is missing (repo Settings > Secrets and variables > Actions).'); process.exit(1); }
-            let key; try { key = JSON.parse(raw); } catch (e) { console.error('The secret FIREBASE_SERVICE_ACCOUNT is not the JSON key file.'); process.exit(1); }
+            if (!raw) bad('STOPPED: the secret FIREBASE_SERVICE_ACCOUNT is missing (repo Settings > Secrets and variables > Actions).');
+            let key; try { key = JSON.parse(raw); } catch (e) { bad('STOPPED: the secret FIREBASE_SERVICE_ACCOUNT is not the JSON key file.'); }
             admin.initializeApp({ credential: admin.credential.cert(key) });
             const src = fs.readFileSync('firestore.rules', 'utf8');
-            console.log('firestore.rules: ' + src.length + ' characters, ' + src.split('\n').length + ' lines');
+            say('## Firestore rules\n\nThe file firestore.rules in your repo: ' + src.length + ' characters, ' + src.split('\n').length + ' lines.');
+            const mine = check(src);
+            mine.forEach(c => say((c[1] ? '- yes: ' : '- NO: ') + c[0]));
+            if (mine.some(c => !c[1])) bad('STOPPED: the firestore.rules file in your repo is an OLD file. Upload the newest firestore.rules to the repo root (replace the old one), then this job runs again by itself. Nothing was published.');
             const sr = admin.securityRules();
             const set = await sr.createRuleset(sr.createRulesFileFromSource('firestore.rules', src));   // the real Firebase compiler checks the file here
-            console.log('The file compiles. New ruleset: ' + set.name);
-            if (process.env.VALIDATE_ONLY === '1') { console.log('Only checked (validate_only = 1): nothing was published.'); return; }
+            say('The file compiles (checked by Firebase). New ruleset: ' + set.name);
+            if (process.env.VALIDATE_ONLY === '1') { say('Only checked (validate_only = 1): nothing was published.'); return; }
             await sr.releaseFirestoreRuleset(set);
             const live = await sr.getFirestoreRuleset();
             const text = ((live.source || [])[0] || {}).content || '';
-            console.log('Published. Live ruleset: ' + live.name + ' (created ' + live.createTime + ')');
+            say('Published. Live ruleset: ' + live.name + ' (created ' + live.createTime + ').');
+            const liv = check(text);
             console.log('Live rules know the new fields: cp=' + /'cp'/.test(text) + ', lt=' + /'lt'/.test(text) + ', logins=' + /match \/logins/.test(text));
-            if (text.trim() !== src.trim()) { console.error('WARNING: the live rules text differs from firestore.rules'); process.exit(1); }
-            console.log('OK: the live rules are exactly the file firestore.rules.');
-          })().catch(e => { console.error('FAILED: ' + (e && e.message ? e.message : e)); if (e && e.errorInfo) console.error(JSON.stringify(e.errorInfo)); process.exit(1); });
+            liv.forEach(c => say((c[1] ? '- live, yes: ' : '- live, NO: ') + c[0]));
+            if (text.trim() !== src.trim()) bad('WARNING: the live rules text differs from firestore.rules');
+            say('**OK: the live rules are exactly the file firestore.rules. Now open Snapme and post again.**');
+          })().catch(e => bad('FAILED: ' + (e && e.message ? e.message : e) + (e && e.errorInfo ? ' ' + JSON.stringify(e.errorInfo) : '')));
           EOF
           node deploy-rules.js
