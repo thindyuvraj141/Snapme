@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "987424998850",
-    "project_id": "snapmeapp",
-    "storage_bucket": "snapmeapp.firebasestorage.app"
+    "project_number": "448390510213",
+    "project_id": "vtext-506f7",
+    "storage_bucket": "vtext-506f7.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:987424998850:android:0c6dcea9940b9b1d80c25b",
+        "mobilesdk_app_id": "1:448390510213:android:360b43f11cb124473ddbec",
         "android_client_info": {
-          "package_name": "com.snapme.app"
+          "package_name": "com.thindyuvraj.vtext"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDZykqjkyYYOOSICwdnJfxUV37xlzuzC1w"
+          "current_key": "AIzaSyB3DysZgD-guSLoMsY1I5MQDzJikj0C0kE"
         }
       ],
       "services": {
