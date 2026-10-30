@@ -5,6 +5,8 @@ Environment:
   VT_NATIVE      "full" (default) = background service + keep-alive MainActivity + battery helper
                  "none"           = plain Capacitor project (only permissions, version, signing)
   VT_PUSH_PLUGIN "1" (default) = the push-notification plugin is part of this build: add the Firebase settings
+                 "2"           = same, but without Snapme's own messaging service VTextFcmService (the build script tries this when that file did not
+                                 compile): pushes that carry a notification (admin panel) still show when the app is closed
                  "0"           = no push plugin: leave all Firebase settings out
   VT_HEADLESS    "1" (default) = the background service can run the Snapme page in a hidden WebView while the app screen is closed
                                  (needs VT_NATIVE=full and an app that loads the website, i.e. server.url in capacitor.config.json)
@@ -15,7 +17,9 @@ import base64, glob, json, os, pathlib, re, sys
 root = pathlib.Path('android')
 app_id = json.load(open('capacitor.config.json'))['appId']
 native = os.environ.get('VT_NATIVE', 'full')
-push_on = os.environ.get('VT_PUSH_PLUGIN', '1') == '1'
+PUSH_MODE = os.environ.get('VT_PUSH_PLUGIN', '1')
+push_on = PUSH_MODE in ('1', '2')
+fcm_service = PUSH_MODE == '1'      # "2" = the push plugin and Firebase, but WITHOUT Snapme's own messaging service (used when that service did not build)
 try:
     site = (json.load(open('capacitor.config.json')).get('server') or {}).get('url', '') or ''
 except Exception:
@@ -64,7 +68,7 @@ if headless and 'VTextBoot' not in s:  # starts the background service again aft
 # Harmless when the push plugin or google-services.json is not part of the build.
 # Expo Push sends "data only" Android messages. Our own messaging service turns them into notifications and hands everything else
 # to Capacitor's push plugin; Capacitor's own service is removed from the merged manifest so only one service receives messages.
-if push_on and native == 'full' and 'VTextFcmService' not in s:
+if fcm_service and native == 'full' and 'VTextFcmService' not in s:
     if 'xmlns:tools=' not in s:
         s = s.replace('<manifest ', '<manifest xmlns:tools="http://schemas.android.com/tools" ', 1)
     fcm = ('        <service android:name="com.capacitorjs.plugins.pushnotifications.MessagingService" tools:node="remove"/>\n'
@@ -104,7 +108,7 @@ def firebase_config():
     if rb.exists():
         r = rb.read_text()
         if 'com.google.gms:google-services' not in r:
-            r, n = re.subn(r"(classpath\s+['\"]com\.android\.tools\.build:gradle[^'\"]*['\"])", lambda m: m.group(1) + "\n        classpath 'com.google.gms:google-services:4.4.2'", r, count=1)
+            r, n = re.subn(r"(classpath\s+['\"]com\.android\.tools\.build:gradle[^'\"]*['\"])", lambda m: m.group(1) + "\n        classpath 'com.google.gms:google-services:4.4.4'", r, count=1)
             if n: rb.write_text(r)
             else: print('WARNING: could not add the google-services classpath')
     ab = root / 'app/build.gradle'
@@ -120,6 +124,20 @@ if push_on:
         print('WARNING: push configuration skipped:', e)
 else:
     print('push: plugin is not part of this build - Firebase settings left out')
+
+# VTextFcmService extends Firebase's FirebaseMessagingService. Capacitor's push plugin pulls firebase-messaging in with "implementation", which
+# is NOT visible to the app module when it compiles Java, so the app needs the library itself (same version as the plugin uses, Capacitor 8: 25.0.1).
+# This was the reason why the build with the push plugin failed ("package com.google.firebase.messaging does not exist").
+if fcm_service:
+    ab = root / 'app/build.gradle'
+    a_txt = ab.read_text()
+    if 'firebase-messaging' not in a_txt:
+        a_txt += ("\n// Snapme: the messaging service (VTextFcmService) is compiled against Firebase Messaging\n"
+                  "dependencies {\n"
+                  "    implementation \"com.google.firebase:firebase-messaging:${rootProject.ext.has('firebaseMessagingVersion') ? rootProject.ext.firebaseMessagingVersion : '25.0.1'}\"\n"
+                  "}\n")
+        ab.write_text(a_txt)
+        print('push: firebase-messaging added to the app module (needed to compile VTextFcmService)')
 
 # ---------------- version ----------------
 vc = os.environ.get('VERSION_CODE')
@@ -157,7 +175,7 @@ if native == 'full':
     jdir = pathlib.Path(mains[0]).parent
     hl_block = re.compile(r'[ \t]*/\*HL\*/.*?/\*END_HL\*/\n', re.S)   # code between /*HL*/ and /*END_HL*/ belongs to the hidden background page
     names = ['MainActivity', 'VTextService', 'VTextBgPlugin'] + (['VTextHeadless', 'VTextBoot'] if headless else [])
-    if push_on:
+    if fcm_service:
         names.append('VTextFcmService')
     for name in names:
         src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site)

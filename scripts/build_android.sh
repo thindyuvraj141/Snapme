@@ -126,11 +126,11 @@ preflight || { echo "::error::The build cannot start (see the message above)."; 
 
 # levels are  fingerprint-plugin:background-helpers:push-plugin ; the push plugin is only dropped after the others failed
 if [ "$BG" = "1" ]; then
-  LEVELS="capgo:1:1 aparajita:1:1 none:1:1 none:1:0 none:0:0"
+  LEVELS="capgo:1:1 aparajita:1:1 none:1:1 none:1:2 none:1:0 none:0:0"
 else
   LEVELS="capgo:0:1 aparajita:0:1 none:0:1 none:0:0"
 fi
-if [ "$PUSH" != "1" ]; then LEVELS=$(echo "$LEVELS" | sed 's/:1 /:0 /g; s/:1$/:0/' | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ') ; fi
+if [ "$PUSH" != "1" ]; then LEVELS=$(echo "$LEVELS" | sed 's/:[12] /:0 /g; s/:[12]$/:0/' | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ') ; fi
 
 n=0; TRIED=" "; DROP_PUSH=0; SUMMARY=""
 Q=($LEVELS)
@@ -157,10 +157,12 @@ while [ ${#Q[@]} -gt 0 ]; do
           else echo "- Hidden background page (notifications after the app is swiped away / after a restart): NOT included in this build"; fi
         fi
       fi
-      if [ "$push" = "1" ]; then
+      if [ "$push" = "1" ] || [ "$push" = "2" ]; then
+        if [ "$push" = "1" ]; then echo "- Snapme's own messaging service: included (Expo message pushes can wake the app)"; fi
+        if [ "$push" = "2" ]; then echo "- Snapme's own messaging service: NOT included (it did not build). Pushes that carry a notification (admin panel) still show when the app is closed; Expo message pushes need that service."; fi
         if [ "$HAS_FCM" = "1" ]; then echo "- Push notifications (Firebase): included"; else echo "- Push notifications (Firebase): plugin included but OFF - add scripts/google-services.json to the repo and build again"; fi
       elif [ "$PUSH" = "1" ]; then echo "- Push notifications (Firebase): NOT included (the build fell back without the push plugin)"; fi
-      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" = "0" ]; }; }; then
+      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" != "1" ]; }; }; then
         echo
         echo "Some optional parts failed to build (attempt $n). The app still works; see the build log for the reason."
         if [ -n "$SUMMARY" ]; then echo; echo "Why the earlier attempts failed:$SUMMARY"; fi
@@ -182,7 +184,12 @@ while [ ${#Q[@]} -gt 0 ]; do
 - (the hidden background page did not compile; the next attempt leaves it out)"
     echo "The Java code of the hidden background page failed to compile - the next attempt is the same build without it."
   fi
-  if [ "$push" = "1" ] && printf '%s' "$why" | grep -qiE 'push-notifications|firebase|google-services|gms'; then
+  if [ "$push" = "1" ] && grep -qE 'VTextFcmService|MessagingService' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
+    Q=("$plug:$bg:2" ${Q[@]+"${Q[@]}"})   # Snapme's own messaging service did not build: the same build with the push plugin but without that service
+    SUMMARY="$SUMMARY
+- (Snapme's own messaging service did not build; the next attempt keeps the push plugin and leaves that service out)"
+    echo "The log mentions the messaging service - the next attempt keeps the push plugin but leaves Snapme's own messaging service out."
+  elif [ "$push" = "1" ] && printf '%s' "$why" | grep -qiE 'push-notifications|firebase|google-services|gms'; then
     DROP_PUSH=1
     Q=("$plug:$bg:0" ${Q[@]+"${Q[@]}"})   # same build again, but without the push plugin
     echo "The failure mentions push / Firebase - the next attempt is the same build without the push plugin."
