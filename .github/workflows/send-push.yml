@@ -1,0 +1,88 @@
+name: Send push notifications
+# Sends the pushes you write in the admin panel (Controls > Push notification) to the phones through Firebase Cloud Messaging (free),
+# so they arrive even when Snapme is closed (swiped away). Messages / snaps of friends are NOT sent here (they use Expo Push, see README).
+# It runs every 5 minutes by itself, when you press "Run workflow", and right after "Send to everyone" when the panel has a GitHub token saved.
+# Needs the secret FIREBASE_SERVICE_ACCOUNT = the whole JSON key file of the Firebase service account (the same one "Deploy Firestore rules" uses).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/5 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: send-push
+  cancel-in-progress: false
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install firebase-admin
+        run: npm install --no-save --no-package-lock firebase-admin@12
+      - name: Send the waiting pushes
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          cat > send-push.js <<'EOF'
+          const fs = require('fs'), admin = require('firebase-admin');
+          const say = t => { console.log(t); try { if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, t + '\n\n'); } catch (e) {} };
+          const manual = process.env.GITHUB_EVENT_NAME === 'workflow_dispatch';
+          // a run that starts by itself (every 5 minutes) must not send you a "failed" e-mail 288 times a day when the secret is not set yet: it only says so and ends
+          const stop = (t, soft) => { (soft && !manual ? console.log : console.error)(t); try { if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, '**' + t + '**\n\n'); } catch (e) {} process.exit(soft && !manual ? 0 : 1); };
+          const DEAD = ['messaging/registration-token-not-registered', 'messaging/invalid-registration-token', 'messaging/invalid-argument'];
+          (async () => {
+            const raw = process.env.FIREBASE_SERVICE_ACCOUNT;
+            if (!raw) stop('STOPPED: the secret FIREBASE_SERVICE_ACCOUNT is missing (repo Settings > Secrets and variables > Actions).', true);
+            let key; try { key = JSON.parse(raw); } catch (e) { stop('STOPPED: the secret FIREBASE_SERVICE_ACCOUNT is not the JSON key file.', true); }
+            admin.initializeApp({ credential: admin.credential.cert(key) });
+            const db = admin.firestore(), fm = admin.messaging(), ref = db.doc('config/app');
+            const snap = await ref.get();
+            const list = snap.exists && Array.isArray(snap.data().pushes) ? snap.data().pushes : [];
+            const now = Date.now();
+            const todo = list.filter(x => x && typeof x.id === 'string' && typeof x.text === 'string' && x.text && !x.sent && now - Number(x.ts) < 3 * 864e5).reverse();   // oldest first; a push older than 3 days is not sent any more
+            if (!todo.length) { console.log('Nothing to send.'); return; }
+            // every Android phone that registered for Firebase push: users/<uid>/private/push = { t: { <deviceId>: { k: token, p: 'android' } } }
+            const toks = new Map();
+            const q = await db.collectionGroup('private').get();
+            q.docs.forEach(d => { if (d.id !== 'push') return; const t = (d.data() || {}).t || {}; Object.keys(t).forEach(did => { const v = t[did]; if (v && v.p === 'android' && typeof v.k === 'string' && v.k.length > 20 && v.k.length < 400) toks.set(v.k, { ref: d.ref, did }); }); });
+            say('## Push notifications\n\n' + todo.length + ' push(es) waiting, ' + toks.size + ' phone(s) registered for Firebase push.');
+            const all = [...toks.keys()], res = {}, dead = [];
+            let failed = 0;
+            for (const x of todo) {
+              let ok = 0;
+              // A message WITH a notification part is shown by Android itself, also when Snapme is closed (no code of Snapme has to run), with the Snapme
+              // message channel (chime). Tapping it opens Snapme; "chat" lets Snapme open the Notifications page. While Snapme is open the page shows its own banner.
+              const title = String(x.title || 'Snapme').slice(0, 80), text = String(x.text).slice(0, 300);
+              const data = { chat: 'bc:' + x.id }, notification = { title, body: text };
+              const android = { priority: 'high', ttl: 3 * 864e5, notification: { channelId: 'snapme_msgs', icon: 'ic_stat_vtext', tag: 'bc-' + x.id } };
+              try {
+                for (let i = 0; i < all.length; i += 500) {
+                  const chunk = all.slice(i, i + 500);
+                  const r = await fm.sendEachForMulticast({ tokens: chunk, notification, data, android });
+                  r.responses.forEach((s, j) => { if (s.success) ok++; else if (s.error && DEAD.includes(s.error.code)) dead.push(chunk[j]); });
+                }
+                res[x.id] = { n: ok };
+                say('- "' + title + '": delivered to Google for ' + ok + ' of ' + all.length + ' phone(s).');
+              } catch (e) {
+                // not tried again every 5 minutes: it is marked with the reason (the panel shows it)
+                failed++; res[x.id] = { n: ok, err: String((e && e.message) || e).slice(0, 160) };
+                console.error('FAILED for "' + title + '": ' + res[x.id].err);
+                say('- **"' + title + '": FAILED: ' + res[x.id].err + '** (check that the service account may send Firebase Cloud Messaging: Google Cloud console > APIs > "Firebase Cloud Messaging API" must be enabled)');
+              }
+            }
+            // phones that do not exist any more: forget their tokens
+            const F = admin.firestore.FieldValue;
+            for (const t of [...new Set(dead)]) { const e = toks.get(t); if (e) { try { await e.ref.update({ ['t.' + e.did]: F.delete() }); } catch (x) {} } }
+            if (dead.length) say(dead.length + ' old phone token(s) removed.');
+            await db.runTransaction(async tx => {
+              const s = await tx.get(ref), c = s.exists ? s.data() : {}, a = Array.isArray(c.pushes) ? c.pushes : [];
+              tx.update(ref, { pushes: a.map(p => (p && res[p.id] !== undefined && !p.sent) ? Object.assign({}, p, { sent: Date.now(), reach: res[p.id].n }, res[p.id].err ? { err: res[p.id].err } : {}) : p) });
+            });
+            if (failed) { stop('Some pushes could not be sent (see above). They are marked and will not be tried again.'); }
+            say('**OK: marked as sent.**');
+          })().catch(e => stop('FAILED: ' + (e && e.message ? e.message : e) + (e && e.errorInfo ? ' ' + JSON.stringify(e.errorInfo) : '')));
+          EOF
+          node send-push.js
