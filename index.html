@@ -1023,6 +1023,15 @@ html.nf-loc #nav [data-n="loc"]{display:none}
 .upmw #upmore{align-self:center}
 .mt:active img{opacity:.85}
 
+/* Round 16: a push from the admin panel while Snapme is open */
+#bcb{position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-170%);width:min(92%,420px);z-index:301;display:flex;align-items:center;gap:12px;padding:10px 12px 10px 14px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:0 14px 40px -10px #000;color:var(--txt);transition:transform .28s ease;cursor:pointer}
+#bcb.on{transform:translate(-50%,0)}
+#bcb .bci{font-size:1.5rem;flex:none}
+#bcb .bct{min-width:0;flex:1}
+#bcb .bct b{display:block;font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#bcb .bct span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-size:.8rem;color:var(--sub);word-break:break-word}
+#bcb .ib{flex:none}
+
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="vga" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#43d6ff"/><stop offset="1" stop-color="#3a3df0"/></linearGradient><linearGradient id="vgb" x1=".2" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#7f5bff"/><stop offset="1" stop-color="#f046c8"/></linearGradient><linearGradient id="vgc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2b2fb8"/><stop offset="1" stop-color="#8a2fd0"/></linearGradient><linearGradient id="nvg" gradientUnits="userSpaceOnUse" x1="150" y1="96" x2="364" y2="420"><stop offset="0" stop-color="#d8b4fe"/><stop offset=".42" stop-color="#a855f7"/><stop offset="1" stop-color="#4ade80"/></linearGradient><filter id="nvf" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur in="SourceGraphic" stdDeviation="11" result="b1"/><feGaussianBlur in="SourceGraphic" stdDeviation="4" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter><symbol id="vm" viewBox="126 84 260 344" overflow="visible"><path d="M340 160C330 125 295 108 256 108C205 108 168 135 168 178C168 222 205 238 256 252C310 266 346 284 346 334C346 380 306 404 256 404C212 404 175 384 164 346" fill="none" stroke="url(#nvg)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" filter="url(#nvf)"/><path d="M340 160C330 125 295 108 256 108C205 108 168 135 168 178C168 222 205 238 256 252C310 266 346 284 346 334C346 380 306 404 256 404C212 404 175 384 164 346" fill="none" stroke="#fff" stroke-opacity=".92" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></symbol></defs></svg><div id="lock"><svg class="vm"><use href="#vm"/></svg><h2 style="margin:0">Snapme is locked</h2><p class="sub" id="lkm"></p>
 <div id="lk-pw" style="display:none;width:100%;max-width:320px;padding:0 20px"><div class="pw"><input id="lkp" type="password" placeholder="Account password" autocomplete="current-password"><button type="button" class="eye" data-eye="lkp">Show</button></div><div class="er" id="lke"></div><button class="btn" id="lku" style="width:100%">Unlock</button></div>
@@ -1663,12 +1672,12 @@ async function mkProfile(u){hideSplash();const name=((await ask('Welcome! Enter 
 let active=!BGM,nid=1;const LN=()=>plug('LocalNotifications');
 async function setupNotif(){const L=LN();if(L){try{const p=await L.checkPermissions();if(p.display!=='granted')await L.requestPermissions();await L.createChannel({id:'snapme_msgs',name:'Messages',importance:5,sound:'snapme_chime.wav',vibration:true,visibility:1});await L.createChannel({id:'snapme_typing',name:'Typing alerts',description:'A quiet alert when a friend is typing to you',importance:2,vibration:false,visibility:1});if(get('chv','')!=='2'){try{await L.deleteChannel({id:'messages'})}catch(e){}put('chv','2')}}catch(e){}}else if(window.Notification&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
   try{pushInit()}catch(e){}}
-function pushNote(t,b,chat){if(get('notif','1')!=='1'||pushServer())return;try{typDone(chat)}catch(e){}
+function pushNote(t,b,chat,force){if(get('notif','1')!=='1'||(pushServer()&&!force))return;try{typDone(chat)}catch(e){}
   if(BGM&&window.VTBg&&VTBg.notify){try{VTBg.notify(String(t||'Snapme'),String(b||'New message'),String(chat||''))}catch(e){}return}   /* hidden background page: the Android service shows it */
   const L=LN();
   if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'snapme_msgs',sound:'snapme_chime.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
   else if(window.Notification&&Notification.permission==='granted'){try{const n=new Notification(t,{body:b,icon:'logo.svg'});n.onclick=()=>{window.focus();if(chat)openChatById(chat)}}catch(e){}}}
-function openChatById(id){if(String(id).startsWith('post:')){try{goN('feed')}catch(e){}return}const c=chats.find(x=>x.id===id);if(c){showLock=false;tab='fr';goN('circ');openChat(c)}}
+function openChatById(id){if(String(id).startsWith('bc:')){try{nfOpen()}catch(e){}return}if(String(id).startsWith('post:')){try{goN('feed')}catch(e){}return}const c=chats.find(x=>x.id===id);if(c){showLock=false;tab='fr';goN('circ');openChat(c)}}
 try{const L=LN();if(L&&L.addListener)L.addListener('localNotificationActionPerformed',e=>{const id=e&&e.notification&&e.notification.extra&&e.notification.extra.chat;if(id)setTimeout(()=>openChatById(id),400)})}catch(e){}
 let batIgn=null;
 async function keepAlive(on){if(BGM&&!on&&window.VTBg&&VTBg.stop){try{VTBg.stop()}catch(e){}return true}   /* hidden background page: the person is logged out, stop the service */
@@ -2307,7 +2316,7 @@ function pushPrefsSoon(){clearTimeout(pushPT);pushPT=setTimeout(pushPrefs,1200)}
 function pushPrefs(){if(!me||!PUSH.tok)return;pushDoc().set({mut:[...lset('mut')],lck:[...lset('lck')]},{merge:true}).catch(()=>{})}
 /* a tapped notification opens its chat (waits until the app is unlocked and the chat list is loaded) */
 function pushOpen(id){if(!id)return;let n=0;const t=setInterval(()=>{n++;const c=document.documentElement.classList;
-  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&(String(id).startsWith('post:')||chats.some(x=>x.id===id))){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
+  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&(String(id).startsWith('post:')||String(id).startsWith('bc:')||chats.some(x=>x.id===id))){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
 window.__vtOpen=pushOpen;                                                   /* the Android service calls it when a notification it showed is tapped */
 /* ---- Android app ---- */
 async function pushNative(){const P=PN();
@@ -2413,7 +2422,7 @@ function admApply(){const o=(ADM.cfg&&ADM.cfg.off)||{},cl=document.documentEleme
   if(o.loc===true){try{if(me&&locOn()){put('locshare','0');locUnpub();locWatchSync()}if(LOC.open)locClose()}catch(e){}}
   if(ADM.open){const x=admPend();if(!x||x.k!==ADM.open.k||String(x.n.id)!==String(ADM.open.n.id))ADM.open=null}   /* withdrawn or replaced */
   admAppeal(!!ADM.uid&&banLive());
-  admRender();admPoll()}
+  admRender();admPoll();try{bcCheck()}catch(e){}}
 /* who is signed in: watch my own admin record, suspension record and warning */
 function admWho(uid){if(ADM.uid===uid)return;ADM.uid=uid;
   [ADM.uAdm,ADM.uBan,ADM.uApp,ADM.uWarn].forEach(f=>f&&f());ADM.uAdm=ADM.uBan=ADM.uApp=ADM.uWarn=null;ADM.role=undefined;ADM.ban=undefined;ADM.app=null;ADM.warn=null;ADM.open=null;
@@ -2421,7 +2430,7 @@ function admWho(uid){if(ADM.uid===uid)return;ADM.uid=uid;
   ADM.uAdm=db.doc('admins/'+uid).onSnapshot(s=>{ADM.role=s.exists?(s.data().role||'mod'):null;admApply()},()=>{ADM.role=null;admApply()});
   ADM.uBan=db.doc('bans/'+uid).onSnapshot(s=>{ADM.ban=s.exists?(s.data()||{}):null;admApply()},()=>{ADM.ban=null;admApply()});
   ADM.uWarn=db.doc('warnings/'+uid).onSnapshot(s=>{ADM.warn=s.exists?(s.data()||null):null;admApply()},()=>{ADM.warn=null})}
-try{ADM.uCfg=db.doc('config/app').onSnapshot(s=>{ADM.cfg=s.exists?s.data():null;admApply()},()=>{})}catch(e){}
+try{ADM.uCfg=db.doc('config/app').onSnapshot(s=>{ADM.cfg=s.exists?s.data():null;ADM.cfgOk=true;admApply()},()=>{})}catch(e){}
 auth.onAuthStateChanged(u=>{ADM.known=true;admWho(u?u.uid:null)});
 (async()=>{try{const A=isNative()&&plug('App');if(!A||!A.getInfo)return;const i=await A.getInfo();
   const n=parseInt(i&&i.build,10)||parseInt(String((i&&i.version)||'').split('.').pop(),10)||0;if(n>0){ADM.nv=n;admApply()}}catch(e){}})();
@@ -3525,6 +3534,7 @@ $('upx').onclick=()=>upvClose();
    users/<me>/notifs/<id> = { t:'like'|'comment'|'accept', from, n (name), un (username), p (post id), c (comment id), r ('f'|'h'), x (comment text), ts }
    is written by the OTHER person (the one who liked, commented or accepted your request) and only you can read it.
    Log-in alerts are not stored: they come from users/<me>/sessions (the same list as the Current session page).
+   Round 16: a push from the admin panel (config/app.pushes, bcast.js) is listed too (7 days).
    Round 15: a friend's new snap (or a snap that tags me) is listed too. Nothing is stored for it: it is derived from my Feed list (SM.fa, the snaps addressed to me).
    Only snaps posted after Snapme first ran on this phone (NF.base, localStorage nfb_<uid>) and after the last "Clear all" are listed, for 7 days. */
 const NF={docs:[],un:null,first:true,se:new Map(),open:false,seen:0,prev:0,clr:0,base:0,err:false,pseq:0};
@@ -3541,7 +3551,7 @@ function nfStart(){
     NF.first=false;NF.err=false;
     NF.docs=q.docs.map(d=>({id:d.id,...d.data({serverTimestamps:'estimate'})}));
     fresh.forEach(nfAlert);nfBadge();if(NF.open)nfDraw()},e=>{NF.err=true;nfBadge()})}catch(e){NF.err=true}
-  nfBadge()}
+  nfBadge();try{bcCheck()}catch(e){}}
 function nfStop(){try{NF.un&&NF.un()}catch(e){}NF.un=null;NF.docs=[];NF.base=0;NF.se=new Map();NF.first=true;NF.open=false;NF.err=false;
   try{$('ntp').style.display='none';povClose();cmtClose()}catch(e){}nfBadge()}
 /* the sessions listener (start of Snapme) tells us about every sign-in / sign-out of this account */
@@ -3565,6 +3575,7 @@ function nfPosts(){
 function nfItems(){
   if(!me)return[];const out=nfPosts(),now=Date.now();
   NF.docs.forEach(d=>{if(!d||nfSkip(d)||!['like','comment','accept'].includes(d.t))return;out.push({k:d.t,t:M(d.ts)||now,d})});
+  try{bcList().forEach(x=>{if(NF.base&&x.ts>NF.base&&x.ts>NF.clr&&now-x.ts<7*864e5)out.push({k:'bc',t:x.ts,b:x})})}catch(e){}   /* pushes from the admin panel */
   if(me.actOn!==false)NF.se.forEach((x,id)=>{if(id===mySid)return;const li=M(x.loginAt),lo=M(x.logoutAt);
     if(x.logoutAt){if(lo&&now-lo<7*864e5&&lo>NF.clr)out.push({k:'logout',t:lo,id,dev:String(x.device||'Phone')})}
     else if(li&&now-li<7*864e5&&li>NF.clr)out.push({k:'login',t:li,id,dev:String(x.device||'Phone')})});
@@ -3576,11 +3587,12 @@ function nfText(x){const n=x.n||(x.un?'@'+x.un:'Someone');
   if(x.t==='like')return n+(x.r==='h'?' loved':' liked')+' your snap';
   if(x.t==='comment')return n+' commented on your snap: '+String(x.x||'');
   if(x.t==='accept')return n+' accepted your friend request';return n}
-/* a new notification arrives while Snapme is running: a short message (or a phone notification when the app is in the background) */
+/* a new notification arrives while Snapme is running: a short message (or a phone notification when the app is in the background).
+   The phone notification is forced (4th argument of pushNote): Expo Push only carries messages and snaps, so it must not hide these. */
 function nfAlert(d){
   if(!d||!['like','comment','accept'].includes(d.t)||nfSkip(d)||NF.open)return;
   const m=nfText(d);
-  if(!active||document.hidden){try{pushNote('Snapme',m,d.p?'post:'+d.p:'')}catch(e){}}else{toast(m);try{beep()}catch(e){}}}
+  if(!active||document.hidden){try{pushNote('Snapme',m,d.p?'post:'+d.p:'',true)}catch(e){}}else{toast(m);try{beep()}catch(e){}}}
 function nfOpen(){
   if(!me)return;try{if(LOC.open)locClose()}catch(e){}
   NF.prev=NF.seen;NF.open=true;$('ntp').style.display='flex';nfDraw();$('ntb').scrollTop=0;
@@ -3607,6 +3619,7 @@ function nfRow(i,isNew){
     if(i.k==='like'){sub=(x.r==='h'?'loved':'liked')+' your snap';ico=x.r==='h'?'❤️':'🔥';tap=()=>povOpen(x.p)}
     else if(i.k==='comment'){sub='commented: “'+String(x.x||'')+'”';ico='💬';tap=()=>povOpen(x.p,true)}
     else{sub='accepted your friend request';ico='✅';tap=()=>upvOpen(uid,{name:x.n,username:x.un})}}
+  else if(i.k==='bc'){name=i.b.title;sub=i.b.text.slice(0,120);ico='📢';tap=()=>bcShow(i.b)}
   else if(i.k==='login'){name='New login';sub=i.dev+' signed in to your account';ico='📱';tap=nfSessions}
   else{name='Logged out';sub=i.dev+' was signed out';ico='📱';tap=nfSessions}
   const u=uid?feedUser(uid):{},d=urow(uid?u.photo:null,name,sub,[]);d.classList.add('nfr');if(isNew)d.classList.add('new');
@@ -3624,7 +3637,7 @@ function nfDraw(){
     const m=document.createElement('small');m.textContent='Not you? Open Current session and log out the phone you don’t know, then change your password.';c.appendChild(m);
     c.onclick=nfSessions;b.appendChild(c)}
   if(!items.length&&ph.length<2){
-    const e=document.createElement('div');e.className='empty';e.textContent=NF.err?'Notifications are not switched on yet. The app owner has to publish the newest firestore.rules.':'No notifications yet. New snaps from your friends, likes, comments, accepted friend requests and logins on other phones show up here.';b.appendChild(e)}
+    const e=document.createElement('div');e.className='empty';e.textContent=NF.err?'Notifications are not switched on yet. The app owner has to publish the newest firestore.rules.':'No notifications yet. New snaps from your friends, likes, comments, accepted friend requests, messages from the Snapme team and logins on other phones show up here.';b.appendChild(e)}
   const nw=NF.prev>0?items.filter(i=>i.t>NF.prev):[],old=NF.prev>0?items.filter(i=>i.t<=NF.prev):items;
   const grp=(t,a,f)=>{if(!a.length)return;if(t){const h=document.createElement('h4');h.className='nfh';h.textContent=t;b.appendChild(h)}a.forEach(i=>b.appendChild(nfRow(i,f)))};
   if(nw.length){grp('New',nw,true);grp(old.length?'Earlier':'',old,false)}else grp('',old,false);
@@ -3703,6 +3716,40 @@ async function lgSync(force,want){
   const un=me.username,em=String(auth.currentUser.email||'').toLowerCase(),key='lgs_'+me.uid,on=typeof want==='boolean'?want:me.noUl!==true,sig=(on&&em?'1':'0')+'|'+un+'|'+em;
   if(!force&&get(key,'')===sig)return;
   try{const ref=db.doc('logins/'+un);if(on&&em)await ref.set({uid:me.uid,em});else await ref.delete();put(key,sig)}catch(e){}}
+/* ===== Push from the admin panel (Round 16) =====
+   The owner writes a push in the admin panel (Controls > Push notification). It is kept in the public document config/app as
+     pushes: [ { id, title, text, ts } ]   newest first, at most 5 (a withdrawn push is removed from the list)
+   Every phone that has Snapme running already listens to that document (adm.js): Snapme open, Snapme in the background, and the hidden background page
+   that the Android service runs after the app was swiped away. So a new push shows up within seconds: a phone notification (sound, a tap opens the
+   Notifications page) when the app is not in front, a banner on top of the screen when it is. It is also listed on the Notifications page (bell) for 7 days.
+   Shown once per phone (localStorage bcs). A phone that meets this feature for the first time stays silent about older pushes (localStorage bcb).
+   A phone that was off, or had Snapme force-stopped, gets it the next time Snapme runs (up to 3 days later). The phones only READ; nothing is written. */
+const BC={tm:0,cur:null},BC_KEEP=5,BC_LIFE=3*864e5;
+function bcList(){const a=ADM&&ADM.cfg&&ADM.cfg.pushes;if(!Array.isArray(a))return[];
+  return a.filter(x=>x&&typeof x.id==='string'&&/^[\w-]{1,40}$/.test(x.id)&&typeof x.text==='string'&&x.text.trim()&&Number(x.ts)>0).slice(0,BC_KEEP)
+    .map(x=>({id:x.id,title:String(x.title||'').trim().slice(0,80)||'Snapme',text:String(x.text).trim().slice(0,600),ts:Number(x.ts)}))}
+const bcSeen=()=>new Set(String(get('bcs','')).split(',').filter(Boolean));
+function bcMark(ids){const s=bcSeen();[].concat(ids).forEach(i=>s.add(i));put('bcs',[...s].slice(-30).join(','))}
+function bcCheck(){
+  if(!me||!ADM||!ADM.cfgOk)return;                               /* wait until config/app was read once (it may not exist yet: then there is simply no push) */
+  const L=bcList();
+  if(!(+get('bcb','0')>0)){put('bcb',String(Date.now()));bcMark(L.map(x=>x.id));try{nfBadge()}catch(e){}return}   /* first time on this phone: older pushes stay silent (they are still on the bell page) */
+  const seen=bcSeen(),now=Date.now();
+  L.slice().reverse().forEach(x=>{if(seen.has(x.id))return;bcMark(x.id);if(now-x.ts>BC_LIFE)return;bcFire(x)});
+  try{nfBadge();if(NF.open)nfDraw()}catch(e){}}
+/* the person switched notifications off (Settings): no sound and no banner, the push is still on the Notifications page */
+function bcFire(x){
+  if(get('notif','1')!=='1')return;
+  if(!active||document.hidden)pushNote(x.title,x.text,'bc:'+x.id,true);   /* true: a push from the owner is never sent by Expo, so the app shows it itself */
+  else bcBanner(x)}
+function bcBanner(x){
+  let b=$('bcb');
+  if(!b){b=document.createElement('div');b.id='bcb';b.setAttribute('role','alert');
+    b.innerHTML='<span class="bci">📢</span><div class="bct"><b id="bctt"></b><span id="bctx"></span></div><button class="ib" id="bcx" type="button" aria-label="Close">✕</button>';document.body.appendChild(b);
+    b.onclick=e=>{b.classList.remove('on');clearTimeout(BC.tm);if(e.target.id!=='bcx'&&BC.cur)bcShow(BC.cur)}}
+  BC.cur=x;$('bctt').textContent=x.title;$('bctx').textContent=x.text;
+  b.classList.add('on');clearTimeout(BC.tm);BC.tm=setTimeout(()=>b.classList.remove('on'),12000);try{beep()}catch(e){}}
+function bcShow(x){if(!x)return;ask(x.title+'\n\n'+x.text,'',true,false,['','OK'])}
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f,n,q){n=n||128;q=q||.7;return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=n;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n);res(cv.toDataURL('image/jpeg',q))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}
