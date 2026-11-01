@@ -26,7 +26,7 @@ import org.json.JSONObject;
  *   login({uid})   the signed-in person's Firebase user id becomes the OneSignal "external id" (the sender addresses people by it)
  *   logout()       this phone stops receiving that person's messages
  *   optIn() / optOut()   "Show notifications" switch
- *   status()       { ready, id, optedIn }
+ *   status()       { ready, id, optedIn, permission, err }
  *   takeChat()     the chat id of a notification that was tapped while the page was not ready (cold start), then forgets it
  *   event "open"   { chat }  a notification was tapped
  */
@@ -36,6 +36,7 @@ public class VTextPushPlugin extends Plugin {
     static final String ONESIGNAL_APP_ID = "__ONESIGNAL_APP_ID__";
 
     private static boolean booted = false;
+    private static String bootErr = "";
     private static boolean visible = false;
     private static String pendingChat = "";
     private static VTextPushPlugin live = null;
@@ -90,6 +91,8 @@ public class VTextPushPlugin extends Plugin {
             booted = true;
         } catch (Throwable t) {
             booted = false;
+            String m = String.valueOf(t);
+            bootErr = m.length() > 120 ? m.substring(0, 120) : m;
         }
     }
 
@@ -167,8 +170,16 @@ public class VTextPushPlugin extends Plugin {
         } catch (Throwable t) {
             // ignore
         }
+        boolean perm = false;
+        try {
+            perm = OneSignal.getNotifications().getPermission();
+        } catch (Throwable t) {
+            // ignore
+        }
         r.put("id", id);
         r.put("optedIn", opted);
+        r.put("permission", perm);
+        r.put("err", bootErr);
         call.resolve(r);
     }
 
