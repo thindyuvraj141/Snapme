@@ -3,9 +3,9 @@
 # so you still get an installable app and a clear note about what was left out.
 #
 #   VT_TASK     assembleDebug (default) or bundleRelease
-#   VT_BG       1 = include the background-service helpers (default), 0 = plain Capacitor
+#   VT_BG       1 = include Snapme's native helpers (default), 0 = plain Capacitor
 #   VT_BUNDLE   0 = the app loads the website (default), 1 = web files are bundled inside the app (Play Store)
-#   VT_HEADLESS 1 = background service runs the page in a hidden WebView when the app screen is closed (default), 0 = leave it out.
+#   (Snapme has no background service any more: no hidden page, no "running" notification, no start at boot. VT_HEADLESS is ignored.)
 #   VT_PUSH     1 = add the Capacitor push-notification plugin (default), 0 = leave it out.
 #               Push only works if scripts/google-services.json (from the Firebase console) is in the repo.
 #   VERSION_CODE, GITHUB_SHA, GITHUB_RUN_NUMBER are read from the environment (set by GitHub Actions)
@@ -17,7 +17,6 @@ TASK=${VT_TASK:-assembleDebug}
 BG=${VT_BG:-1}
 BUNDLE=${VT_BUNDLE:-0}
 PUSH=${VT_PUSH:-1}
-HL=${VT_HEADLESS:-1}
 SHA=${GITHUB_SHA:-dev}
 RUN=${GITHUB_RUN_NUMBER:-0}
 PLUG_CAPGO="@capgo/capacitor-native-biometric@^8"
@@ -78,7 +77,7 @@ JSON
   return 0
 }
 
-attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = background helpers (1|0)   $3 = push plugin (1|0)
+attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = native helpers (1|0)   $3 = push plugin (1|0)
   local plug=$1 bg=$2 push=$3
   echo "--- clean start"
   rm -rf android www
@@ -101,7 +100,6 @@ attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = background 
   npx cap add android || return 1
   if [ "$bg" = "1" ]; then export VT_NATIVE=full; else export VT_NATIVE=none; fi
   export VT_PUSH_PLUGIN="$push"
-  export VT_HEADLESS="$HL"
   echo "--- patch android project"
   python3 scripts/patch_android.py || return 1
   python3 scripts/make_icons.py || return 1
@@ -124,7 +122,7 @@ reason() {  # $1 = log file
 
 preflight || { echo "::error::The build cannot start (see the message above)."; exit 1; }
 
-# levels are  fingerprint-plugin:background-helpers:push-plugin ; the push plugin is only dropped after the others failed
+# levels are  fingerprint-plugin:native-helpers:push-plugin ; the push plugin is only dropped after the others failed
 if [ "$BG" = "1" ]; then
   LEVELS="capgo:1:1 aparajita:1:1 none:1:1 none:1:2 none:1:0 none:0:0"
 else
@@ -138,10 +136,10 @@ while [ ${#Q[@]} -gt 0 ]; do
   lv=${Q[0]}; Q=(${Q[@]+"${Q[@]:1}"})
   plug=${lv%%:*}; rest=${lv#*:}; bg=${rest%%:*}; push=${rest##*:}
   if [ "$DROP_PUSH" = "1" ]; then push=0; fi
-  case "$TRIED" in *" $plug:$bg:$push:$HL "*) continue ;; esac
-  TRIED="$TRIED$plug:$bg:$push:$HL "
+  case "$TRIED" in *" $plug:$bg:$push "*) continue ;; esac
+  TRIED="$TRIED$plug:$bg:$push "
   n=$((n+1))
-  echo "::group::Build attempt $n (fingerprint plugin: $plug, background helpers: $bg, push plugin: $push, hidden background page: $HL)"
+  echo "::group::Build attempt $n (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push)"
   attempt "$plug" "$bg" "$push" 2>&1 | tee "$LOGDIR/attempt-$n.log"
   rc=${PIPESTATUS[0]}
   if [ "$rc" = "0" ]; then
@@ -151,11 +149,8 @@ while [ ${#Q[@]} -gt 0 ]; do
       echo
       if [ "$plug" = "none" ]; then echo "- Fingerprint plugin: NOT included (the app uses the account-password lock instead)"; else echo "- Fingerprint plugin: included ($plug)"; fi
       if [ "$BG" = "1" ]; then
-        if [ "$bg" = "1" ]; then echo "- Background service for message notifications: included"; else echo "- Background service for message notifications: NOT included (build fell back to a plain app)"; fi
-        if [ "$bg" = "1" ]; then
-          if find android/app/src/main/java -name VTextHeadless.java 2>/dev/null | grep -q .; then echo "- Hidden background page (notifications keep coming after the app is swiped away or the phone restarts): included"
-          else echo "- Hidden background page (notifications after the app is swiped away / after a restart): NOT included in this build"; fi
-        fi
+        if [ "$bg" = "1" ]; then echo "- Native helpers (permissions, fingerprint lock, save to gallery, open a chat from a notification): included"; else echo "- Native helpers: NOT included (build fell back to a plain app)"; fi
+        echo "- No background service: Snapme does not run in the background and shows no \"running\" notification. Notifications while the app is closed come from the push service."
       fi
       if [ "$push" = "1" ] || [ "$push" = "2" ]; then
         if [ "$push" = "1" ]; then echo "- Snapme's own messaging service: included (Expo message pushes can wake the app)"; fi
@@ -174,16 +169,9 @@ while [ ${#Q[@]} -gt 0 ]; do
   fi
   echo "::endgroup::"
   why=$(reason "$LOGDIR/attempt-$n.log")
-  echo "::warning::Build attempt $n failed (fingerprint plugin: $plug, background helpers: $bg, push plugin: $push). Reason: $why"
+  echo "::warning::Build attempt $n failed (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push). Reason: $why"
   SUMMARY="$SUMMARY
-- Attempt $n ($plug / background $bg / push $push): $why"
-  if [ "$HL" = "1" ] && grep -qE '(VTextHeadless|VTextBoot|VTextService|MainActivity)\.java:[0-9]+: error' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
-    HL=0
-    Q=("$plug:$bg:$push" ${Q[@]+"${Q[@]}"})   # same build again, without the hidden background page
-    SUMMARY="$SUMMARY
-- (the hidden background page did not compile; the next attempt leaves it out)"
-    echo "The Java code of the hidden background page failed to compile - the next attempt is the same build without it."
-  fi
+- Attempt $n ($plug / helpers $bg / push $push): $why"
   if [ "$push" = "1" ] && grep -qE 'VTextFcmService|MessagingService' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
     Q=("$plug:$bg:2" ${Q[@]+"${Q[@]}"})   # Snapme's own messaging service did not build: the same build with the push plugin but without that service
     SUMMARY="$SUMMARY

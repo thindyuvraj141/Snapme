@@ -2,15 +2,15 @@
 
 Environment:
   VERSION_CODE   integer, becomes versionCode (and versionName 1.0.<n>)
-  VT_NATIVE      "full" (default) = background service + keep-alive MainActivity + battery helper
+  VT_NATIVE      "full" (default) = Snapme's native helpers (VTextBg plugin: permissions, fingerprint, save to gallery, bar colours; MainActivity that opens
+                                    a chat from a notification; the push messaging service VTextFcmService). There is NO background service any more:
+                                    no foreground service / "running" notification, no start at boot, no hidden page, no battery-optimisation question.
                  "none"           = plain Capacitor project (only permissions, version, signing)
   VT_PUSH_PLUGIN "1" (default) = the push-notification plugin is part of this build: add the Firebase settings
                  "2"           = same, but without Snapme's own messaging service VTextFcmService (the build script tries this when that file did not
                                  compile): pushes that carry a notification (admin panel) still show when the app is closed
                  "0"           = no push plugin: leave all Firebase settings out
-  VT_HEADLESS    "1" (default) = the background service can run the Snapme page in a hidden WebView while the app screen is closed
-                                 (needs VT_NATIVE=full and an app that loads the website, i.e. server.url in capacitor.config.json)
-                 "0"           = leave that part out (the build script retries like this if that part does not compile)
+  VT_HEADLESS    ignored (the hidden background page was removed; kept so that old workflow files that still set it do not break)
 """
 import base64, glob, json, os, pathlib, re, sys
 
@@ -24,17 +24,12 @@ try:
     site = (json.load(open('capacitor.config.json')).get('server') or {}).get('url', '') or ''
 except Exception:
     site = ''
-headless = os.environ.get('VT_HEADLESS', '1') == '1' and native == 'full' and site.startswith('https://')
 
 # ---------------- manifest ----------------
 mp = root / 'app/src/main/AndroidManifest.xml'
 s = mp.read_text()
 perms = ['RECORD_AUDIO', 'MODIFY_AUDIO_SETTINGS', 'ACCESS_FINE_LOCATION', 'ACCESS_COARSE_LOCATION', 'CAMERA',
          'POST_NOTIFICATIONS', 'USE_BIOMETRIC', 'USE_FINGERPRINT', 'VIBRATE']
-if native == 'full':
-    perms += ['FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_SPECIAL_USE', 'REQUEST_IGNORE_BATTERY_OPTIMIZATIONS']
-    if headless:
-        perms += ['RECEIVE_BOOT_COMPLETED']
 add = ''.join('    <uses-permission android:name="android.permission.%s"/>\n' % x for x in perms if ('android.permission.%s"' % x) not in s)
 if native == 'full':  # gallery permission (photos / videos): asked once on the "Allow Snapme to..." screen
     for x in ('READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO'):
@@ -50,20 +45,6 @@ for f in ('camera', 'microphone', 'location', 'fingerprint'):
 s = s.replace('</manifest>', add + '</manifest>')
 if 'windowSoftInputMode' not in s:
     s = re.sub(r'<activity\b', '<activity android:windowSoftInputMode="adjustResize"', s, count=1)
-if native == 'full' and 'VTextService' not in s:
-    svc = ('        <service android:name=".VTextService" android:exported="false" android:foregroundServiceType="specialUse">\n'
-           '            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE" android:value="Keeps the chat connection alive so new message notifications are delivered"/>\n'
-           '        </service>\n')
-    assert '</application>' in s
-    s = s.replace('</application>', svc + '    </application>', 1)
-if headless and 'VTextBoot' not in s:  # starts the background service again after the phone restarts or Snapme is updated
-    rcv = ('        <receiver android:name=".VTextBoot" android:exported="true">\n'
-           '            <intent-filter>\n'
-           '                <action android:name="android.intent.action.BOOT_COMPLETED"/>\n'
-           '                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>\n'
-           '            </intent-filter>\n'
-           '        </receiver>\n')
-    s = s.replace('</application>', rcv + '    </application>', 1)
 # push notifications (Firebase Cloud Messaging): which channel / icon notifications use when the app is closed.
 # Harmless when the push plugin or google-services.json is not part of the build.
 # Expo Push sends "data only" Android messages. Our own messaging service turns them into notifications and hands everything else
@@ -173,17 +154,14 @@ if native == 'full':
     if not mains:
         print('ERROR: MainActivity.java not found'); sys.exit(1)
     jdir = pathlib.Path(mains[0]).parent
-    hl_block = re.compile(r'[ \t]*/\*HL\*/.*?/\*END_HL\*/\n', re.S)   # code between /*HL*/ and /*END_HL*/ belongs to the hidden background page
-    names = ['MainActivity', 'VTextService', 'VTextBgPlugin'] + (['VTextHeadless', 'VTextBoot'] if headless else [])
+    names = ['MainActivity', 'VTextBgPlugin']
     if fcm_service:
         names.append('VTextFcmService')
     for name in names:
         src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site)
-        if not headless:
-            src = hl_block.sub('', src)
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
-    print('hidden background page (keeps listening after the app is swiped away): ' + ('included, site ' + site if headless else 'NOT included'))
+    print('no background service, no boot receiver, no hidden page (notifications while the app is closed come from the push service)')
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------
