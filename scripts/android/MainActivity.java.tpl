@@ -56,6 +56,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(VTextBgPlugin.class);
+        /*VT_OS_REG*/
         super.onCreate(savedInstanceState);
         // Never show the Android title bar (the "Snapme" strip at the top) and keep the window behind the page dark until the page paints.
         try {
@@ -65,6 +66,7 @@ public class MainActivity extends BridgeActivity {
         } catch (Throwable t) {
             // cosmetic only
         }
+        /*VT_OS_BOOT*/
         handleChatIntent(getIntent());
     }
 
@@ -83,6 +85,7 @@ public class MainActivity extends BridgeActivity {
     public void onPause() {
         super.onPause();
         VTextBgPlugin.fg = false;
+        /*VT_OS_HIDE*/
         life("pause");
     }
 
@@ -90,6 +93,7 @@ public class MainActivity extends BridgeActivity {
     public void onResume() {
         super.onResume();
         VTextBgPlugin.fg = true;
+        /*VT_OS_SHOW*/
         life("resume");
     }
 }
