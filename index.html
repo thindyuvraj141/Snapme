@@ -1644,7 +1644,7 @@ function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app
      ['Groups',[pc('Group invites from','pv_groups','everyone',thr)]],['Log in',[{t:'Log in with my username',s:me.noUl===true?'Off: only your email address works on the login page.':'On: you can type your username instead of your email on the login page. The database keeps your email next to your username for that.',sw:1,on:me.noUl!==true,set:v=>{setU({noUl:!v});lgSync(true,!!v);setTimeout(()=>drawPanel('priv'),200)}}]],['Memories',[{t:'Show my Memories on my profile',s:me.hideMem===true?'Off: nobody can see your Memories.':'On: your friends, and everybody if your account is Public, can see the snaps you posted in your Memories. Snaps you are tagged in stay private.',sw:1,on:me.hideMem!==true,set:v=>{setU({hideMem:!v});setTimeout(()=>drawPanel('priv'),200)}}]]],
    chats:[['Auto-delete',[ch('Default timer for new chats','ex')]],['Chat look',[ch('Wallpaper','wp'),tg('Enter is send','Pressing Enter sends the message','en')]]],
    app:[['Appearance',[ch('App theme','th'),ch('Accent colour','tc')]]],
-   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),{t:'Typing alerts',s:'Show “Alice is typing to you…” while someone is writing to you',sw:1,on:get('typa','1')==='1',set:v=>put('typa',v?'1':'0')},{t:'New snaps from friends',s:'Get a notification when a friend posts a snap',sw:1,on:get('pnote','1')==='1',set:v=>{put('pnote',v?'1':'0');try{pushPrefsSoon()}catch(e){}}},{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
+   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),{t:'Typing alerts',s:'Show “Alice is typing to you…” while someone is writing to you',sw:1,on:get('typa','1')==='1',set:v=>put('typa',v?'1':'0')},{t:'New snaps from friends',s:'Get a notification when a friend posts a snap',sw:1,on:get('pnote','1')==='1',set:v=>{put('pnote',v?'1':'0');try{pushPrefsSoon()}catch(e){}}},...(isNative()?[{t:'Closed-app notifications',s:wkLine(),tap:()=>wkInfo()}]:[]),{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
    acs:[['Accessibility',[ch('Font size','fs')]]]};
   stRows(host,D[p]);
   if(p==='acc'&&auth.currentUser&&auth.currentUser.reload&&!ver)auth.currentUser.reload().then(()=>{if(cpIs('acc')&&auth.currentUser.emailVerified)drawPanel('acc')}).catch(()=>{})}
@@ -3813,6 +3813,33 @@ async function wkSnap(postId,uids){
 function wkReq(to){if(!wkOn()||!me||!to)return;wkCall({k:'req',to}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net'})}
 function wkNf(to,id){if(!wkOn()||!me||!to||!id)return;wkCall({k:'nf',to,id}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net'})}
 WK.chat=wkChat;WK.snap=wkSnap;WK.req=wkReq;WK.nf=wkNf;                          /* handles for the tests */
+/* ---- Settings > Notifications > "Closed-app notifications": what this phone has and what is missing (so nobody needs a computer to find out) ---- */
+function wkLine(){
+  if(!isNative())return'Only in the Android app';
+  if(!wkUrl())return'Off: no Worker address in config.js. Tap for details';
+  if(featOff('wk'))return'Switched off by the owner';
+  if(WK.state==='on')return'On: this phone is registered. Tap for details';
+  return({oldapk:'This APK has no OneSignal. Tap for details',nofb:'OneSignal did not start in this APK. Tap for details',err:'Not working. Tap for details'}[WK.state])||'Starting... Tap for details'}
+async function wkInfo(){
+  const L=[];
+  L.push('Worker address: '+(wkUrl()?'set':'MISSING (add window.VT_PUSH_URL to config.js)'));
+  L.push('Switched off by the owner: '+(featOff('wk')?'yes':'no'));
+  const P=wkP();
+  L.push('OneSignal in this APK: '+(P?'yes':'NO (old APK, or the build left it out)'));
+  if(P){let st=null;try{st=await P.status()}catch(e){L.push('OneSignal status error: '+String((e&&e.message)||e))}
+    if(st){
+      L.push('OneSignal started: '+(st.ready===true?'yes':'NO'+(st.err?' ('+String(st.err).slice(0,100)+')':'')));
+      L.push('Notification permission: '+(st.permission===true?'allowed':'NOT allowed (Phone Settings > Apps > Snapme > Notifications)'));
+      L.push('This phone at OneSignal: '+(st.id?'registered ('+String(st.id).slice(0,8)+'...), '+(st.optedIn?'subscribed':'not subscribed'):'NOT registered yet'))}}
+  L.push('Registered by the app after login: '+(WK.state==='on'?'yes':(WK.state||'not yet')+(WK.err?' ('+WK.err.slice(0,100)+')':'')));
+  L.push('Last call to the Worker: '+(WK.sent||'none yet'));
+  L.push('');
+  L.push('Test: sends a notification to this phone. Close Snapme (swipe it away) before you look.');
+  if(await ask(L.join('\n'),'',true,false,['Close','Send test'])){
+    if(!wkUrl()){toast('Add the Worker address to config.js first');return}
+    try{const r=await wkCall({test:true});toast(wkOk(r)?'Sent. It should arrive in a few seconds.':String((r.j&&r.j.err)||('HTTP '+r.st)).slice(0,160))}
+    catch(e){toast('Could not reach the Worker')}}}
+WK.line=wkLine;WK.info=wkInfo;
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f,n,q){n=n||128;q=q||.7;return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=n;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n);res(cv.toDataURL('image/jpeg',q))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}

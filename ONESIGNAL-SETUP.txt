@@ -30,8 +30,12 @@ You already have a OneSignal app. Its App ID must be   eaee4d46-0219-44e9-ac45-1
 ======================================  PART B  -  Cloudflare Worker (about 10 minutes)  ===============================
   B1. dash.cloudflare.com > sign up (free) / log in > left menu "Workers & Pages" > "Create" > "Create Worker" (or "Start with Hello World").
   B2. Name it   snapme-push   > Deploy.
-  B3. Press "Edit code". Delete everything in the editor. Open (in another tab) your GitHub repo file  push-worker/vtext-push-worker.js,
-      press the "Raw" button, select all, copy, come back and paste it into the Cloudflare editor. Press "Deploy".
+  B3. Press "Edit code". Delete everything in the editor (tap in it, long-press > Select all > Delete). Open (in another tab) your GitHub repo file
+      push-worker/vtext-push-worker.min.js  (the same Worker, but with no comments and no indentation: a phone keyboard cannot mess it up),
+      press "Raw" (or the "Copy raw file" icon), copy everything, come back, tap in the empty editor, LONG-PRESS > "Paste". Do not use the keyboard's
+      clipboard suggestion: the Cloudflare editor then indents every line a bit more and adds extra brackets (a red "SyntaxError" appears).
+      Check: bottom left of the editor must show 0 errors, and the Preview on the right must show  {"ok":true,"service":"Snapme push sender",...}
+      instead of "Hello World!". Press "Deploy".
   B4. Open the Worker > "Settings" > "Variables and Secrets" > "Add" and add these TWO as type  Secret  (not "Text"):
         ONESIGNAL_REST_KEY   =  the REST API Key from step A3
         FIREBASE_SA          =  the WHOLE content of the Firebase .json file from step A2 (open the file in a text app, select all, copy, paste.
@@ -53,6 +57,13 @@ You already have a OneSignal app. Its App ID must be   eaee4d46-0219-44e9-ac45-1
           OneSignal (free Cloudflare Worker route): included
       - "NOT included (it did not build)"  -> the APK is still built (Firebase / Expo work as before). Send me the text under "Why the earlier attempts failed".
   C3. Install the APK over the old one. Open Snapme, log in, press "Allow" on the notification question.
+
+======================================  IF NOTHING ARRIVES  ===========================================================
+  In the Snapme app: Profile > Settings > Notifications > "Closed-app notifications". The line under it says if the route is on. Tap it: the list
+  shows what is missing (Worker address in config.js / OneSignal in this APK / notification permission / phone registered at OneSignal ...).
+  "Send test" there sends a notification to this phone: swipe Snapme away first, then look.
+  In OneSignal: Audience > Subscriptions must show your phone as "Subscribed". The wizard page "Install and Test" only says
+  "no subscribed users" until the app was opened once after the Firebase key was saved.
 
 ======================================  TEST  ==========================================================================
   T1. Admin panel > Controls > card "Push notifications (closed app)" > paste the Worker address > "Save address" > "Send a test to my phone".
