@@ -1,0 +1,79 @@
+Snapme - notifications with OneSignal + a free Cloudflare Worker  (Round 17)
+=============================================================================
+Result: when Snapme is CLOSED (swiped away from the recent apps list) these still arrive as phone notifications, with the Snapme sound:
+   new message  .  new snap of a friend  .  friend request  .  like  .  comment  .  your request was accepted  .  admin-panel push (as before)
+Cost: 0. No card. Expo stays as a second route (messages and snaps), nothing you did for Expo is lost.
+
+HOW IT WORKS (so you know what you are setting up)
+  - Your phone registers with OneSignal after login (OneSignal calls it by your Firebase user id).
+  - When somebody sends you a message / posts a snap / likes / comments / sends a request, HIS phone tells the small free "Worker" (a tiny
+    program on Cloudflare). The Worker checks that it really happened (it reads Firestore), checks your settings (muted chat, notifications
+    off, blocked) and asks OneSignal to deliver the notification to YOUR phone. OneSignal / Google deliver it even if Snapme is closed.
+  - The secret keys live ONLY inside the Worker and inside the OneSignal / Cloudflare websites. Never in the app, never in GitHub files,
+    never in a chat (not even with me).
+
+(The OneSignal and Cloudflare websites rename buttons now and then. If a button has another name, take the closest one.)
+
+WHAT YOU NEED: a phone browser (Chrome; if a site looks broken, menu > "Desktop site"), your Google/Firebase login, a Cloudflare account (free).
+
+======================================  PART A  -  OneSignal (about 5 minutes)  ======================================
+You already have a OneSignal app. Its App ID must be   eaee4d46-0219-44e9-ac45-10b45587223e
+  A1. onesignal.com > log in > open your app > Settings > Keys & IDs. Compare the "OneSignal App ID".
+      - Same as above: fine, go on.
+      - Different: open the repo file scripts/onesignal-app-id.txt, replace its content with YOUR App ID, commit. Also write it into the Worker
+        (Part B, step B5, variable ONESIGNAL_APP_ID).
+  A2. Settings > Push & In-App > Google Android (FCM) > Activate / Edit. Choose the "Service Account" (FCM v1) way and upload the Firebase
+      service-account file:  Firebase console > Project settings > Service accounts > "Generate new private key" > it downloads a .json file.
+      Upload that file in OneSignal. (Package name: com.thindyuvraj.vtext.) Save. Keep the .json file: you need it again in Part B.
+  A3. Settings > Keys & IDs > "REST API Key" > copy it (long text). This is a SECRET. You paste it only in Part B.
+
+======================================  PART B  -  Cloudflare Worker (about 10 minutes)  ===============================
+  B1. dash.cloudflare.com > sign up (free) / log in > left menu "Workers & Pages" > "Create" > "Create Worker" (or "Start with Hello World").
+  B2. Name it   snapme-push   > Deploy.
+  B3. Press "Edit code". Delete everything in the editor. Open (in another tab) your GitHub repo file  push-worker/vtext-push-worker.js,
+      press the "Raw" button, select all, copy, come back and paste it into the Cloudflare editor. Press "Deploy".
+  B4. Open the Worker > "Settings" > "Variables and Secrets" > "Add" and add these TWO as type  Secret  (not "Text"):
+        ONESIGNAL_REST_KEY   =  the REST API Key from step A3
+        FIREBASE_SA          =  the WHOLE content of the Firebase .json file from step A2 (open the file in a text app, select all, copy, paste.
+                                It starts with  {  and ends with  }  )
+      Press "Deploy" again.
+  B5. Only if your App ID is different from the one at the top: add a variable (type "Text")  ONESIGNAL_APP_ID  =  your App ID.
+  B6. Copy the Worker address, it looks like   https://snapme-push.YOURNAME.workers.dev
+      Open that address in the browser. You must see   {"ok":true,"service":"Snapme push sender","oneSignalKey":true,"firebaseKey":true}
+        - "oneSignalKey":false  -> the secret ONESIGNAL_REST_KEY is missing / has another name.
+        - "firebaseKey":false   -> the secret FIREBASE_SA is missing / has another name.
+
+======================================  PART C  -  the app  ===========================================================
+  C1. Repo file  config.js : open it on GitHub (pencil icon) and ADD this line at the very end (use YOUR address from B6, keep the quotes).
+      Do NOT replace the file with another copy: your Expo Project ID is inside it.
+          window.VT_PUSH_URL = 'https://snapme-push.YOURNAME.workers.dev';
+      Commit. The website updates in 1-2 minutes. (No Worker address = this whole route stays off and nothing changes.)
+  C2. Upload the files of the upload list (UPLOAD-PATHS.txt) and run  Actions > "Build APK (test)" > Run workflow.
+      When it is green open the run, scroll to the notes. You must see this line:
+          OneSignal (free Cloudflare Worker route): included
+      - "NOT included (it did not build)"  -> the APK is still built (Firebase / Expo work as before). Send me the text under "Why the earlier attempts failed".
+  C3. Install the APK over the old one. Open Snapme, log in, press "Allow" on the notification question.
+
+======================================  TEST  ==========================================================================
+  T1. Admin panel > Controls > card "Push notifications (closed app)" > paste the Worker address > "Save address" > "Send a test to my phone".
+      (You must be logged in with the admin account in the Snapme app on your phone.) A notification arrives within seconds.
+      Message "OneSignal has no active phone for your account yet" = open Snapme once, log in, allow notifications, try again.
+  T2. Real test with two phones / two accounts: on phone 1 swipe Snapme away from the recent apps list (do NOT use "Force stop"). On phone 2
+      send a message, post a snap, send a friend request, like a post. Phone 1 shows a notification for each.
+
+======================================  GOOD TO KNOW  ================================================================
+  - Switch it off for everybody at any time: admin panel > Controls > Features > "OneSignal + Worker push". Phones then use Expo again
+    (messages and snaps only).
+  - If the Worker cannot be reached, messages and snaps go through Expo automatically. Likes, comments and requests have no second route.
+  - A phone that has not registered with OneSignal yet (old APK, never logged in after the update) is served by Expo, so nobody gets two
+    notifications and nobody is left out.
+  - The notification is triggered by the phone of the person who DID the thing (like, message ...). If his phone loses the internet in the
+    very second after sending, that one notification is not sent (the message itself is saved and shows when you open Snapme).
+  - Free limits: Cloudflare Workers 100,000 requests a day; OneSignal free plan is enough for push notifications.
+  - Text in the notification: set the Worker variable SHOW_TEXT = false (type "Text") to show only "New message" instead of the message text.
+  - Limits that NO app can remove: "Force stop" in Android settings blocks every push until the app is opened once; Samsung / Xiaomi / Oppo /
+    Vivo "sleeping apps" can block pushes of apps that were not opened for days (Phone Settings > Apps > Snapme > Battery > Unrestricted, and
+    remove Snapme from "Sleeping apps").
+  - Not tested by me on a real phone: the OneSignal plugin inside the APK and the Cloudflare deployment. Tested here: the Worker program (79 checks
+    with a fake OneSignal / Firestore), the app side (31 checks), the build scripts and the Java code against stubs. If something does not arrive,
+    tell me which step of the TEST part failed and what the Worker address shows in the browser (step B6).

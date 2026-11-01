@@ -1281,6 +1281,7 @@ async function sendReq(o,again){const r=db.doc('requests/'+me.uid+'_'+o.uid);
   try{let x=null;try{x=await r.get()}catch(e){x=null}
     if(x&&x.exists){if(x.data().status==='pending')return reqDialog('You already sent a friend request to '+o.name+' (@'+o.username+'). Waiting for them to accept.',o.uid);await r.delete()}
     await r.set({from:me.uid,to:o.uid,toName:o.name,toUsername:o.username,fromName:me.name,fromUsername:me.username,...(me.photo&&me.pv_photo!=='nobody'?{fromPhoto:me.photo}:{}),status:'pending',ts:SV()});
+    try{wkReq(o.uid)}catch(e){}
     reqDialog('Friend request sent to '+o.name+' (@'+o.username+'). '+(again?'You are not friends any more, so they have to accept again. ':'')+'You can chat once they accept. Changed your mind? Tap “Cancel request”.',o.uid)}
   catch(e){msgD('Could not send the request: '+(e.code==='permission-denied'?'permission denied. Please publish the latest Firestore rules.':e.message))}}
 async function acceptReq(r){try{
@@ -1643,7 +1644,7 @@ function drawPanel(p){const host=$('p-'+p);if(!host||!['acc','priv','chats','app
      ['Groups',[pc('Group invites from','pv_groups','everyone',thr)]],['Log in',[{t:'Log in with my username',s:me.noUl===true?'Off: only your email address works on the login page.':'On: you can type your username instead of your email on the login page. The database keeps your email next to your username for that.',sw:1,on:me.noUl!==true,set:v=>{setU({noUl:!v});lgSync(true,!!v);setTimeout(()=>drawPanel('priv'),200)}}]],['Memories',[{t:'Show my Memories on my profile',s:me.hideMem===true?'Off: nobody can see your Memories.':'On: your friends, and everybody if your account is Public, can see the snaps you posted in your Memories. Snaps you are tagged in stay private.',sw:1,on:me.hideMem!==true,set:v=>{setU({hideMem:!v});setTimeout(()=>drawPanel('priv'),200)}}]]],
    chats:[['Auto-delete',[ch('Default timer for new chats','ex')]],['Chat look',[ch('Wallpaper','wp'),tg('Enter is send','Pressing Enter sends the message','en')]]],
    app:[['Appearance',[ch('App theme','th'),ch('Accent colour','tc')]]],
-   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),{t:'Typing alerts',s:'Show “Alice is typing to you…” while someone is writing to you',sw:1,on:get('typa','1')==='1',set:v=>put('typa',v?'1':'0')},{t:'New snaps from friends',s:'Get a notification when a friend posts a snap',sw:1,on:get('pnote','1')==='1',set:v=>put('pnote',v?'1':'0')},{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
+   notif:[['Notifications',[tg('Message notifications','Show a notification for new messages','nt'),tg('Message sounds','Play a sound for new messages','sd'),...pushRows(),{t:'Typing alerts',s:'Show “Alice is typing to you…” while someone is writing to you',sw:1,on:get('typa','1')==='1',set:v=>put('typa',v?'1':'0')},{t:'New snaps from friends',s:'Get a notification when a friend posts a snap',sw:1,on:get('pnote','1')==='1',set:v=>{put('pnote',v?'1':'0');try{pushPrefsSoon()}catch(e){}}},{t:'Background notifications',s:'How to get notifications when the app is in the background',tap:()=>openDoc('bg')}]]],
    acs:[['Accessibility',[ch('Font size','fs')]]]};
   stRows(host,D[p]);
   if(p==='acc'&&auth.currentUser&&auth.currentUser.reload&&!ver)auth.currentUser.reload().then(()=>{if(cpIs('acc')&&auth.currentUser.emailVerified)drawPanel('acc')}).catch(()=>{})}
@@ -1676,7 +1677,7 @@ function pushNote(t,b,chat,force){if(get('notif','1')!=='1'||(pushServer()&&!for
   const L=LN();
   if(L)L.schedule({notifications:[{id:(nid++)%2000000,title:t,body:b||'New message',channelId:'snapme_msgs',sound:'snapme_chime.wav',smallIcon:'ic_stat_vtext',extra:{chat:chat||''}}]}).catch(()=>{});
   else if(window.Notification&&Notification.permission==='granted'){try{const n=new Notification(t,{body:b,icon:'logo.svg'});n.onclick=()=>{window.focus();if(chat)openChatById(chat)}}catch(e){}}}
-function openChatById(id){if(String(id).startsWith('bc:')){try{nfOpen()}catch(e){}return}if(String(id).startsWith('post:')){try{goN('feed')}catch(e){}return}const c=chats.find(x=>x.id===id);if(c){showLock=false;tab='fr';goN('circ');openChat(c)}}
+function openChatById(id){if(String(id).startsWith('nf:req')){showLock=false;tab='fr';goN('circ');return}if(String(id).startsWith('bc:')||String(id).startsWith('nf:')){try{nfOpen()}catch(e){}return}if(String(id).startsWith('post:')){try{goN('feed')}catch(e){}return}const c=chats.find(x=>x.id===id);if(c){showLock=false;tab='fr';goN('circ');openChat(c)}}
 try{const L=LN();if(L&&L.addListener)L.addListener('localNotificationActionPerformed',e=>{const id=e&&e.notification&&e.notification.extra&&e.notification.extra.chat;if(id)setTimeout(()=>openChatById(id),400)})}catch(e){}
 /* Snapme does not keep itself running in the background any more (no foreground service, no "running" notification, no battery question, no hidden page).
    Messages, snaps and pushes that arrive while the app is closed come from Google's / Expo's push service. Phones that still have an OLD APK with that
@@ -1933,7 +1934,7 @@ function arTick(){clearTimeout(arT);if(!cur||cur.type!=='dm'||document.hidden||!
   if(next<1e9)arT=setTimeout(arTick,next+30)}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){arSeen.clear();clearTimeout(arT)}else arTick()});
 /* unread counters: the sender adds 1 for every other member, the reader resets their own counter (best effort) */
-function bumpUn(c,p){try{xpSend(c,p)}catch(e){}try{const inc=firebase.firestore.FieldValue.increment(1),u={};c.members.forEach(m=>{if(m!==me.uid)u['un.'+m]=inc});if(Object.keys(u).length)db.doc('chats/'+c.id).update(u).catch(()=>{})}catch(e){}}
+function bumpUn(c,p){try{wkChat(c,p)}catch(e){}try{const inc=firebase.firestore.FieldValue.increment(1),u={};c.members.forEach(m=>{if(m!==me.uid)u['un.'+m]=inc});if(Object.keys(u).length)db.doc('chats/'+c.id).update(u).catch(()=>{})}catch(e){}}
 function clearUn(c){if(c&&c.un&&c.un[me.uid]>0)db.doc('chats/'+c.id).update({['un.'+me.uid]:0}).catch(()=>{})}
 /* ---- save photos / videos / voice / files to the phone ---- */
 let curView=null;
@@ -2294,7 +2295,7 @@ window.__push=PUSH;
 const PN=()=>plug('PushNotifications');
 const pushVapid=()=>String(window.VT_VAPID||'');
 /* true when a server sends the pushes (config.js: VT_PUSH_SERVER = true) and this phone is registered: then the app does not show its own copy */
-const pushServer=()=>(window.VT_PUSH_SERVER===true&&PUSH.state==='on')||xpActive();   /* xpActive(): this phone is registered with Expo Push (expo.js) */
+const pushServer=()=>(window.VT_PUSH_SERVER===true&&PUSH.state==='on')||xpActive()||wkActive();   /* xpActive(): registered with Expo Push (expo.js); wkActive(): registered with OneSignal (wk.js) */
 function pushDid(){let d=get('did','');if(!d){d=((window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)).replace(/-/g,'').slice(0,24);put('did',d)}return d}
 const pushDoc=()=>db.doc('users/'+me.uid+'/private/push');
 function pushSave(tok,plat){if(!me||!tok)return Promise.resolve();PUSH.tok=tok;
@@ -2304,10 +2305,11 @@ function pushForget(){put('ptok','');if(!me)return Promise.resolve();return push
 /* muted / locked chats are kept on the phone only; the server needs to know them to stay silent or hide the sender */
 let pushPT=null;
 function pushPrefsSoon(){clearTimeout(pushPT);pushPT=setTimeout(pushPrefs,1200)}
-function pushPrefs(){if(!me||!PUSH.tok)return;pushDoc().set({mut:[...lset('mut')],lck:[...lset('lck')]},{merge:true}).catch(()=>{})}
+function pushPrefs(){if(!me||!(PUSH.tok||WK.state==='on'))return;pushDoc().set({mut:[...lset('mut')],lck:[...lset('lck')],pn:get('pnote','1')==='1'},{merge:true}).catch(()=>{})}
 /* a tapped notification opens its chat (waits until the app is unlocked and the chat list is loaded) */
 function pushOpen(id){if(!id)return;let n=0;const t=setInterval(()=>{n++;const c=document.documentElement.classList;
-  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&(String(id).startsWith('post:')||String(id).startsWith('bc:')||chats.some(x=>x.id===id))){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
+  if($('app').style.display==='flex'&&!c.contains('locked')&&!c.contains('boot')&&(String(id).startsWith('post:')||String(id).startsWith('bc:')||String(id).startsWith('nf:')||chats.some(x=>x.id===id))){clearInterval(t);openChatById(id)}else if(n>60)clearInterval(t)},500)}
+PUSH.init=pushInit;PUSH.stop=pushStop;                                    /* handles for the tests */
 window.__vtOpen=pushOpen;                                                   /* the Android service calls it when a notification it showed is tapped */
 /* ---- Android app ---- */
 async function pushNative(){const P=PN();
@@ -2340,12 +2342,12 @@ async function pushWeb(){
 /* opened from a browser notification while the site was closed: https://…/VText/#chat=<id> */
 function pushHash(){const m=/[#&]chat=([\w-]+)/.exec(location.hash||'');if(m){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}pushOpen(m[1])}}
 async function pushInit(){if(!me||PUSH.busy)return;PUSH.busy=true;pushHash();
-  try{if(get('notif','1')!=='1'){await pushStop();PUSH.state='off'}else if(isNative())await pushNative();else await pushWeb()}
+  try{if(get('notif','1')!=='1'){await pushStop();PUSH.state='off'}else if(isNative()){try{await pushNative()}catch(e){PUSH.state='err';PUSH.err=String((e&&e.message)||e)}try{await wkInit()}catch(e){}}else await pushWeb()}
   catch(e){PUSH.state='err';PUSH.err=String((e&&e.message)||e)}
   PUSH.busy=false;try{if(cpIs('notif'))drawPanel('notif')}catch(e){}}
 async function pushStop(){const P=PN();
   if(P&&PUSH.wired&&isNative()){try{await P.unregister()}catch(e){}}            /* drops this phone's token at Google, so a different account on this phone gets its own */
-  try{await xpForget()}catch(e){}await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
+  try{await xpForget()}catch(e){}try{await wkStop()}catch(e){}await pushForget();PUSH.tok='';if(PUSH.state==='on')PUSH.state=''}
 const pushLogout=()=>Promise.race([pushStop(),new Promise(r=>setTimeout(r,2500))]);
 /* ---- Settings > Notifications row ---- */
 const PUSH_TXT={get on(){return window.VT_PUSH_SERVER===true?'On: this phone gets new messages even when Snapme is closed':'Registered on this phone. A closed app gets messages only after the push server is set up (see README).'},nofb:'Not set up yet: the app build needs the Firebase file (google-services.json). See README.',oldapk:'Needs the newest Snapme APK',perm:'Blocked. Allow notifications for Snapme in your phone Settings.',ask:'Tap to allow notifications',off:'Off: turn on “Show notifications” above'};
@@ -2669,10 +2671,10 @@ async function xpForget(){
     for(let i=0;i<todo.length;i+=400){const b=db.batch();todo.slice(i,i+400).forEach(c=>b.update(db.doc('chats/'+c.id),{[k]:F.delete()}));await b.commit()}}
   catch(e){}}
 /* a message was sent in chat c: tell the other members' phones (only members that have an entry, i.e. not muted) */
-function xpSend(c,p){
+function xpSend(c,p,only){
   if(!xpOn()||!c||!me)return;
   const x=c.xpt||{},g=c.type==='group',pv=String(p||'New message').replace(/\s+/g,' ').slice(0,140),out=[];
-  (c.members||[]).forEach(m=>{const e=x[m];if(m===me.uid||!e||typeof e.t!=='string'||blockedBy.has(m))return;
+  (c.members||[]).forEach(m=>{const e=x[m];if(m===me.uid||!e||typeof e.t!=='string'||blockedBy.has(m)||(Array.isArray(only)&&!only.includes(m)))return;
     const o={to:e.t,data:{chat:c.id},channelId:'snapme_msgs',priority:'high',sound:'default',ttl:86400};
     if(e.l){o.title='Snapme';o.body='New message'}else if(g){o.title=title(c);o.body=String(me.name||'').split(' ')[0]+': '+pv}else{o.title=me.name||'Snapme';o.body=pv}
     out.push(o)});
@@ -3003,7 +3005,7 @@ async function snapPost(){
     old.forEach(id=>b.update(db.doc('posts/'+id),{lt:false}));b.set(db.doc('users/'+me.uid),{lp:ref.id},{merge:true});
     let w;try{w=await Promise.race([b.commit().then(()=>'ok'),sleep(15000).then(()=>'slow')])}
     catch(e){if(e&&e.code==='permission-denied')w=await snapPostSplit(ref,p,mem,old,cp,vparts);else{vparts.forEach(r=>r.delete().catch(()=>{}));throw e}}
-    me.lp=ref.id;try{xpSnap(ref.id,to.filter(u=>u!==me.uid))}catch(e){}
+    me.lp=ref.id;try{wkSnap(ref.id,to.filter(u=>u!==me.uid))}catch(e){}
     SM.voice=null;SM.img='';SM.tags=[];tgChips();capReset();vidClear();SM.fromGal=false;$('snpv').style.display='none';
     const pm=SM.postMiss;SM.postMiss=null;
     toast(pm&&pm.length?'Snap posted ⚡ but Firebase refused: '+pm.join(', ')+'. Publish the newest firestore.rules.':w==='slow'?'Slow connection: your snap will be posted when you are back online':(to.length<2&&!pub?'Snap posted. Add friends so they can see it ⚡':'Snap posted ⚡'));
@@ -3579,11 +3581,12 @@ function nfText(x){const n=x.n||(x.un?'@'+x.un:'Someone');
   if(x.t==='comment')return n+' commented on your snap: '+String(x.x||'');
   if(x.t==='accept')return n+' accepted your friend request';return n}
 /* a new notification arrives while Snapme is running: a short message (or a phone notification when the app is in the background).
-   The phone notification is forced (4th argument of pushNote): Expo Push only carries messages and snaps, so it must not hide these. */
+   The phone notification is forced (4th argument of pushNote) unless this phone gets these from the OneSignal server (wk.js): Expo Push only carries messages
+   and snaps, so it must not hide these, but the OneSignal Worker does carry them (then a local copy would be a second notification). */
 function nfAlert(d){
   if(!d||!['like','comment','accept'].includes(d.t)||nfSkip(d)||NF.open)return;
   const m=nfText(d);
-  if(!active||document.hidden){try{pushNote('Snapme',m,d.p?'post:'+d.p:'',true)}catch(e){}}else{toast(m);try{beep()}catch(e){}}}
+  if(!active||document.hidden){try{pushNote('Snapme',m,d.p?'post:'+d.p:'',!wkActive())}catch(e){}}else{toast(m);try{beep()}catch(e){}}}
 function nfOpen(){
   if(!me)return;try{if(LOC.open)locClose()}catch(e){}
   NF.prev=NF.seen;NF.open=true;$('ntp').style.display='flex';nfDraw();$('ntb').scrollTop=0;
@@ -3651,7 +3654,7 @@ $('pox').onclick=povClose;
 function nfSend(to,id,data){
   if(!me||!to||to===me.uid||blockedBy.has(to))return Promise.resolve();
   const ref=db.doc('users/'+to+'/notifs/'+id),o=Object.assign({from:me.uid,n:String(me.name||'').slice(0,30),un:String(me.username||'').slice(0,20),ts:SV()},data);
-  return ref.set(o).catch(()=>ref.delete().then(()=>ref.set(o)).catch(()=>{}))}
+  return ref.set(o).then(()=>{try{wkNf(to,id)}catch(e){}}).catch(()=>ref.delete().then(()=>ref.set(o)).then(()=>{try{wkNf(to,id)}catch(e){}}).catch(()=>{}))}
 function nfUnsend(to,id){if(!me||!to)return;db.doc('users/'+to+'/notifs/'+id).delete().catch(()=>{})}
 /* ===== Comments on a snap: posts/<id>/comments/<commentId> = { uid, nm, un, t (text, up to 300), ts }. Whoever can see the snap can read and write comments;
    the commenter and the author of the snap can delete one. The author gets a notification (users/<author>/notifs/cm_<commentId>). ===== */
@@ -3742,6 +3745,74 @@ function bcBanner(x){
   BC.cur=x;$('bctt').textContent=x.title;$('bctx').textContent=x.text;
   b.classList.add('on');clearTimeout(BC.tm);BC.tm=setTimeout(()=>b.classList.remove('on'),12000);try{beep()}catch(e){}}
 function bcShow(x){if(!x)return;ask(x.title+'\n\n'+x.text,'',true,false,['','OK'])}
+/* ===== Push through OneSignal + a free Cloudflare Worker (Round 17) =====
+   OFF until config.js has  window.VT_PUSH_URL = 'https://<your-worker>.workers.dev'  (Android app only).  Expo Push (expo.js) stays as the second route.
+   RECEIVING: the APK has a small plugin "VTextPush" (OneSignal). After login this phone is registered with OneSignal under the person's Firebase user id
+     ("external id"), and users/<uid>/private/push gets  os:true  (+ pn: friend-snap alerts on/off, mut / lck as before). OneSignal then shows the
+     notifications itself, also when Snapme is closed (swiped away). While Snapme is on the screen nothing is shown on top (the live lists show it).
+   SENDING: the phone of the person who DID something (message, snap, friend request, like, comment, accepted request) calls the Worker with its Firebase login.
+     The Worker checks it really happened, who may be told, and answers  { ok, sent, miss }.  miss = people whose phone is not registered with OneSignal:
+     for exactly those people messages and snaps go on through Expo (expo.js), so nobody gets two notifications and nobody is left out.
+     If the Worker cannot be reached at all, messages and snaps use Expo for everybody (as before). Likes, comments and requests have no second route.
+   Nothing secret is in the app: the OneSignal REST key lives in the Worker. */
+const WK={state:'',err:'',busy:false,wired:false,sent:'',did:0,xp:{send:(c,p,o)=>xpSend(c,p,o),snap:(i,u)=>xpSnap(i,u)}};   /* WK.xp = the second route (Expo); a seam so tests can watch it */
+window.__wk=WK;
+function wkUrl(){return String(window.VT_PUSH_URL||'').trim()}
+function wkP(){return plug('VTextPush')}
+function wkOn(){return !!wkUrl()&&isNative()&&!featOff('wk')}              /* the owner can switch it off for everybody in the admin panel (Features) */
+function wkActive(){return wkOn()&&WK.state==='on'}                         /* this phone is registered: a server sends its notifications */
+/* register this phone (called from pushInit after login) */
+async function wkInit(){
+  if(!me||WK.busy||!wkOn()){if(!wkUrl())WK.state='';return}
+  WK.busy=true;
+  try{const P=wkP();
+    if(!P){WK.state=plug('VTextBg')?'oldapk':'';WK.busy=false;return}      /* this APK was built without OneSignal */
+    let st=null;try{st=await P.status()}catch(e){}
+    if(!st||st.ready!==true){WK.state='nofb';WK.busy=false;return}          /* OneSignal did not start in this build */
+    if(!WK.wired){WK.wired=true;
+      try{P.addListener('open',e=>{if(e&&e.chat)pushOpen(String(e.chat))})}catch(e){}
+      try{const r=await P.takeChat();if(r&&r.chat)pushOpen(String(r.chat))}catch(e){}}   /* a notification that started the app */
+    await P.login({uid:me.uid});await P.optIn();
+    WK.state='on';WK.err='';
+    await wkSave(true)}
+  catch(e){WK.state='err';WK.err=String((e&&e.message)||e)}
+  WK.busy=false}
+/* users/<uid>/private/push.os tells the Worker that this person has a OneSignal phone (true), or switched notifications off / logged out (false) */
+function wkSave(on){return me?db.doc('users/'+me.uid+'/private/push').set({os:!!on,pn:get('pnote','1')==='1',mut:[...lset('mut')],lck:[...lset('lck')]},{merge:true}).catch(e=>{WK.err=(e&&e.message)||'error'}):Promise.resolve()}
+async function wkStop(){
+  const P=wkP(),was=WK.state==='on';WK.state='';
+  if(P&&isNative()){try{await P.optOut()}catch(e){}try{await P.logout()}catch(e){}}   /* this phone stops getting this person's notifications */
+  if(me&&was)await wkSave(false)}
+/* ---- the calls to the Worker ---- */
+async function wkCall(body){
+  const t=await auth.currentUser.getIdToken();
+  const r=await fetch(wkUrl(),{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(Object.assign({t},body)),keepalive:true});
+  const j=await r.json().catch(()=>({}));return{st:r.status,j}}
+function wkOk(r){return r.st===200&&r.j&&r.j.ok!==false}
+/* a message was sent in chat c (preview p) */
+async function wkChat(c,p){
+  if(!c||!me)return;
+  if(!wkOn()){try{WK.xp.send(c,p)}catch(e){}return}
+  for(let i=0;i<4;i++){
+    try{const r=await wkCall({k:'chat',chat:c.id});
+      if(r.j&&r.j.wait){await sleep(1200);continue}                       /* the chat document is not saved yet: ask again in a moment */
+      if(wkOk(r)){WK.sent='ok';const miss=Array.isArray(r.j.miss)?r.j.miss:[];if(miss.length){try{WK.xp.send(c,p,miss)}catch(e){}}return}
+      WK.sent=String((r.j&&r.j.err)||('HTTP '+r.st));break}
+    catch(e){WK.sent='net';break}}
+  try{WK.xp.send(c,p)}catch(e){}}                                               /* the Worker could not be used: Expo for everybody, as before */
+/* a snap was posted for the people in uids */
+async function wkSnap(postId,uids){
+  if(!postId||!me)return;
+  if(!wkOn()){try{WK.xp.snap(postId,uids)}catch(e){}return}
+  try{const r=await wkCall({k:'post',post:postId});
+    if(wkOk(r)){WK.sent='ok';const miss=Array.isArray(r.j.miss)?r.j.miss:[];if(miss.length){try{WK.xp.snap(postId,miss)}catch(e){}}return}
+    WK.sent=String((r.j&&r.j.err)||('HTTP '+r.st))}
+  catch(e){WK.sent='net'}
+  try{WK.xp.snap(postId,uids)}catch(e){}}
+/* a friend request was sent to uid / a like, comment or accepted request was written for uid (no second route: they are only sent by the Worker) */
+function wkReq(to){if(!wkOn()||!me||!to)return;wkCall({k:'req',to}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net'})}
+function wkNf(to,id){if(!wkOn()||!me||!to||!id)return;wkCall({k:'nf',to,id}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net'})}
+WK.chat=wkChat;WK.snap=wkSnap;WK.req=wkReq;WK.nf=wkNf;                          /* handles for the tests */
 function memM(u){const ad=(cur.admins||[]).includes(u),F=firebase.firestore.FieldValue;sheet([[ad?'Remove admin':'👑 Make admin',()=>db.doc('chats/'+cur.id).update({admins:ad?F.arrayRemove(u):F.arrayUnion(u)}).catch(e=>toast(e.message))],['🚫 Remove from group',()=>db.doc('chats/'+cur.id).update({members:F.arrayRemove(u)}).catch(e=>toast(e.message))]])}
 $('chips').onclick=e=>{const f=e.target.dataset.f;if(!f)return;fl=f;[...$('chips').children].forEach(x=>x.classList.toggle('on',x.dataset.f===f));renderList()};
 function sq(f,n,q){n=n||128;q=q||.7;return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{const m=Math.min(im.width,im.height),cv=document.createElement('canvas');cv.width=cv.height=n;cv.getContext('2d').drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,n,n);res(cv.toDataURL('image/jpeg',q))};im.onerror=()=>rej(Error('Couldn’t read the photo'));im.src=URL.createObjectURL(f)})}

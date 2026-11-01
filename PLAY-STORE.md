@@ -12,7 +12,7 @@
 
 ## Every release
 Actions > **Build Play Store AAB** > Run workflow > download `Snapme.aab` from Artifacts > upload it in Play Console. The version code increases automatically with every run.
-The Play Store build bundles the web files inside the app (so updates go through the store) and, like every build since 30 Oct, has no background service, no boot receiver and no battery-optimisation permission (Google restricts those); messages arrive through the push service.
+The Play Store build bundles the web files inside the app (so updates go through the store) and, like every build since 30 Oct, has no background service, no boot receiver and no battery-optimisation permission (Google restricts those); messages arrive through the push service. The Play bundle is built without the OneSignal plugin (Round 17); the OneSignal + Worker route is for the test APK that you install yourself.
 
 ## Play Console forms
 - Package name: `com.thindyuvraj.vtext` (cannot be changed after the first upload).
