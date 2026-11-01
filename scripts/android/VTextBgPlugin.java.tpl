@@ -10,9 +10,7 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.PowerManager;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Base64;
 
 import androidx.biometric.BiometricManager;
@@ -37,7 +35,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
 
-/** Small local Capacitor plugin: background service, battery optimisation helpers, fingerprint, "save to gallery" and permission requests. */
+/** Small local Capacitor plugin: fingerprint, "save to gallery", permission requests, system bar colours and the push check. */
 @CapacitorPlugin(
         name = "VTextBg",
         permissions = {
@@ -123,64 +121,19 @@ public class VTextBgPlugin extends Plugin {
         call.resolve(permState());
     }
 
-    @PluginMethod
-    public void start(PluginCall call) {
-        try {
-            Context c = getContext();
-            c.getSharedPreferences("vtext", Context.MODE_PRIVATE).edit().putBoolean("bg", true).apply();   // remembered for restarts
-            ContextCompat.startForegroundService(c, new Intent(c, VTextService.class));
-            call.resolve();
-        } catch (Exception e) {
-            call.reject("Could not start: " + e.getMessage());
-        }
-    }
-
+    /**
+     * Snapme no longer runs a background service (no "running in the background" notification, no battery-optimisation question, no start at boot).
+     * Older APKs had one. The page calls stop() once after login; here it only forgets the old "keep running" flag and answers, so the same page
+     * works with old and new APKs (an old APK also stops its service when the page asks).
+     */
     @PluginMethod
     public void stop(PluginCall call) {
         try {
-            Context c = getContext();
-            c.getSharedPreferences("vtext", Context.MODE_PRIVATE).edit().putBoolean("bg", false).apply();
-            c.stopService(new Intent(c, VTextService.class));
-            call.resolve();
+            getContext().getSharedPreferences("vtext", Context.MODE_PRIVATE).edit().putBoolean("bg", false).apply();
         } catch (Exception e) {
-            call.reject("Could not stop: " + e.getMessage());
+            // nothing to forget
         }
-    }
-
-    @PluginMethod
-    public void batteryStatus(PluginCall call) {
-        JSObject r = new JSObject();
-        boolean ignoring = true;
-        try {
-            if (Build.VERSION.SDK_INT >= 23) {
-                PowerManager pm = (PowerManager) getContext().getSystemService(Context.POWER_SERVICE);
-                ignoring = pm != null && pm.isIgnoringBatteryOptimizations(getContext().getPackageName());
-            }
-        } catch (Exception e) {
-            ignoring = false;
-        }
-        r.put("ignoring", ignoring);
-        call.resolve(r);
-    }
-
-    @PluginMethod
-    public void batteryExempt(PluginCall call) {
-        try {
-            Intent i = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-            i.setData(Uri.parse("package:" + getContext().getPackageName()));
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            getContext().startActivity(i);
-            call.resolve();
-        } catch (Exception e) {
-            try {
-                Intent i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                getContext().startActivity(i);
-                call.resolve();
-            } catch (Exception e2) {
-                call.reject("Not available on this phone");
-            }
-        }
+        call.resolve();
     }
 
     /** Is a fingerprint (or face) sensor with at least one saved fingerprint available? */
