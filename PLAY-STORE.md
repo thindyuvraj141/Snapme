@@ -12,7 +12,7 @@
 
 ## Every release
 Actions > **Build Play Store AAB** > Run workflow > download `Snapme.aab` from Artifacts > upload it in Play Console. The version code increases automatically with every run.
-The Play Store build bundles the web files inside the app (so updates go through the store) and leaves out the background service helper, because Google restricts always-running services and battery-optimisation exemptions.
+The Play Store build bundles the web files inside the app (so updates go through the store) and, like every build since 30 Oct, has no background service, no boot receiver and no battery-optimisation permission (Google restricts those); messages arrive through the push service.
 
 ## Play Console forms
 - Package name: `com.thindyuvraj.vtext` (cannot be changed after the first upload).
@@ -24,7 +24,9 @@ The Play Store build bundles the web files inside the app (so updates go through
 - Graphics: `store/icon-512.png`, `store/feature-graphic-1024x500.png`, and at least 2 real phone screenshots.
 
 Short description: Share raw snaps with friends, see a daily Feed, keep Memories and chat.
-Full description: Snapme lets you share a raw moment with your friends: take a snap with the dual camera, add a mood and a 10-second voice vibe, and post it to your friends or your Inner Circle (Public accounts also appear in the Public feed). Snaps last 24 hours and your own Memories keep them privately for 30 days. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages and documents, and see on a friends map where your friends are when you both choose to share (sharing is off until you turn it on). Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
+Full description: Snapme lets you share a raw moment with your friends: take a snap with the dual camera, add filters, a caption and a 10-second voice vibe, and post it to your friends or your Inner Circle (Public accounts also appear in the Public feed). Snaps stay in the Feed for 30 days and your Memories (shown on your Profile like a photo grid) keep the ones you posted until you delete them. Add friends by username, chat one-to-one or in groups, send photos, videos, voice messages and documents, and see on a friends map where your friends are when you both choose to share (sharing is off until you turn it on). Take photos with fun lenses, add stickers and text. Messages disappear automatically after the time you choose.
 - Permissions declared: camera, microphone, photos/videos (READ_MEDIA_IMAGES / READ_MEDIA_VIDEO, READ_EXTERNAL_STORAGE up to Android 12), approximate + precise location (foreground only, **no** ACCESS_BACKGROUND_LOCATION), notifications (Firebase Cloud Messaging push, POST_NOTIFICATIONS), biometric (declared by the APK; the fingerprint lock feature itself was removed on 25 Oct). In the Play Console location declaration say: used for the optional friends map, only while the app is open.
+- Data safety (28 Oct): the email address is also kept next to the username so that people can log in with their username (switch in Settings); say it is collected for account management / app functionality and not shared.
+- Data safety (27 Oct): also declare **Other user-generated content** (comments, bio) and in-app notifications (likes, comments, accepted requests) as app functionality, not shared. Users can see only what the account’s Public/Private setting and friendship allow; the owner of a snap can delete any comment on it, and a user can delete his own comments, Memories and account.
 - Data safety: also declare Device or other IDs (Firebase Cloud Messaging token), collected for app functionality (notifications), not shared.
 - Privacy policy: the in-app and web privacy text should mention the push token. (Already added to `privacy.html` and the in-app policy.)
