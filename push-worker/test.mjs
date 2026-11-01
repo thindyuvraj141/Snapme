@@ -1,7 +1,7 @@
 // Tests for push-worker/vtext-push-worker.js  (run:  node push-worker/test.mjs)
 import fs from 'node:fs';
 import { webcrypto as crypto } from 'node:crypto';
-const src = fs.readFileSync(new URL('./vtext-push-worker.js', import.meta.url), 'utf8');
+const src = fs.readFileSync(process.env.WORKER_FILE || new URL('./vtext-push-worker.js', import.meta.url), 'utf8');   // WORKER_FILE=push-worker/vtext-push-worker.min.js tests the one-line copy
 fs.writeFileSync('/tmp/vt_worker_under_test.mjs', src);
 let W = (await import('/tmp/vt_worker_under_test.mjs?' + Math.random())).default;
 const fresh = async () => { W = (await import('/tmp/vt_worker_under_test.mjs?' + Math.random())).default; };      // a new Worker instance = empty caches
@@ -60,7 +60,7 @@ globalThis.fetch = async (url, init = {}) => {
   throw new Error('unexpected fetch ' + url);
 };
 
-const ENV = { ONESIGNAL_REST_KEY: 'REST-KEY', FIREBASE_SA: SA };
+const ENV = { ONESIGNAL_REST_KEY: 'REST-KEY-0123456789abcdefghij', FIREBASE_SA: SA };
 const post = async (body, env = ENV) => { const r = await W.fetch(new Request('https://w.test/', { method: 'POST', body: typeof body === 'string' ? body : JSON.stringify(body) }), env); return { st: r.status, j: await r.json(), h: r.headers }; };
 const now = () => new Date();
 
@@ -76,7 +76,7 @@ const chat = async (u = 'A', id = 'dm1') => post({ t: await idToken(u), k: 'chat
 // ================= health / CORS / config =================
 await R();
 let r = await W.fetch(new Request('https://w.test/', { method: 'GET' }), ENV); let j = await r.json();
-check('health: GET tells which secrets are set (not their values)', j.ok === true && j.oneSignalKey === true && j.firebaseKey === true && !JSON.stringify(j).includes('REST-KEY'), j);
+check('health: GET tells which secrets are set (not their values)', j.ok === true && j.oneSignalKey === true && j.firebaseKey === true && !JSON.stringify(j).includes('REST-KEY-0123456789abcdefghij'), j);
 r = await W.fetch(new Request('https://w.test/', { method: 'OPTIONS' }), ENV);
 check('CORS: preflight answers 204 with allow-origin', r.status === 204 && r.headers.get('Access-Control-Allow-Origin') === '*');
 r = await W.fetch(new Request('https://w.test/', { method: 'OPTIONS' }), { ...ENV, ALLOWED_ORIGIN: 'https://x.github.io' });
@@ -84,10 +84,31 @@ check('CORS: ALLOWED_ORIGIN can restrict it', r.headers.get('Access-Control-Allo
 let t = await idToken('A');
 let x = await post({ t, k: 'chat', chat: 'dm1' }, { FIREBASE_SA: SA });
 check('config: missing OneSignal key gives a clear message', x.st === 500 && /ONESIGNAL_REST_KEY/.test(x.j.err), x);
-x = await post({ t, k: 'chat', chat: 'dm1' }, { ONESIGNAL_REST_KEY: 'k', FIREBASE_SA: '{"nope":1}' });
+x = await post({ t, k: 'chat', chat: 'dm1' }, { ONESIGNAL_REST_KEY: 'k'.repeat(30), FIREBASE_SA: '{"nope":1}' });
 check('config: bad service account gives a clear message', x.st === 500 && /FIREBASE_SA/.test(x.j.err), x);
-x = await post({ t, k: 'chat', chat: 'dm1' }, { ONESIGNAL_REST_KEY: 'k' });
+x = await post({ t, k: 'chat', chat: 'dm1' }, { ONESIGNAL_REST_KEY: 'k'.repeat(30) });
 check('config: missing service account gives a clear message', x.st === 500 && /FIREBASE_SA/.test(x.j.err), x);
+// --- the secrets pasted from a phone: forgiving, and the answer says exactly what is wrong ---
+const gget = async env => (await (await W.fetch(new Request('https://w.test/', { method: 'GET' }), env)).json());
+let g = await gget({ ONESIGNAL_REST_KEY: 'os_v2_app_' + 'x'.repeat(40), FIREBASE_SA: SA });
+check('health: both secrets fine -> no "Problem" fields', g.oneSignalKey === true && g.firebaseKey === true && !g.firebaseKeyProblem && !g.oneSignalKeyProblem, g);
+g = await gget({ ONESIGNAL_REST_KEY: 'REST-KEY-0123456789abcdefghij' });
+check('health: FIREBASE_SA missing -> firebaseKey false and the problem is named', g.firebaseKey === false && /FIREBASE_SA is not set/.test(g.firebaseKeyProblem), g);
+g = await gget({ ONESIGNAL_REST_KEY: 'k'.repeat(30), FIREBASE_SA: '{"project_info":{"project_id":"x"},"client":[],"configuration_version":"1"}' });
+check('health: google-services.json pasted by mistake -> says so and lists the keys it has', g.firebaseKey === false && /google-services\.json/.test(g.firebaseKeyProblem) && /project_info/.test(g.firebaseKeyProblem), g);
+g = await gget({ FIREBASE_SA: SA.slice(0, Math.floor(SA.length / 2)) });
+check('health: half of the JSON pasted -> "not valid JSON" with length, first and last character', g.firebaseKey === false && /not valid JSON/.test(g.firebaseKeyProblem) && /characters/.test(g.firebaseKeyProblem), g);
+check('health: the problem text never contains the secret (private key / email)', !JSON.stringify(g).includes('BEGIN PRIVATE KEY') && !JSON.stringify(g).includes('test-sa@'), g);
+g = await gget({ ONESIGNAL_REST_KEY: 'two words here but long enough to pass', FIREBASE_SA: SA });
+check('health: a REST key with spaces is reported', g.oneSignalKey === false && /does not look like/.test(g.oneSignalKeyProblem), g);
+const SAo = JSON.parse(SA);
+for (const [name, val] of [['quotes around the whole file', JSON.stringify(SA)], ['smart quotes from a phone keyboard', SA.replace(/"/g, '\u201c').replace(/\u201c(?=[,:}\]]|\s*$)/g, '\u201d')], ['leading / trailing blank lines', '\n\n  ' + SA + '  \n'],
+  ['real line breaks inside the private key', SA.replace('"private_key":"', '"private_key":"').replace(/\\n/g, '\n')], ['pretty printed (many lines)', JSON.stringify(SAo, null, 2)]]) {
+  g = await gget({ ONESIGNAL_REST_KEY: 'os_v2_app_' + 'x'.repeat(40), FIREBASE_SA: val });
+  check('forgiving: ' + name + ' -> accepted', g.firebaseKey === true, g);
+}
+x = await post({ t, k: 'chat', chat: 'dm1' }, { ONESIGNAL_REST_KEY: 'k'.repeat(30), FIREBASE_SA: '{"project_info":{}}' });
+check('POST with a wrong FIREBASE_SA returns the same exact explanation (shown in the app as a message)', x.st === 500 && /google-services\.json/.test(x.j.err), x);
 check('config: PUT is refused', (await W.fetch(new Request('https://w.test/', { method: 'PUT' }), ENV)).status === 405);
 
 // ================= login checks =================
@@ -108,12 +129,12 @@ x = await chat();
 check('dm: ok, one person notified, nobody missing', x.st === 200 && x.j.ok === true && x.j.sent === 1 && JSON.stringify(x.j.miss) === '[]', x);
 check('dm: OneSignal got exactly one call', osCalls.length === 1);
 const o = osCalls[0] || { body: {} };
-check('dm: sent with the REST key as "Key ..."', osCalls[0] && osCalls[0].auth === 'Key REST-KEY');
+check('dm: sent with the REST key as "Key ..."', osCalls[0] && osCalls[0].auth === 'Key REST-KEY-0123456789abcdefghij');
 check('dm: addressed to the other member only, by external id', JSON.stringify(o.body.include_aliases) === '{"external_id":["B"]}' && o.body.target_channel === 'push' && o.body.app_id === 'eaee4d46-0219-44e9-ac45-10b45587223e', o.body);
 check('dm: title is the sender name, body the text (spaces tidied)', o.body.headings.en === 'Alice' && o.body.contents.en === 'hello there', o.body);
 check('dm: the chat id travels as data and as collapse id (so a tap opens the chat)', o.body.data.chat === 'dm1' && o.body.collapse_id === 'dm1');
 check('dm: high priority, 1 day life, Snapme icon, Snapme chime channel', o.body.priority === 10 && o.body.ttl === 86400 && o.body.small_icon === 'ic_stat_vtext' && o.body.existing_android_channel_id === 'snapme_msgs', o.body);
-check('dm: the REST key is never part of the payload', !JSON.stringify(o.body).includes('REST-KEY'));
+check('dm: the REST key is never part of the payload', !JSON.stringify(o.body).includes('REST-KEY-0123456789abcdefghij'));
 x = await chat();
 check('dm: the same message again is ignored (no second push)', x.j.dup === true && osCalls.length === 1, x);
 check('dm: the service-account token was fetched once and is cached', tokenHits === 1, tokenHits);
@@ -251,7 +272,7 @@ check('rate limit: after 90 calls a minute the caller gets 429', last.st === 429
 // ================= no secret leaks =================
 await R(); fsStatus = 500;
 x = await send();
-check('errors: nothing secret is in an error answer', !JSON.stringify(x).includes('REST-KEY') && !JSON.stringify(x).includes('PRIVATE KEY'), x);
+check('errors: nothing secret is in an error answer', !JSON.stringify(x).includes('REST-KEY-0123456789abcdefghij') && !JSON.stringify(x).includes('PRIVATE KEY'), x);
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);

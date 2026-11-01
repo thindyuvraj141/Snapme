@@ -19,7 +19,8 @@
  *
  * Secrets (Cloudflare > your Worker > Settings > Variables and Secrets, type "Secret"):
  *   ONESIGNAL_REST_KEY   the REST API Key of your OneSignal app (OneSignal > Settings > Keys & IDs)
- *   FIREBASE_SA          the whole content of the Firebase service-account JSON file (Firebase console > Project settings > Service accounts)
+ *   FIREBASE_SA          the whole content of the Firebase service-account JSON file (Firebase console > Project settings > Service accounts > Generate new private key)
+ *                        (opening the Worker address in a browser shows if both secrets are usable, and if not, what is wrong with them)
  * Optional plain variables:  ONESIGNAL_APP_ID, FIREBASE_PROJECT, ALLOWED_ORIGIN (default *), SHOW_TEXT ("false" = only "New message").
  * Free plan limits that matter: 100,000 requests a day, 50 outgoing calls per request (this Worker needs 4 to 8).
  */
@@ -67,6 +68,29 @@ async function verifyIdToken(token, project) {
   return c.sub;
 }
 
+/* ---------- the two secrets: forgiving about how a phone pasted them, exact about what is wrong (never shows the secret itself) ---------- */
+function readSA(raw) {                // FIREBASE_SA = the whole service-account JSON file
+  const s = String(raw == null ? '' : raw).replace(/^\uFEFF/, '').replace(/[\u201c\u201d]/g, '"').trim();      // smart quotes from a phone keyboard / text app -> plain quotes
+  if (!s) return { sa: null, why: 'The secret FIREBASE_SA is not set (or empty). Add it in Cloudflare > your Worker > Settings > Variables and Secrets, type Secret.' };
+  const tp = t => { try { return JSON.parse(t); } catch (e) { return null; } };
+  let o = tp(s);
+  if (typeof o === 'string') o = tp(o);                                                            // the whole file was pasted inside quotes
+  if (!o) o = tp(s.replace(/("private_key"\s*:\s*")([\s\S]*?)("\s*[,}])/, (m, a, b, c) => a + b.replace(/\r?\n/g, '\\n') + c));   // real line breaks inside the private key
+  if (!o || typeof o !== 'object') return { sa: null, why: 'FIREBASE_SA is not valid JSON (' + s.length + ' characters, starts with "' + s.slice(0, 1) + '", ends with "' + s.slice(-1) + '"). Paste the WHOLE file: it starts with { and ends with }.' };
+  if (!o.client_email || !o.private_key) {
+    const keys = Object.keys(o).slice(0, 8).join(', ');
+    return { sa: null, why: 'FIREBASE_SA is JSON but not the service-account file (no client_email / private_key; it has: ' + keys + ').' +
+      ((o.project_info || o.client) ? ' This is google-services.json. ' : ' ') + 'You need the file from Firebase console > Project settings > Service accounts > Generate new private key (it starts with {"type": "service_account").' };
+  }
+  return { sa: o, why: '' };
+}
+function readKey(raw) {               // ONESIGNAL_REST_KEY: trim spaces / quotes / line breaks that came with the paste
+  const k = String(raw == null ? '' : raw).replace(/[\u201c\u201d]/g, '"').trim().replace(/^["']+|["']+$/g, '').replace(/^Key\s+/i, '').trim();
+  if (!k) return { key: '', why: 'The secret ONESIGNAL_REST_KEY is not set (or empty). Add it in Cloudflare > your Worker > Settings > Variables and Secrets, type Secret.' };
+  if (/\s/.test(k) || k.length < 20) return { key: '', why: 'ONESIGNAL_REST_KEY does not look like a OneSignal REST API Key (' + k.length + ' characters' + (/\s/.test(k) ? ', with spaces' : '') + '). Copy it again from OneSignal > Settings > Keys & IDs.' };
+  return { key: k, why: '' };
+}
+
 /* ---------- 2. read Firestore with the service account ---------- */
 let gTok = { v: null, exp: 0 };
 async function googleToken(sa) {
@@ -75,8 +99,8 @@ async function googleToken(sa) {
   const head = bytesToB64u(enc.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
   const claim = bytesToB64u(enc.encode(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/datastore', aud: uri, iat: now, exp: now + 3600 })));
   let key;
-  try { key = await crypto.subtle.importKey('pkcs8', b64ToBytes(String(sa.private_key).replace(/-----[A-Z ]+-----/g, '').replace(/\s+/g, '')), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']); }
-  catch (e) { throw new HttpErr(500, 'The private key inside FIREBASE_SA is not valid. Paste the whole JSON file again.'); }
+  try { key = await crypto.subtle.importKey('pkcs8', b64ToBytes(String(sa.private_key).replace(/-----[A-Z ]+-----/g, '').replace(/\\n/g, '').replace(/\s+/g, '')), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']); }
+  catch (e) { throw new HttpErr(500, 'The private key inside FIREBASE_SA is not valid (it must start with -----BEGIN PRIVATE KEY-----). Generate a new private key in Firebase and paste the whole JSON file again.'); }
   const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, enc.encode(head + '.' + claim));
   const r = await fetch(uri, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: head + '.' + claim + '.' + bytesToB64u(sig) }) });
@@ -135,7 +159,7 @@ async function oneSignal(env, ids, title, body, data, collapse) {
   if (data && data.chat) { payload.data = data; }
   if (collapse) payload.collapse_id = String(collapse).slice(0, 60);
   const r = await fetch('https://api.onesignal.com/notifications', { method: 'POST',
-    headers: { 'Content-Type': 'application/json; charset=utf-8', Authorization: 'Key ' + env.ONESIGNAL_REST_KEY }, body: JSON.stringify(payload) });
+    headers: { 'Content-Type': 'application/json; charset=utf-8', Authorization: 'Key ' + readKey(env.ONESIGNAL_REST_KEY).key }, body: JSON.stringify(payload) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) {
     const why = Array.isArray(j.errors) ? j.errors.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join('; ') : (j.errors ? JSON.stringify(j.errors) : String(r.status));
@@ -189,10 +213,10 @@ async function deliver(env, aud, text, lockedText, data, collapse) {
 }
 
 async function handle(req, env) {
-  if (!env.ONESIGNAL_REST_KEY) throw new HttpErr(500, 'The OneSignal REST API key is not set in the Worker (secret ONESIGNAL_REST_KEY).');
-  let sa;
-  try { sa = JSON.parse(env.FIREBASE_SA || ''); } catch (e) { sa = null; }
-  if (!sa || !sa.client_email || !sa.private_key) throw new HttpErr(500, 'The Firebase service account is missing or is not the whole JSON file (secret FIREBASE_SA).');
+  const ks = readKey(env.ONESIGNAL_REST_KEY);
+  if (!ks.key) throw new HttpErr(500, ks.why);
+  const ss = readSA(env.FIREBASE_SA), sa = ss.sa;
+  if (!sa) throw new HttpErr(500, ss.why);
   const project = env.FIREBASE_PROJECT || sa.project_id;
   const raw = await req.text();
   if (raw.length > 8000) throw new HttpErr(413, 'Request too large');
@@ -288,7 +312,13 @@ export default {
   async fetch(req, env) {
     const cors = { 'Access-Control-Allow-Origin': (env && env.ALLOWED_ORIGIN) || '*', 'Access-Control-Allow-Methods': 'POST, GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' };
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
-    if (req.method === 'GET') return json({ ok: true, service: 'Snapme push sender', oneSignalKey: !!env.ONESIGNAL_REST_KEY, firebaseKey: !!env.FIREBASE_SA }, 200, cors);
+    if (req.method === 'GET') {                                       // open the Worker address in a browser: it says what is set and what is wrong (never the secrets)
+      const k = readKey(env && env.ONESIGNAL_REST_KEY), f = readSA(env && env.FIREBASE_SA);
+      const out = { ok: true, service: 'Snapme push sender', oneSignalKey: !!k.key, firebaseKey: !!f.sa };
+      if (!k.key) out.oneSignalKeyProblem = k.why;
+      if (!f.sa) out.firebaseKeyProblem = f.why;
+      return json(out, 200, cors);
+    }
     if (req.method !== 'POST') return json({ ok: false, err: 'Use POST' }, 405, cors);
     try { return json(await handle(req, env), 200, cors); }
     catch (e) { return json({ ok: false, err: e && e.expose ? e.message : 'Server error' }, (e && e.status) || 500, cors); }
