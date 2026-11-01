@@ -22,3 +22,4 @@ window.VT_PUSH_SERVER = false;
 // 2. Paste it between the quotes. 3. Upload your Firebase service-account key to that Expo project (Credentials > Android > FCM V1).
 // With it on, a phone that gets a new message while Snapme is closed is woken by Expo Push; the app stops showing its own copy.
 window.VT_EXPO_PROJECT_ID = '070c589f-6a18-4a53-8fe4-f419b0c88972';
+window.VT_PUSH_URL = 'https://snapme.vvaultweb.workers.dev';
