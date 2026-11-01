@@ -8,6 +8,9 @@
 #   (Snapme has no background service any more: no hidden page, no "running" notification, no start at boot. VT_HEADLESS is ignored.)
 #   VT_PUSH     1 = add the Capacitor push-notification plugin (default), 0 = leave it out.
 #               Push only works if scripts/google-services.json (from the Firebase console) is in the repo.
+#   VT_ONESIGNAL 1 = also add OneSignal (the free Cloudflare Worker route, see push-worker/) (default), 0 = leave it out.
+#               If it does not compile the build is repeated without it (the app then still has the Firebase / Expo route).
+#               The OneSignal App ID (public, NOT the secret REST key) is read from VT_ONESIGNAL_APP_ID, scripts/onesignal-app-id.txt or the built-in default.
 #   VERSION_CODE, GITHUB_SHA, GITHUB_RUN_NUMBER are read from the environment (set by GitHub Actions)
 #
 # When something fails, the reason of every attempt is printed at the very end of this step's log
@@ -17,6 +20,7 @@ TASK=${VT_TASK:-assembleDebug}
 BG=${VT_BG:-1}
 BUNDLE=${VT_BUNDLE:-0}
 PUSH=${VT_PUSH:-1}
+OS=${VT_ONESIGNAL:-1}
 SHA=${GITHUB_SHA:-dev}
 RUN=${GITHUB_RUN_NUMBER:-0}
 PLUG_CAPGO="@capgo/capacitor-native-biometric@^8"
@@ -24,6 +28,11 @@ PLUG_APARAJITA="@aparajita/capacitor-biometric-auth@^10"
 PLUG_PUSH="@capacitor/push-notifications@^8"
 ALL_PLUG_NAMES="@capgo/capacitor-native-biometric @aparajita/capacitor-biometric-auth @capacitor/push-notifications"
 HAS_FCM=0; [ -f scripts/google-services.json ] && HAS_FCM=1
+# OneSignal App ID: a public id (NOT the secret REST key). Variable first, then the file, then the built-in default.
+OSID=${VT_ONESIGNAL_APP_ID:-}
+if [ -z "$OSID" ] && [ -f scripts/onesignal-app-id.txt ]; then OSID=$(tr -d ' \r\n' < scripts/onesignal-app-id.txt); fi
+if [ -z "$OSID" ]; then OSID="eaee4d46-0219-44e9-ac45-10b45587223e"; fi
+export VT_ONESIGNAL_APP_ID="$OSID"
 LOGDIR=build-logs
 mkdir -p "$LOGDIR"
 
@@ -77,8 +86,8 @@ JSON
   return 0
 }
 
-attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = native helpers (1|0)   $3 = push plugin (1|0)
-  local plug=$1 bg=$2 push=$3
+attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = native helpers (1|0)   $3 = push plugin (1|2|0)   $4 = OneSignal (1|0)
+  local plug=$1 bg=$2 push=$3 os=${4:-0}
   echo "--- clean start"
   rm -rf android www
   npm uninstall --no-audit --no-fund $ALL_PLUG_NAMES >/dev/null 2>&1 || true
@@ -100,6 +109,7 @@ attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = native help
   npx cap add android || return 1
   if [ "$bg" = "1" ]; then export VT_NATIVE=full; else export VT_NATIVE=none; fi
   export VT_PUSH_PLUGIN="$push"
+  if [ "$bg" = "1" ] && [ "$os" = "1" ]; then export VT_ONESIGNAL=1; else export VT_ONESIGNAL=0; fi
   echo "--- patch android project"
   python3 scripts/patch_android.py || return 1
   python3 scripts/make_icons.py || return 1
@@ -122,25 +132,27 @@ reason() {  # $1 = log file
 
 preflight || { echo "::error::The build cannot start (see the message above)."; exit 1; }
 
-# levels are  fingerprint-plugin:native-helpers:push-plugin ; the push plugin is only dropped after the others failed
+# levels are  fingerprint-plugin:native-helpers:push-plugin:onesignal ; OneSignal and the push plugin are only dropped after the others failed
 if [ "$BG" = "1" ]; then
-  LEVELS="capgo:1:1 aparajita:1:1 none:1:1 none:1:2 none:1:0 none:0:0"
+  LEVELS="capgo:1:1:1 aparajita:1:1:1 none:1:1:1 none:1:1:0 none:1:2:0 none:1:0:0 none:0:0:0"
 else
-  LEVELS="capgo:0:1 aparajita:0:1 none:0:1 none:0:0"
+  LEVELS="capgo:0:1:0 aparajita:0:1:0 none:0:1:0 none:0:0:0"
 fi
-if [ "$PUSH" != "1" ]; then LEVELS=$(echo "$LEVELS" | sed 's/:[12] /:0 /g; s/:[12]$/:0/' | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ') ; fi
+if [ "$PUSH" != "1" ]; then LEVELS=$(echo "$LEVELS" | sed -E 's/:[12]:([01])( |$)/:0:\1\2/g' | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ') ; fi
+if [ "$OS" != "1" ]; then LEVELS=$(echo "$LEVELS" | sed -E 's/:[01]( |$)/:0\1/g' | tr ' ' '\n' | awk '!seen[$0]++' | tr '\n' ' ') ; fi
 
-n=0; TRIED=" "; DROP_PUSH=0; SUMMARY=""
+n=0; TRIED=" "; DROP_PUSH=0; DROP_OS=0; SUMMARY=""
 Q=($LEVELS)
 while [ ${#Q[@]} -gt 0 ]; do
   lv=${Q[0]}; Q=(${Q[@]+"${Q[@]:1}"})
-  plug=${lv%%:*}; rest=${lv#*:}; bg=${rest%%:*}; push=${rest##*:}
+  plug=${lv%%:*}; rest=${lv#*:}; bg=${rest%%:*}; rest=${rest#*:}; push=${rest%%:*}; os=${rest##*:}
   if [ "$DROP_PUSH" = "1" ]; then push=0; fi
-  case "$TRIED" in *" $plug:$bg:$push "*) continue ;; esac
-  TRIED="$TRIED$plug:$bg:$push "
+  if [ "$DROP_OS" = "1" ]; then os=0; fi
+  case "$TRIED" in *" $plug:$bg:$push:$os "*) continue ;; esac
+  TRIED="$TRIED$plug:$bg:$push:$os "
   n=$((n+1))
-  echo "::group::Build attempt $n (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push)"
-  attempt "$plug" "$bg" "$push" 2>&1 | tee "$LOGDIR/attempt-$n.log"
+  echo "::group::Build attempt $n (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push, OneSignal: $os)"
+  attempt "$plug" "$bg" "$push" "$os" 2>&1 | tee "$LOGDIR/attempt-$n.log"
   rc=${PIPESTATUS[0]}
   if [ "$rc" = "0" ]; then
     echo "::endgroup::"
@@ -157,7 +169,9 @@ while [ ${#Q[@]} -gt 0 ]; do
         if [ "$push" = "2" ]; then echo "- Snapme's own messaging service: NOT included (it did not build). Pushes that carry a notification (admin panel) still show when the app is closed; Expo message pushes need that service."; fi
         if [ "$HAS_FCM" = "1" ]; then echo "- Push notifications (Firebase): included"; else echo "- Push notifications (Firebase): plugin included but OFF - add scripts/google-services.json to the repo and build again"; fi
       elif [ "$PUSH" = "1" ]; then echo "- Push notifications (Firebase): NOT included (the build fell back without the push plugin)"; fi
-      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" != "1" ]; }; }; then
+      if [ "$os" = "1" ] && [ "$bg" = "1" ]; then echo "- OneSignal (free Cloudflare Worker route): included (App ID ${OSID:0:8}...)"
+      elif [ "$OS" = "1" ] && [ "$BG" = "1" ]; then echo "- OneSignal (free Cloudflare Worker route): NOT included (it did not build). Messages and snaps still go through Expo; likes, comments and friend requests need OneSignal."; fi
+      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" != "1" ]; } || { [ "$OS" = "1" ] && [ "$BG" = "1" ] && [ "$os" != "1" ]; }; }; then
         echo
         echo "Some optional parts failed to build (attempt $n). The app still works; see the build log for the reason."
         if [ -n "$SUMMARY" ]; then echo; echo "Why the earlier attempts failed:$SUMMARY"; fi
@@ -169,17 +183,24 @@ while [ ${#Q[@]} -gt 0 ]; do
   fi
   echo "::endgroup::"
   why=$(reason "$LOGDIR/attempt-$n.log")
-  echo "::warning::Build attempt $n failed (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push). Reason: $why"
+  echo "::warning::Build attempt $n failed (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push, OneSignal: $os). Reason: $why"
   SUMMARY="$SUMMARY
-- Attempt $n ($plug / helpers $bg / push $push): $why"
-  if [ "$push" = "1" ] && grep -qE 'VTextFcmService|MessagingService' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
-    Q=("$plug:$bg:2" ${Q[@]+"${Q[@]}"})   # Snapme's own messaging service did not build: the same build with the push plugin but without that service
+- Attempt $n ($plug / helpers $bg / push $push / OneSignal $os): $why"
+  # (the patch step prints "OneSignal ..." lines in every attempt, so only real error lines count here)
+  if [ "$os" = "1" ] && { printf '%s' "$why" | grep -qiE 'onesignal|VTextPush|VTextApp' || grep -E 'VTextPushPlugin\.java|VTextApp\.java|com\.onesignal|onesignal\.' "$LOGDIR/attempt-$n.log" 2>/dev/null | grep -qiE 'error|cannot find|does not exist|incompatible|could not|failed|duplicate|conflict|unresolved'; }; then
+    DROP_OS=1
+    Q=("$plug:$bg:$push:0" ${Q[@]+"${Q[@]}"})   # OneSignal did not build: the same build again, without it (every later attempt is without it too)
+    SUMMARY="$SUMMARY
+- (OneSignal did not build; the next attempt is the same build without OneSignal)"
+    echo "The log mentions OneSignal - the next attempt is the same build without OneSignal."
+  elif [ "$push" = "1" ] && grep -qE 'VTextFcmService|MessagingService' "$LOGDIR/attempt-$n.log" 2>/dev/null; then
+    Q=("$plug:$bg:2:$os" ${Q[@]+"${Q[@]}"})   # Snapme's own messaging service did not build: the same build with the push plugin but without that service
     SUMMARY="$SUMMARY
 - (Snapme's own messaging service did not build; the next attempt keeps the push plugin and leaves that service out)"
     echo "The log mentions the messaging service - the next attempt keeps the push plugin but leaves Snapme's own messaging service out."
   elif [ "$push" = "1" ] && printf '%s' "$why" | grep -qiE 'push-notifications|firebase|google-services|gms'; then
     DROP_PUSH=1
-    Q=("$plug:$bg:0" ${Q[@]+"${Q[@]}"})   # same build again, but without the push plugin
+    Q=("$plug:$bg:0:$os" ${Q[@]+"${Q[@]}"})   # same build again, but without the push plugin
     echo "The failure mentions push / Firebase - the next attempt is the same build without the push plugin."
   fi
 done

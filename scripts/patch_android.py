@@ -10,6 +10,11 @@ Environment:
                  "2"           = same, but without Snapme's own messaging service VTextFcmService (the build script tries this when that file did not
                                  compile): pushes that carry a notification (admin panel) still show when the app is closed
                  "0"           = no push plugin: leave all Firebase settings out
+  VT_ONESIGNAL   "1" = OneSignal (the free Cloudflare Worker route, see push-worker/) is part of this build: the OneSignal library, the small plugin
+                      VTextPush and VTextApp (starts OneSignal with the app). Needs VT_NATIVE=full. "0" (default) = left out.
+                      The build script tries "1" first and builds again with "0" when it does not compile.
+  VT_ONESIGNAL_APP_ID  the OneSignal App ID (a public id, NOT the secret REST key). If not set, scripts/onesignal-app-id.txt is used,
+                      then the built-in default of this project.
   VT_HEADLESS    ignored (the hidden background page was removed; kept so that old workflow files that still set it do not break)
 """
 import base64, glob, json, os, pathlib, re, sys
@@ -24,6 +29,23 @@ try:
     site = (json.load(open('capacitor.config.json')).get('server') or {}).get('url', '') or ''
 except Exception:
     site = ''
+
+# ---------------- OneSignal (optional) ----------------
+DEFAULT_OS_ID = 'eaee4d46-0219-44e9-ac45-10b45587223e'
+def onesignal_id():
+    v = os.environ.get('VT_ONESIGNAL_APP_ID', '').strip()
+    f = pathlib.Path('scripts/onesignal-app-id.txt')
+    if not v and f.exists():
+        v = f.read_text().strip()
+    if not v:
+        v = DEFAULT_OS_ID
+    return v if re.fullmatch(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', v) else ''
+os_on = os.environ.get('VT_ONESIGNAL', '0') == '1'
+os_id = onesignal_id() if os_on else ''
+if os_on and native != 'full':
+    print('push: OneSignal needs the native helpers (VT_NATIVE=full) - left out of this build'); os_on = False
+if os_on and not os_id:
+    print('push: the OneSignal App ID is not valid (scripts/onesignal-app-id.txt) - OneSignal is left out of this build'); os_on = False
 
 # ---------------- manifest ----------------
 mp = root / 'app/src/main/AndroidManifest.xml'
@@ -59,6 +81,12 @@ if fcm_service and native == 'full' and 'VTextFcmService' not in s:
            '            </intent-filter>\n'
            '        </service>\n')
     s = s.replace('</application>', fcm + '    </application>', 1)
+if os_on and 'VTextApp' not in s:
+    # OneSignal starts together with the app process (also when a push message starts it)
+    if re.search(r'<application\b[^>]*android:name=', s):
+        print('WARNING: the manifest already has an Application class - OneSignal starts from MainActivity only')
+    else:
+        s = re.sub(r'<application\b', '<application android:name=".VTextApp"', s, count=1)
 if push_on and 'default_notification_channel_id' not in s:
     meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="snapme_msgs"/>\n'
             '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
@@ -120,6 +148,19 @@ if fcm_service:
         ab.write_text(a_txt)
         print('push: firebase-messaging added to the app module (needed to compile VTextFcmService)')
 
+# OneSignal library (its Firebase credentials are set once in the OneSignal dashboard; the app's own google-services.json is not used by it)
+if os_on:
+    ab = root / 'app/build.gradle'
+    a_txt = ab.read_text()
+    if 'com.onesignal:OneSignal' not in a_txt:
+        a_txt, n = re.subn(r'(\ndependencies\s*\{)', lambda m: m.group(1) + "\n    implementation 'com.onesignal:OneSignal:[5.6.1, 5.99.99]'", a_txt, count=1)
+        if not n:
+            print('ERROR: could not add the OneSignal library to app/build.gradle (OneSignal)'); sys.exit(1)
+        ab.write_text(a_txt)
+    print('push: OneSignal library added (app id %s...)' % os_id[:8])
+else:
+    print('push: OneSignal is not part of this build')
+
 # ---------------- version ----------------
 vc = os.environ.get('VERSION_CODE')
 g = root / 'app/build.gradle'
@@ -157,11 +198,21 @@ if native == 'full':
     names = ['MainActivity', 'VTextBgPlugin']
     if fcm_service:
         names.append('VTextFcmService')
+    if os_on:
+        names += ['VTextPushPlugin', 'VTextApp']
+    # MainActivity: the OneSignal lines are only there when OneSignal is part of the build
+    os_lines = {'VT_OS_REG': 'registerPlugin(VTextPushPlugin.class);', 'VT_OS_BOOT': 'VTextPushPlugin.boot(this);',
+                'VT_OS_HIDE': 'VTextPushPlugin.setVisible(false);', 'VT_OS_SHOW': 'VTextPushPlugin.setVisible(true);'}
     for name in names:
-        src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site)
+        src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site).replace('__ONESIGNAL_APP_ID__', os_id)
+        if name == 'MainActivity':
+            for k, v in os_lines.items():
+                src = src.replace('/*%s*/' % k, v if os_on else '')
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
     print('no background service, no boot receiver, no hidden page (notifications while the app is closed come from the push service)')
+    if os_on:
+        print('push: OneSignal plugin (VTextPush) installed')
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------
