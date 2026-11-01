@@ -45,7 +45,9 @@ You already have a OneSignal app. Its App ID must be   eaee4d46-0219-44e9-ac45-1
   B6. Copy the Worker address, it looks like   https://snapme-push.YOURNAME.workers.dev
       Open that address in the browser. You must see   {"ok":true,"service":"Snapme push sender","oneSignalKey":true,"firebaseKey":true}
         - "oneSignalKey":false  -> the secret ONESIGNAL_REST_KEY is missing / has another name.
-        - "firebaseKey":false   -> the secret FIREBASE_SA is missing / has another name.
+        - "firebaseKey":false   -> the secret FIREBASE_SA is missing / has another name / is not the right file. The page then also shows
+                                   "firebaseKeyProblem": it says exactly what is wrong (for example: "This is google-services.json" = you pasted the wrong
+                                   file; "not valid JSON ... starts with ..." = the paste is incomplete). Same for "oneSignalKeyProblem".
 
 ======================================  PART C  -  the app  ===========================================================
   C1. Repo file  config.js : open it on GitHub (pencil icon) and ADD this line at the very end (use YOUR address from B6, keep the quotes).
