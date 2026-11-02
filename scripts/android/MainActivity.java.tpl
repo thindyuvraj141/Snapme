@@ -51,12 +51,14 @@ public class MainActivity extends BridgeActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleChatIntent(intent);
+        /*VT_SH_NEW*/
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(VTextBgPlugin.class);
         /*VT_OS_REG*/
+        /*VT_SH_REG*/
         super.onCreate(savedInstanceState);
         // Never show the Android title bar (the "Snapme" strip at the top) and keep the window behind the page dark until the page paints.
         try {
@@ -68,6 +70,7 @@ public class MainActivity extends BridgeActivity {
         }
         /*VT_OS_BOOT*/
         handleChatIntent(getIntent());
+        /*VT_SH_BOOT*/
     }
 
     // Tell the page when the app really goes to the background / comes back (used by the app lock).
