@@ -176,6 +176,34 @@ Upload: `index.html`, `firestore.rules` (**publish it first**), `privacy.html`, 
 - `firestore.rules`: new `logins/{n}`; posts accept `cp` (≤150); memories accept `cp` and `tg` (≤5).
 - Tests: `qa/t_r14.py` (81 checks), `qa/t_x_purge.js` (logins), and the older suites adapted to the new Snap screen and login page.
 
+## Round 18 (2 Nov): Share account, Share to Snapme, Private accounts hide old snaps
+**Share account (Profile page).** A new button between the bell and the three-dots button opens a page with a card: a QR code of your link, your profile
+picture in the middle of the code, your name and @username. Below it: the link, **Copy**, **Share link** (the phone's Share sheet) and **Save picture** (the whole card
+as a PNG). The link is `<your Snapme address>?add=<username>`. Whoever scans it or opens it lands on the Add friend page with your username already typed in
+(after signing in, if they were not signed in). The QR encoder is written inside `index.html` (no library); it was checked by decoding the real card with OpenCV
+for every accent colour, with and without a picture, for 3 to 20 letter usernames. A picture set to "nobody" (Privacy) is not put on the card.
+
+**Share to Snapme (Android app).** In the Gallery, or in any other app, share a photo and pick **Snapme**: the "Share your snap" page opens with that photo.
+Everything after that is the normal snap flow (caption, tags, Friends / Inner Circle, Post).
+ - Needs a **new APK**. `scripts/patch_android.py` adds two intent filters (SEND and SEND_MULTIPLE, `image/*`) to MainActivity, installs `VTextSharePlugin`
+   (reads the photo, turns it the right way up, makes it at most 2000 px, JPEG) and three lines in `MainActivity`. Switch off with `VT_SHAREIN=0`.
+   If it ever does not compile, `build_android.sh` builds again without it (the release notes say so) and the rest of the app is unchanged.
+ - Several photos shared at once: the first one is used (a snap is one photo). Videos are not offered in the Share sheet (a video snap can still be picked inside Snapme).
+ - If you are signed out, the photo waits and opens after you sign in. If a chat, Settings or another page is open, it closes and the snap page opens.
+ - It does not exist in the website/browser version and not in the Play Store bundle (built without the native helpers).
+
+**How a snap is shown, like Instagram.**
+ - **Public account:** the snap is in the Public feed (everybody), on the Add friend page under *Public snaps* (with Follow / Add friend), and in your friends' Feed.
+ - **Private account:** you still show up in search, suggestions and the Add friend page (name, picture, @username, "Private account"). People send a friend
+   request; your profile shows no snaps to them. Your snaps go only to your friends' Feed. They are never in the Public feed.
+ - **New:** when an account becomes Private, the snaps it already posted to the Public feed leave the Public feed at once (friends still see them). Going back to
+   Public does not publish old snaps again, only new snaps are public. This needs the newest **`firestore.rules`** (one new rule: the author may change `pub`
+   from true to false). Uploading `firestore.rules` to the repo publishes it by itself (Actions > *Deploy Firestore rules*). Without it the account still becomes Private, and the app says that the old Public snaps could not be hidden and to publish the rules.
+   People who only *followed* a public account (not friends) stop seeing its snaps when it becomes Private, like an account that was never public.
+
+- Tests: `qa/t_r18.py` (47: Share account, QR decoded with OpenCV), `qa/t_r18_share.py` (41: shared photo, Public / Private, old rules), `qa/t_z_sharein.py` (28: manifest, Java compiled against stubs, build fallback), `qa/t_z_os.py` and `qa/t_z_android.py` adapted.
+- **Not verifiable without a phone:** the real Android Share sheet and reading photos from other apps (the Java file is compiled against stubs, the page side is tested with a fake plugin).
+
 ## Round 17 (31 Oct): OneSignal + a free Cloudflare Worker (notifications when Snapme is closed, for everything)
 Setup guide for the phone: **`ONESIGNAL-SETUP.txt`**. Upload list: `UPLOAD-PATHS.txt` of the 31 Oct set.
 - **What it is:** a second push route next to Expo. The phone registers with OneSignal after login (external id = Firebase user id, small plugin `VTextPush` in the APK, `patches/js/wk.js` in the page). The phone of the person who *did* something (message, snap, friend request, like, comment, accepted request) calls a free **Cloudflare Worker** (`push-worker/vtext-push-worker.js`) with its Firebase login; the Worker verifies the login, reads Firestore with the service account, applies the receiver's settings (muted / locked chat, notifications off, friend-snap switch, blocked) and sends the push through OneSignal's REST API. Secrets (`ONESIGNAL_REST_KEY`, `FIREBASE_SA`) live only in the Worker.
