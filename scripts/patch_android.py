@@ -15,6 +15,9 @@ Environment:
                       The build script tries "1" first and builds again with "0" when it does not compile.
   VT_ONESIGNAL_APP_ID  the OneSignal App ID (a public id, NOT the secret REST key). If not set, scripts/onesignal-app-id.txt is used,
                       then the built-in default of this project.
+  VT_SHAREIN     "1" (default) = "Share to Snapme": Snapme is listed in the Android Share sheet for photos (Gallery, any other app). Adds two intent filters to the
+                      manifest, the plugin VTextShare (reads the photo) and a few lines in MainActivity. Needs VT_NATIVE=full. "0" = left out.
+                      The build script builds again with "0" when it does not compile.
   VT_HEADLESS    ignored (the hidden background page was removed; kept so that old workflow files that still set it do not break)
 """
 import base64, glob, json, os, pathlib, re, sys
@@ -41,6 +44,7 @@ def onesignal_id():
         v = DEFAULT_OS_ID
     return v if re.fullmatch(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', v) else ''
 os_on = os.environ.get('VT_ONESIGNAL', '0') == '1'
+share_on = native == 'full' and os.environ.get('VT_SHAREIN', '1') == '1'
 os_id = onesignal_id() if os_on else ''
 if os_on and native != 'full':
     print('push: OneSignal needs the native helpers (VT_NATIVE=full) - left out of this build'); os_on = False
@@ -87,6 +91,21 @@ if os_on and 'VTextApp' not in s:
         print('WARNING: the manifest already has an Application class - OneSignal starts from MainActivity only')
     else:
         s = re.sub(r'<application\b', '<application android:name=".VTextApp"', s, count=1)
+if share_on and 'android.intent.action.SEND"' not in s:
+    # "Share to Snapme": a photo shared from the Gallery or another app opens Snapme's "Share your snap" page
+    flt = ('            <intent-filter>\n'
+           '                <action android:name="android.intent.action.SEND"/>\n'
+           '                <category android:name="android.intent.category.DEFAULT"/>\n'
+           '                <data android:mimeType="image/*"/>\n'
+           '            </intent-filter>\n'
+           '            <intent-filter>\n'
+           '                <action android:name="android.intent.action.SEND_MULTIPLE"/>\n'
+           '                <category android:name="android.intent.category.DEFAULT"/>\n'
+           '                <data android:mimeType="image/*"/>\n'
+           '            </intent-filter>\n')
+    s, n_sh = re.subn(r'([ \t]*)</activity>', lambda m: flt + m.group(0), s, count=1)
+    if not n_sh:
+        print('WARNING: no <activity> in the manifest - Share to Snapme is left out'); share_on = False
 if push_on and 'default_notification_channel_id' not in s:
     meta = ('        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="snapme_msgs"/>\n'
             '        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_stat_vtext"/>\n')
@@ -200,19 +219,27 @@ if native == 'full':
         names.append('VTextFcmService')
     if os_on:
         names += ['VTextPushPlugin', 'VTextApp']
+    if share_on:
+        names.append('VTextSharePlugin')
     # MainActivity: the OneSignal lines are only there when OneSignal is part of the build
     os_lines = {'VT_OS_REG': 'registerPlugin(VTextPushPlugin.class);', 'VT_OS_BOOT': 'VTextPushPlugin.boot(this);',
                 'VT_OS_HIDE': 'VTextPushPlugin.setVisible(false);', 'VT_OS_SHOW': 'VTextPushPlugin.setVisible(true);'}
+    sh_lines = {'VT_SH_REG': 'registerPlugin(VTextSharePlugin.class);', 'VT_SH_BOOT': 'VTextSharePlugin.handle(this, getIntent());',
+                'VT_SH_NEW': 'VTextSharePlugin.handle(this, intent);'}
     for name in names:
         src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site).replace('__ONESIGNAL_APP_ID__', os_id)
         if name == 'MainActivity':
             for k, v in os_lines.items():
                 src = src.replace('/*%s*/' % k, v if os_on else '')
+            for k, v in sh_lines.items():
+                src = src.replace('/*%s*/' % k, v if share_on else '')
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
     print('no background service, no boot receiver, no hidden page (notifications while the app is closed come from the push service)')
     if os_on:
         print('push: OneSignal plugin (VTextPush) installed')
+    if share_on:
+        print('share: Share to Snapme installed (photos from the Gallery and other apps; plugin VTextShare)')
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------
