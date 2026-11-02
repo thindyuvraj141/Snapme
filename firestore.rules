@@ -52,6 +52,18 @@ service cloud.firestore {
       return !exists(p) || (get(p).data.get('until', null) != null && get(p).data.until < request.time);
     }
 
+    // Can the signed-in person look into the friends list of person `o`?  A Public account: everybody. A Private account: only the people on its friends list.
+    function friendsShown(o) {
+      return get(/databases/$(db)/documents/users/$(o)).data.get('private', false) == false
+          || exists(/databases/$(db)/documents/users/$(o)/friends/$(request.auth.uid));
+    }
+    // Can the signed-in person read the Memories that person `o` posted? Not when `o` switched it off (hideMem); a Public account: everybody; a Private account: its friends.
+    function memoriesShown(o) {
+      return get(/databases/$(db)/documents/users/$(o)).data.get('hideMem', false) == false
+          && (get(/databases/$(db)/documents/users/$(o)).data.get('private', false) == false
+              || exists(/databases/$(db)/documents/users/$(o)/friends/$(request.auth.uid)));
+    }
+
     match /users/{u} {
       allow read: if request.auth != null;
       // You write your own profile, but you cannot give yourself the verified badge or touch `modAt` (set by admins).
@@ -177,9 +189,8 @@ service cloud.firestore {
     // Written only by the person himself (his app keeps it equal to his friends). Everybody signed in can read it when his account is Public;
     // when it is Private only the people on the list (his friends) can.
     match /users/{u}/friends/{f} {
-      allow read: if request.auth != null && (request.auth.uid == u
-        || get(/databases/$(db)/documents/users/$(u)).data.get('private', false) == false
-        || exists(/databases/$(db)/documents/users/$(u)/friends/$(request.auth.uid)));
+      allow read: if request.auth != null && request.auth.uid == u;
+      allow read: if request.auth != null && friendsShown(u);
       allow create, update: if request.auth != null && request.auth.uid == u && f != u
         && request.resource.data.keys().hasOnly(['n', 'un'])
         && request.resource.data.n is string && request.resource.data.n.size() <= 60
@@ -277,6 +288,10 @@ service cloud.firestore {
       allow update: if request.auth != null && resource.data.uid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['lt'])
         && request.resource.data.lt == false;
+      // The author switches his account to Private: his snaps leave the Public feed (`pub` goes from true to false, nothing else changes). Friends keep them in `to`.
+      allow update: if request.auth != null && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pub'])
+        && request.resource.data.pub == false;
       allow update: if request.auth != null
         && (resource.data.pub == true || request.auth.uid in resource.data.to)
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rx'])
@@ -303,11 +318,8 @@ service cloud.firestore {
     // Only you can read, create or delete them. The snaps you posted yourself (`o` = true) can also be read by your friends and, when your account
     // is Public, by everybody, so they can show on your profile. You can switch that off (`hideMem`). Tagged copies are never shared.
     match /users/{u}/memories/{m} {
-      allow read: if request.auth != null && (request.auth.uid == u
-        || (resource.data.get('o', false) == true
-            && get(/databases/$(db)/documents/users/$(u)).data.get('hideMem', false) == false
-            && (get(/databases/$(db)/documents/users/$(u)).data.get('private', false) == false
-                || exists(/databases/$(db)/documents/users/$(u)/friends/$(request.auth.uid)))));
+      allow read: if request.auth != null && request.auth.uid == u;
+      allow read: if request.auth != null && resource.data.get('o', false) == true && memoriesShown(u);
       allow delete: if request.auth != null && request.auth.uid == u;
       allow create: if request.auth != null && request.auth.uid == u && notBanned()
         && request.resource.data.keys().hasOnly(['ts', 'img', 'vb', 'cp', 'au', 'ad', 'by', 'o', 'tg'])
