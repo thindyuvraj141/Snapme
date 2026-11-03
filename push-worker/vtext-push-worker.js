@@ -87,6 +87,7 @@ function readSA(raw) {                // FIREBASE_SA = the whole service-account
 function readKey(raw) {               // ONESIGNAL_REST_KEY: trim spaces / quotes / line breaks that came with the paste
   const k = String(raw == null ? '' : raw).replace(/[\u201c\u201d]/g, '"').trim().replace(/^["']+|["']+$/g, '').replace(/^Key\s+/i, '').trim();
   if (!k) return { key: '', why: 'The secret ONESIGNAL_REST_KEY is not set (or empty). Add it in Cloudflare > your Worker > Settings > Variables and Secrets, type Secret.' };
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(k)) return { key: '', why: 'ONESIGNAL_REST_KEY is an App ID (the short id with dashes), not the REST API Key. In OneSignal > Settings > Keys & IDs create an API key (Add Key), copy it at once; it starts with os_v2_app_.' };
   if (/\s/.test(k) || k.length < 20) return { key: '', why: 'ONESIGNAL_REST_KEY does not look like a OneSignal REST API Key (' + k.length + ' characters' + (/\s/.test(k) ? ', with spaces' : '') + '). Copy it again from OneSignal > Settings > Keys & IDs.' };
   return { key: k, why: '' };
 }
@@ -152,17 +153,21 @@ function nfText(d, showText) {
   return null;
 }
 
+let probe = { at: 0, v: null };      // result of the last key check (GET)
 /* ---------- 4. OneSignal ---------- */
 async function oneSignal(env, ids, title, body, data, collapse) {
   const payload = { app_id: env.ONESIGNAL_APP_ID || DEFAULT_APP_ID, target_channel: 'push', include_aliases: { external_id: ids },
     headings: { en: title }, contents: { en: body }, priority: 10, ttl: 86400, small_icon: 'ic_stat_vtext', existing_android_channel_id: CHANNEL };
   if (data && data.chat) { payload.data = data; }
-  if (collapse) payload.collapse_id = String(collapse).slice(0, 60);
+  // No collapse_id on purpose: OneSignal hands it to Google (FCM) as a "collapse key", and FCM keeps at most FOUR different collapse keys per phone while the phone is
+  // unreachable (asleep, offline). Every chat / snap / like / request had its own key, so a phone that was away for a while lost everything beyond four events.
+  // Without it every notification is its own message (FCM keeps up to 100 per phone). Doubles are stopped by the checks in handle() (SEEN).
   const r = await fetch('https://api.onesignal.com/notifications', { method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8', Authorization: 'Key ' + readKey(env.ONESIGNAL_REST_KEY).key }, body: JSON.stringify(payload) });
   const j = await r.json().catch(() => ({}));
   if (!r.ok) {
     const why = Array.isArray(j.errors) ? j.errors.map(e => typeof e === 'string' ? e : JSON.stringify(e)).join('; ') : (j.errors ? JSON.stringify(j.errors) : String(r.status));
+    if (r.status === 401 || r.status === 403) return { ok: false, status: r.status, err: 'OneSignal refused the REST key. Create a NEW key in OneSignal > Settings > Keys & IDs (copy it at once) and replace the secret ONESIGNAL_REST_KEY.' };
     return { ok: false, status: r.status, err: 'OneSignal: ' + why.slice(0, 200) };
   }
   return { ok: true, id: j.id || '', err: (j.errors && !j.id) ? 'OneSignal: ' + JSON.stringify(j.errors).slice(0, 200) : '' };
@@ -314,9 +319,17 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     if (req.method === 'GET') {                                       // open the Worker address in a browser: it says what is set and what is wrong (never the secrets)
       const k = readKey(env && env.ONESIGNAL_REST_KEY), f = readSA(env && env.FIREBASE_SA);
-      const out = { ok: true, service: 'Snapme push sender', oneSignalKey: !!k.key, firebaseKey: !!f.sa };
+      const out = { ok: true, service: 'Snapme push sender', version: '2026-11-03 no-collapse', oneSignalKey: !!k.key, firebaseKey: !!f.sa };
       if (!k.key) out.oneSignalKeyProblem = k.why;
       if (!f.sa) out.firebaseKeyProblem = f.why;
+      if (k.key && f.sa) {                                              // does OneSignal accept the key? (one harmless call to nobody, remembered for a minute)
+        if (!probe.v || Date.now() - probe.at > 60e3) {
+          let r; try { r = await oneSignal(env, ['snapme-key-check-nobody'], 'check', 'check', null, ''); } catch (e) { r = { ok: false, status: 0, err: 'OneSignal could not be reached' }; }
+          probe = { at: Date.now(), v: { ok: !(r.status === 401 || r.status === 403), why: r.err || '' } };
+        }
+        out.oneSignalAccepts = probe.v.ok;
+        if (!probe.v.ok) out.oneSignalKeyProblem = probe.v.why;
+      }
       return json(out, 200, cors);
     }
     if (req.method !== 'POST') return json({ ok: false, err: 'Use POST' }, 405, cors);

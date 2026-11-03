@@ -32,6 +32,7 @@ const store = new Map();            // 'chats/x' -> plain object
 const encV = v => v === null ? { nullValue: null } : typeof v === 'string' ? { stringValue: v } : typeof v === 'boolean' ? { booleanValue: v } : typeof v === 'number' ? { integerValue: String(v) }
   : v instanceof Date ? { timestampValue: v.toISOString() } : Array.isArray(v) ? { arrayValue: { values: v.map(encV) } } : { mapValue: { fields: Object.fromEntries(Object.entries(v).map(([k, x]) => [k, encV(x)])) } };
 let calls, osCalls, osReply, tokenHits, jwksHits, fsStatus, saTokenOk;
+const allOs = [];                                   // every OneSignal call of the whole run
 async function R() { reset(); world(); await fresh(); }
 function reset() { calls = []; osCalls = []; osReply = () => ({ status: 200, body: { id: 'n1' } }); tokenHits = 0; jwksHits = 0; fsStatus = 200; saTokenOk = true; }
 globalThis.fetch = async (url, init = {}) => {
@@ -54,7 +55,7 @@ globalThis.fetch = async (url, init = {}) => {
     return R(200, docs.map(n => { const p = n.slice(base.length); return store.has(p) ? { found: { name: n, fields: encV(store.get(p)).mapValue.fields }, readTime: 'x' } : { missing: n, readTime: 'x' }; }));
   }
   if (url === 'https://api.onesignal.com/notifications') {
-    const body = JSON.parse(init.body); osCalls.push({ body, auth: init.headers.Authorization });
+    const body = JSON.parse(init.body); osCalls.push({ body, auth: init.headers.Authorization }); allOs.push({ body });
     const r = osReply(body); return R(r.status, r.body);
   }
   throw new Error('unexpected fetch ' + url);
@@ -99,6 +100,15 @@ check('health: google-services.json pasted by mistake -> says so and lists the k
 g = await gget({ FIREBASE_SA: SA.slice(0, Math.floor(SA.length / 2)) });
 check('health: half of the JSON pasted -> "not valid JSON" with length, first and last character', g.firebaseKey === false && /not valid JSON/.test(g.firebaseKeyProblem) && /characters/.test(g.firebaseKeyProblem), g);
 check('health: the problem text never contains the secret (private key / email)', !JSON.stringify(g).includes('BEGIN PRIVATE KEY') && !JSON.stringify(g).includes('test-sa@'), g);
+g = await gget({ ONESIGNAL_REST_KEY: 'eaee4d46-0219-44e9-ac45-10b45587223e', FIREBASE_SA: SA });
+check('health: the App ID pasted as REST key is recognised and explained', g.oneSignalKey === false && /App ID/.test(g.oneSignalKeyProblem), g);
+await R(); osCalls.length = 0;
+g = await gget({ ONESIGNAL_REST_KEY: 'os_v2_app_' + 'y'.repeat(40), FIREBASE_SA: SA });
+check('health: key accepted by OneSignal -> oneSignalAccepts true, one probe call to nobody', g.oneSignalAccepts === true && osCalls.length === 1 && osCalls[0].body.include_aliases.external_id[0] === 'snapme-key-check-nobody', [g, osCalls.length]);
+await fresh(); await R(); osReply = () => ({ status: 403, body: { errors: ['Access denied'] } });
+g = await gget({ ONESIGNAL_REST_KEY: 'os_v2_app_' + 'z'.repeat(40), FIREBASE_SA: SA });
+check('health: key refused by OneSignal (403) -> oneSignalAccepts false + the explanation', g.oneSignalAccepts === false && /refused the REST key/.test(g.oneSignalKeyProblem), g);
+await fresh(); await R();
 g = await gget({ ONESIGNAL_REST_KEY: 'two words here but long enough to pass', FIREBASE_SA: SA });
 check('health: a REST key with spaces is reported', g.oneSignalKey === false && /does not look like/.test(g.oneSignalKeyProblem), g);
 const SAo = JSON.parse(SA);
@@ -132,7 +142,7 @@ const o = osCalls[0] || { body: {} };
 check('dm: sent with the REST key as "Key ..."', osCalls[0] && osCalls[0].auth === 'Key REST-KEY-0123456789abcdefghij');
 check('dm: addressed to the other member only, by external id', JSON.stringify(o.body.include_aliases) === '{"external_id":["B"]}' && o.body.target_channel === 'push' && o.body.app_id === 'eaee4d46-0219-44e9-ac45-10b45587223e', o.body);
 check('dm: title is the sender name, body the text (spaces tidied)', o.body.headings.en === 'Alice' && o.body.contents.en === 'hello there', o.body);
-check('dm: the chat id travels as data and as collapse id (so a tap opens the chat)', o.body.data.chat === 'dm1' && o.body.collapse_id === 'dm1');
+check('dm: the chat id travels as data (so a tap opens the chat), and there is NO collapse id (FCM keeps only 4 collapse keys per phone)', o.body.data.chat === 'dm1' && !('collapse_id' in o.body), o.body);
 check('dm: high priority, 1 day life, Snapme icon, Snapme chime channel', o.body.priority === 10 && o.body.ttl === 86400 && o.body.small_icon === 'ic_stat_vtext' && o.body.existing_android_channel_id === 'snapme_msgs', o.body);
 check('dm: the REST key is never part of the payload', !JSON.stringify(o.body).includes('REST-KEY-0123456789abcdefghij'));
 x = await chat();
@@ -262,7 +272,7 @@ x = await post({ t: await idToken('A'), test: true });
 check('test push: when OneSignal has no phone for the caller, the answer says so', x.j.ok === false && x.j.sent === 0 && /no active phone/.test(x.j.err), x);
 await R(); osReply = () => ({ status: 403, body: { errors: ['Access denied. Please include an Authorization header'] } });
 x = await post({ t: await idToken('A'), test: true });
-check('test push: a wrong REST key is explained', x.j.ok === false && /OneSignal: Access denied/.test(x.j.err), x);
+check('test push: a wrong REST key is explained (create a NEW key, replace the secret)', x.j.ok === false && /refused the REST key/.test(x.j.err) && /ONESIGNAL_REST_KEY/.test(x.j.err) && x.j.err.length < 160, x);
 
 // ================= rate limit =================
 await R();
@@ -274,5 +284,6 @@ await R(); fsStatus = 500;
 x = await send();
 check('errors: nothing secret is in an error answer', !JSON.stringify(x).includes('REST-KEY-0123456789abcdefghij') && !JSON.stringify(x).includes('PRIVATE KEY'), x);
 
+check('no OneSignal call of this whole test run carried a collapse_id (chat, snap, request, like, comment, accept, test)', allOs.length > 5 && allOs.every(c => !('collapse_id' in c.body)), allOs.length);
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
