@@ -45,6 +45,7 @@ def onesignal_id():
     return v if re.fullmatch(r'[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}', v) else ''
 os_on = os.environ.get('VT_ONESIGNAL', '0') == '1'
 share_on = native == 'full' and os.environ.get('VT_SHAREIN', '1') == '1'
+power_on = native == 'full' and os.environ.get('VT_POWER', '1') == '1'   # "Notifications on time": opens the phone's battery / autostart screens (VTextPowerPlugin)
 os_id = onesignal_id() if os_on else ''
 if os_on and native != 'full':
     print('push: OneSignal needs the native helpers (VT_NATIVE=full) - left out of this build'); os_on = False
@@ -63,6 +64,8 @@ if native == 'full':  # gallery permission (photos / videos): asked once on the 
             add += '    <uses-permission android:name="android.permission.%s"/>\n' % x
     if 'READ_EXTERNAL_STORAGE' not in s:
         add += '    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>\n'
+    if power_on and 'REQUEST_IGNORE_BATTERY_OPTIMIZATIONS' not in s:  # lets "Notifications on time" ask: Allow Snapme to run in the background? (only when the person taps the button)
+        add += '    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>\n'
 if 'WRITE_EXTERNAL_STORAGE' not in s:  # only needed on Android 9 and older, to save photos/videos into the gallery
     add += '    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28"/>\n'
 for f in ('camera', 'microphone', 'location', 'fingerprint'):
@@ -221,11 +224,14 @@ if native == 'full':
         names += ['VTextPushPlugin', 'VTextApp']
     if share_on:
         names.append('VTextSharePlugin')
+    if power_on:
+        names.append('VTextPowerPlugin')
     # MainActivity: the OneSignal lines are only there when OneSignal is part of the build
     os_lines = {'VT_OS_REG': 'registerPlugin(VTextPushPlugin.class);', 'VT_OS_BOOT': 'VTextPushPlugin.boot(this);',
                 'VT_OS_HIDE': 'VTextPushPlugin.setVisible(false);', 'VT_OS_SHOW': 'VTextPushPlugin.setVisible(true);'}
     sh_lines = {'VT_SH_REG': 'registerPlugin(VTextSharePlugin.class);', 'VT_SH_BOOT': 'VTextSharePlugin.handle(this, getIntent());',
                 'VT_SH_NEW': 'VTextSharePlugin.handle(this, intent);'}
+    pw_lines = {'VT_PW_REG': 'registerPlugin(VTextPowerPlugin.class);'}
     for name in names:
         src = pathlib.Path('scripts/android/%s.java.tpl' % name).read_text().replace('__APP_ID__', app_id).replace('__SITE_URL__', site).replace('__ONESIGNAL_APP_ID__', os_id)
         if name == 'MainActivity':
@@ -233,6 +239,8 @@ if native == 'full':
                 src = src.replace('/*%s*/' % k, v if os_on else '')
             for k, v in sh_lines.items():
                 src = src.replace('/*%s*/' % k, v if share_on else '')
+            for k, v in pw_lines.items():
+                src = src.replace('/*%s*/' % k, v if power_on else '')
         (jdir / (name + '.java')).write_text(src)
     print('native background helpers installed in', jdir)
     print('no background service, no boot receiver, no hidden page (notifications while the app is closed come from the push service)')
@@ -240,6 +248,8 @@ if native == 'full':
         print('push: OneSignal plugin (VTextPush) installed')
     if share_on:
         print('share: Share to Snapme installed (photos from the Gallery and other apps; plugin VTextShare)')
+    if power_on:
+        print('power: Notifications on time installed (opens the battery / autostart settings; plugin VTextPower)')
 print('android project patched (native=%s, versionCode=%s)' % (native, vc))
 
 # ---------------- look of the app window (no title bar strip, dark until the page paints, dark system bars) ----------------

@@ -13,6 +13,8 @@
 #               The OneSignal App ID (public, NOT the secret REST key) is read from VT_ONESIGNAL_APP_ID, scripts/onesignal-app-id.txt or the built-in default.
 #   VT_SHAREIN  1 = also add "Share to Snapme" (Snapme is listed in the Android Share sheet for photos) (default), 0 = leave it out.
 #               If it does not compile the build is repeated without it. Only part of builds with the native helpers (VT_BG=1).
+#   VT_POWER    1 = also add "Notifications on time" (Settings page that opens the phone's battery / autostart screens, plugin VTextPower) (default), 0 = leave it out.
+#               If it does not compile the build is repeated without it. Only part of builds with the native helpers (VT_BG=1).
 #   VERSION_CODE, GITHUB_SHA, GITHUB_RUN_NUMBER are read from the environment (set by GitHub Actions)
 #
 # When something fails, the reason of every attempt is printed at the very end of this step's log
@@ -25,6 +27,8 @@ PUSH=${VT_PUSH:-1}
 OS=${VT_ONESIGNAL:-1}
 SH=${VT_SHAREIN:-1}
 SHARE_ON=$SH   # switched to 0 when the build with "Share to Snapme" failed because of it
+PW=${VT_POWER:-1}
+POWER_ON=$PW   # switched to 0 when the build with "Notifications on time" failed because of it
 SHA=${GITHUB_SHA:-dev}
 RUN=${GITHUB_RUN_NUMBER:-0}
 PLUG_CAPGO="@capgo/capacitor-native-biometric@^8"
@@ -115,6 +119,7 @@ attempt() {  # $1 = fingerprint plugin (capgo|aparajita|none)   $2 = native help
   export VT_PUSH_PLUGIN="$push"
   if [ "$bg" = "1" ] && [ "$os" = "1" ]; then export VT_ONESIGNAL=1; else export VT_ONESIGNAL=0; fi
   if [ "$bg" = "1" ] && [ "$SHARE_ON" = "1" ]; then export VT_SHAREIN=1; else export VT_SHAREIN=0; fi
+  if [ "$bg" = "1" ] && [ "$POWER_ON" = "1" ]; then export VT_POWER=1; else export VT_POWER=0; fi
   echo "--- patch android project"
   python3 scripts/patch_android.py || return 1
   python3 scripts/make_icons.py || return 1
@@ -153,8 +158,8 @@ while [ ${#Q[@]} -gt 0 ]; do
   plug=${lv%%:*}; rest=${lv#*:}; bg=${rest%%:*}; rest=${rest#*:}; push=${rest%%:*}; os=${rest##*:}
   if [ "$DROP_PUSH" = "1" ]; then push=0; fi
   if [ "$DROP_OS" = "1" ]; then os=0; fi
-  case "$TRIED" in *" $plug:$bg:$push:$os:$SHARE_ON "*) continue ;; esac
-  TRIED="$TRIED$plug:$bg:$push:$os:$SHARE_ON "
+  case "$TRIED" in *" $plug:$bg:$push:$os:$SHARE_ON:$POWER_ON "*) continue ;; esac
+  TRIED="$TRIED$plug:$bg:$push:$os:$SHARE_ON:$POWER_ON "
   n=$((n+1))
   echo "::group::Build attempt $n (fingerprint plugin: $plug, native helpers: $bg, push plugin: $push, OneSignal: $os)"
   attempt "$plug" "$bg" "$push" "$os" 2>&1 | tee "$LOGDIR/attempt-$n.log"
@@ -178,9 +183,13 @@ while [ ${#Q[@]} -gt 0 ]; do
         if [ "$SHARE_ON" = "1" ] && [ "$bg" = "1" ]; then echo "- Share to Snapme (photos from the Gallery and other apps, Android Share sheet): included"
         else echo "- Share to Snapme: NOT included (it did not build). The rest of the app is complete; see the build log for the reason."; fi
       fi
+      if [ "$PW" = "1" ] && [ "$BG" = "1" ]; then
+        if [ "$POWER_ON" = "1" ] && [ "$bg" = "1" ]; then echo "- Notifications on time (Settings page that opens the phone's battery / autostart screens): included"
+        else echo "- Notifications on time: NOT included (it did not build). The rest of the app is complete; see the build log for the reason."; fi
+      fi
       if [ "$os" = "1" ] && [ "$bg" = "1" ]; then echo "- OneSignal (free Cloudflare Worker route): included (App ID ${OSID:0:8}...)"
       elif [ "$OS" = "1" ] && [ "$BG" = "1" ]; then echo "- OneSignal (free Cloudflare Worker route): NOT included (it did not build). Messages and snaps still go through Expo; likes, comments and friend requests need OneSignal."; fi
-      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" != "1" ]; } || { [ "$OS" = "1" ] && [ "$BG" = "1" ] && [ "$os" != "1" ]; } || { [ "$SH" = "1" ] && [ "$BG" = "1" ] && [ "$SHARE_ON" != "1" ]; }; }; then
+      if { [ "$plug" = "none" ] || { [ "$BG" = "1" ] && [ "$bg" = "0" ]; } || { [ "$PUSH" = "1" ] && [ "$push" != "1" ]; } || { [ "$OS" = "1" ] && [ "$BG" = "1" ] && [ "$os" != "1" ]; } || { [ "$SH" = "1" ] && [ "$BG" = "1" ] && [ "$SHARE_ON" != "1" ]; } || { [ "$PW" = "1" ] && [ "$BG" = "1" ] && [ "$POWER_ON" != "1" ]; }; }; then
         echo
         echo "Some optional parts failed to build (attempt $n). The app still works; see the build log for the reason."
         if [ -n "$SUMMARY" ]; then echo; echo "Why the earlier attempts failed:$SUMMARY"; fi
@@ -203,6 +212,13 @@ while [ ${#Q[@]} -gt 0 ]; do
     SUMMARY="$SUMMARY
 - (Share to Snapme did not build; the next attempt is the same build without it)"
     echo "The log mentions Share to Snapme - the next attempt is the same build without it."
+  # "Notifications on time" (VTextPowerPlugin) did not compile: the same build again without it
+  elif [ "$POWER_ON" = "1" ] && [ "$bg" = "1" ] && grep -E 'VTextPowerPlugin\.java' "$LOGDIR/attempt-$n.log" 2>/dev/null | grep -qiE 'error'; then
+    POWER_ON=0
+    Q=("$plug:$bg:$push:$os" ${Q[@]+"${Q[@]}"})
+    SUMMARY="$SUMMARY
+- (Notifications on time did not build; the next attempt is the same build without it)"
+    echo "The log mentions Notifications on time - the next attempt is the same build without it."
   elif [ "$os" = "1" ] && { printf '%s' "$why" | grep -qiE 'onesignal|VTextPush|VTextApp' || grep -E 'VTextPushPlugin\.java|VTextApp\.java|com\.onesignal|onesignal\.' "$LOGDIR/attempt-$n.log" 2>/dev/null | grep -qiE 'error|cannot find|does not exist|incompatible|could not|failed|duplicate|conflict|unresolved'; }; then
     DROP_OS=1
     Q=("$plug:$bg:$push:0" ${Q[@]+"${Q[@]}"})   # OneSignal did not build: the same build again, without it (every later attempt is without it too)
