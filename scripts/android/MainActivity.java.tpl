@@ -59,6 +59,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(VTextBgPlugin.class);
         /*VT_OS_REG*/
         /*VT_SH_REG*/
+        /*VT_PW_REG*/
         super.onCreate(savedInstanceState);
         // Never show the Android title bar (the "Snapme" strip at the top) and keep the window behind the page dark until the page paints.
         try {
