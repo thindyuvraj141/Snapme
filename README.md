@@ -176,6 +176,48 @@ Upload: `index.html`, `firestore.rules` (**publish it first**), `privacy.html`, 
 - `firestore.rules`: new `logins/{n}`; posts accept `cp` (≤150); memories accept `cp` and `tg` (≤5).
 - Tests: `qa/t_r14.py` (81 checks), `qa/t_x_purge.js` (logins), and the older suites adapted to the new Snap screen and login page.
 
+## Round 19 (3 Nov): notifications on time after Snapme is swiped away
+**The problem.** After you swipe Snapme away, many phones (Xiaomi / Redmi / POCO, Oppo, Realme, Vivo, OnePlus, Samsung, Huawei ...) close the app or hold its notifications
+back, so a message comes late or not at all. The push route itself is fine (the Worker sends with high priority and a 24 hour life); the phone is what holds it back.
+ - **Settings > Notifications > Notifications on time** (Android app). A page that shows what the phone says (Battery: unrestricted or restricted, Notifications: allowed or
+   blocked, Message alerts: pop up or quiet) and buttons that open the right phone screens with one tap: **Allow Snapme to run in the background** (the system question),
+   **Open Autostart / background settings** (the maker's own screen: Xiaomi, Oppo / Realme / OnePlus, Vivo / iQOO, Huawei / Honor, Samsung, Asus; any other phone
+   opens Snapme's page in Settings), **Notification settings** and **Snapme page in Settings**. Under the buttons: the steps for the phone's maker, as text.
+   Coming back from the phone's settings the page reads them again. Nothing is changed by Snapme itself.
+ - **Needs a new APK** (plugin `VTextPower`, file `scripts/android/VTextPowerPlugin.java.tpl`). It only reads settings and opens screens: no service, no receiver, no wake lock,
+   no background work. It adds ONE permission, `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, which is only used when you tap *Allow Snapme to run in the background*
+   (without it the phone would not show that question). Switch the whole thing off with `VT_POWER=0`. If it does not compile, `build_android.sh` builds again
+   without it and the release notes say so ("Notifications on time: NOT included").
+ - An older APK without the plugin still shows the page with the steps as text.
+ - **Kept calls to the Worker (website part, no APK needed).** The phone of the person who sends a message / posts a snap asks the Worker to notify the others. Before, if that phone
+   was offline, or the message took more than about 5 seconds to be saved on a slow connection, the call was lost. Now it waits up to about 30 seconds for the message to be saved,
+   and a call that still cannot be made is kept on the phone (10 minutes at most) and made again when the phone is back online, when Snapme is opened, and a few times after
+   20 s / 1 min / 2.5 min. No Expo copy is sent for a kept call (that could notify twice). The Worker is unchanged.
+ - **Server push fix (Cloudflare Worker, 4 Nov).** The Worker used a different OneSignal `collapse_id` for every chat, snap, like and request. OneSignal gives it to Google (FCM) as a
+   "collapse key", and FCM keeps **at most four different collapse keys per phone** while the phone is out of reach (asleep, offline): everything beyond four events is dropped
+   without a trace. That is one reason why a notification could be missing completely after the phone had been away for a while. The Worker now sends no `collapse_id`: every
+   notification is its own message (FCM keeps up to 100 per phone). Doubles are still stopped by the Worker's own checks. The Worker address shows `"version":"2026-11-03 no-collapse"`
+   once the new code is deployed. Files: `push-worker/vtext-push-worker.js` and the paste-friendly `push-worker/vtext-push-worker.min.js` (no comments, no indentation, 360 lines).
+   Deploy: Cloudflare > Workers > snapme-push > Edit code > replace everything with the new `.min.js` > Deploy (see `ONESIGNAL-SETUP.txt` B3). Test: `push-worker/test.mjs` (95).
+ - Tests: `qa/t_r19.py` (32: the page with a fake plugin for 5 phone makers, old APK, browser, kept calls), `qa/t_z_power.py` (26: patch script, Java compiled against stubs, build ladder).
+ - **Not verifiable without a phone:** the real Autostart screens of each maker (the names are from public lists and differ between versions; a screen the phone does not have falls back to Snapme's page in Settings).
+
+## Round 18b (3 Nov): the Feed and Memories hold ONE snap
+A snap you post is saved in the Feed (`posts/<id>`) and in your Memories (`users/<you>/memories/<id>`, same id). Now deleting it in one place deletes it in the other.
+ - **Delete in the Feed** (card menu > *Delete this snap*): the snap is removed for everybody (with its video pieces and comments) **and** its memory is removed.
+ - **Delete in Memories** (open a memory > *Delete*): the memory is removed **and** the snap leaves the Feed for everybody (video pieces and comments too). The question says so.
+   If the first step fails (for example no internet) nothing is deleted and the memory stays; trying again is safe. A memory whose snap already ended (30 days)
+   is just removed. A memory is never allowed to delete somebody else's snap (only a post with your own uid is removed).
+ - **A snap somebody else posted and tagged you in** (Tagged tab, memory with "tagged by @name"): only your copy is removed, and the snap is hidden in your own Feed
+   (like *Hide this snap*) and is not copied into Memories again. It stays for everybody else.
+ - A snap that simply ends after 30 days still stays in Memories (that is not a delete).
+ - No `firestore.rules` change. The in-app Privacy policy says it (last updated 2 November 2026).
+ - **Share to Snapme check inside the app (Android app):** Settings > Notifications > **Share to Snapme** says whether this APK has the Share sheet helper
+   ("On: ..." or "Not in this app version"). Tap it for what to do. If it says "Not in this app version" the installed APK is an old one, or its build left the helper out
+   (the APK release notes have a "Share to Snapme" line: included / NOT included). Upload the newest files (the new `scripts/android/VTextSharePlugin.java.tpl` too), wait for
+   the build, install the new APK. In the Share list of the Gallery, Snapme can be on the second row or behind "More".
+ - Tests: `qa/t_r18_del.py` (37: Feed to Memories, Memories to Feed, video + comments, ended snap, somebody else's id, a failing step, tagged copy, policy text), `qa/t_sm_snap.py` (updated), `qa/t_r18_share.py` (47, with the Settings row).
+
 ## Round 18 (2 Nov): Share account, Share to Snapme, Private accounts hide old snaps
 **Share account (Profile page).** A new button between the bell and the three-dots button opens a page with a card: a QR code of your link, your profile
 picture in the middle of the code, your name and @username. Below it: the link, **Copy**, **Share link** (the phone's Share sheet) and **Save picture** (the whole card
