@@ -12,9 +12,13 @@
  * For every call the Worker
  *   1. checks the Firebase ID token (on Google's public keys): it knows WHO is calling,
  *   2. reads the document of the event from Firestore (service account) and checks that the caller really did it a moment ago,
- *   3. looks at the receivers' settings (phone registered with OneSignal, notifications on, chat muted / locked, receiver blocked the caller),
- *   4. asks OneSignal to deliver one notification to those people (they are addressed by their Firebase user id = OneSignal "external id").
- * It answers { ok, sent, miss }:  miss = receivers whose phone is NOT registered with OneSignal; the sender's app then uses the Expo route for
+ *   3. looks at the receivers' settings (phone registered, notifications on, chat muted / locked, receiver blocked the caller),
+ *   4. delivers one notification to each of those people, by the best route that person has:
+ *        a. Google FCM straight to the phone (the FCM token the app saved in users/<uid>/private/push). This is a normal "notification message":
+ *           Google's own code on the phone shows it, Snapme does not have to wake up and run anything (what the big apps do),
+ *        b. OneSignal (they are addressed by their Firebase user id = OneSignal "external id") when the phone has no FCM token or Google refused it.
+ *      Nobody gets the same notification twice: one route per person.
+ * It answers { ok, sent, miss, fcm }:  miss = receivers no route here could reach; the sender's app then uses the Expo route for
  * exactly those people (so nobody gets two notifications, and nobody who has only Expo is left out). Nothing is stored in the Worker.
  *
  * Secrets (Cloudflare > your Worker > Settings > Variables and Secrets, type "Secret"):
@@ -22,7 +26,8 @@
  *   FIREBASE_SA          the whole content of the Firebase service-account JSON file (Firebase console > Project settings > Service accounts > Generate new private key)
  *                        (opening the Worker address in a browser shows if both secrets are usable, and if not, what is wrong with them)
  * Optional plain variables:  ONESIGNAL_APP_ID, FIREBASE_PROJECT, ALLOWED_ORIGIN (default *), SHOW_TEXT ("false" = only "New message").
- * Free plan limits that matter: 100,000 requests a day, 50 outgoing calls per request (this Worker needs 4 to 8).
+ * Free plan limits that matter: 100,000 requests a day, 50 outgoing calls per request (this Worker needs 4 to 8, plus one per phone it sends to straight, at most 30; the rest goes through OneSignal).
+ * The service account must be allowed to send FCM (the normal Firebase Admin SDK account is). Open the Worker address in a browser: it says "fcmAccepts": true when Google accepts it.
  */
 const DEFAULT_APP_ID = 'eaee4d46-0219-44e9-ac45-10b45587223e';
 const JWKS_URL = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
@@ -31,6 +36,9 @@ const MAX_RECIPIENTS = 200;         // people notified by one call (a snap of so
 const MAX_AGE_MS = 180000;          // a push is only sent for something that happened at most 3 minutes ago
 const NF_REPEAT_MS = 600000;        // the same like / comment / accept notifies once in 10 minutes (un-like + like again does not spam)
 const CHANNEL = 'snapme_msgs';      // the Android notification channel with the Snapme chime (created by the app)
+const FCM_SCOPE = 'https://www.googleapis.com/auth/firebase.messaging';
+const FCM_BUDGET = 30;              // phones one call may send to straight through Google (free plan: 50 outgoing calls per request); everybody else goes through OneSignal
+const FCM_PER_USER = 2;             // the newest phones of one person that get the message
 
 class HttpErr extends Error { constructor(status, msg) { super(msg); this.status = status; this.expose = true; } }
 
@@ -98,7 +106,7 @@ async function googleToken(sa) {
   if (gTok.v && Date.now() < gTok.exp - 300e3) return gTok.v;
   const now = Math.floor(Date.now() / 1000), uri = sa.token_uri || 'https://oauth2.googleapis.com/token';
   const head = bytesToB64u(enc.encode(JSON.stringify({ alg: 'RS256', typ: 'JWT' })));
-  const claim = bytesToB64u(enc.encode(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/datastore', aud: uri, iat: now, exp: now + 3600 })));
+  const claim = bytesToB64u(enc.encode(JSON.stringify({ iss: sa.client_email, scope: 'https://www.googleapis.com/auth/datastore ' + FCM_SCOPE, aud: uri, iat: now, exp: now + 3600 })));
   let key;
   try { key = await crypto.subtle.importKey('pkcs8', b64ToBytes(String(sa.private_key).replace(/-----[A-Z ]+-----/g, '').replace(/\\n/g, '').replace(/\s+/g, '')), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']); }
   catch (e) { throw new HttpErr(500, 'The private key inside FIREBASE_SA is not valid (it must start with -----BEGIN PRIVATE KEY-----). Generate a new private key in Firebase and paste the whole JSON file again.'); }
@@ -154,6 +162,7 @@ function nfText(d, showText) {
 }
 
 let probe = { at: 0, v: null };      // result of the last key check (GET)
+let fprobe = { at: 0, v: null };     // result of the last Google FCM check (GET)
 /* ---------- 4. OneSignal ---------- */
 async function oneSignal(env, ids, title, body, data, collapse) {
   const payload = { app_id: env.ONESIGNAL_APP_ID || DEFAULT_APP_ID, target_channel: 'push', include_aliases: { external_id: ids },
@@ -173,6 +182,45 @@ async function oneSignal(env, ids, title, body, data, collapse) {
   return { ok: true, id: j.id || '', err: (j.errors && !j.id) ? 'OneSignal: ' + JSON.stringify(j.errors).slice(0, 200) : '' };
 }
 
+/* ---------- 4b. Google FCM straight to the phone ---------- */
+async function fcmSend(project, tok, token, msg, validateOnly) {
+  const body = { message: Object.assign({ token }, msg) };
+  if (validateOnly) body.validate_only = true;
+  let r;
+  try { r = await fetch('https://fcm.googleapis.com/v1/projects/' + project + '/messages:send', { method: 'POST', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json; charset=UTF-8' }, body: JSON.stringify(body) }); }
+  catch (e) { return { ok: false, status: 0, code: 'NETWORK', err: 'Google FCM could not be reached', dead: false }; }
+  if (r.ok) return { ok: true, status: 200 };
+  const j = await r.json().catch(() => ({})), e = (j && j.error) || {};
+  const det = Array.isArray(e.details) ? e.details.find(d => d && d.errorCode) : null;
+  const code = String((det && det.errorCode) || e.status || r.status);
+  return { ok: false, status: r.status, code, err: ('Google FCM: ' + String(e.message || code)).slice(0, 200), dead: code === 'UNREGISTERED' };
+}
+/* a normal notification message: shown by Google's code on the phone, also when Snapme is closed. Tapping it opens the chat (the app reads vt_chat). */
+function fcmMsg(t, data) {
+  const m = { notification: { title: t.title, body: t.body },
+    android: { priority: 'HIGH', ttl: '86400s', notification: { channel_id: CHANNEL, icon: 'ic_stat_vtext', sound: 'default', notification_priority: 'PRIORITY_HIGH' } } };
+  if (data && data.chat) m.data = { vt_chat: String(data.chat) };
+  return m;
+}
+/* the Android FCM tokens of one person (users/<uid>/private/push.t = { <device id>: { k: token, p: 'android', ts } }), newest first */
+function fcmTokens(p) {
+  const out = [];
+  if (p && p.t && typeof p.t === 'object') for (const d of Object.keys(p.t)) {
+    const e = p.t[d];
+    if (e && typeof e === 'object' && e.p === 'android' && typeof e.k === 'string' && /^[\w:.-]{20,4096}$/.test(e.k) && /^[A-Za-z0-9_-]{1,64}$/.test(d)) out.push({ d, k: e.k, ts: Number(e.ts) || 0 });
+  }
+  out.sort((a, b) => b.ts - a.ts);
+  return out.slice(0, FCM_PER_USER);
+}
+/* Google said the token is dead (the app was removed): take it out of the person's document so it is not tried again (best effort) */
+async function fsDropToken(project, tok, uid, did) {
+  try {
+    const name = 'projects/' + project + '/databases/(default)/documents/users/' + uid + '/private/push';
+    await fetch('https://firestore.googleapis.com/v1/' + name + '?updateMask.fieldPaths=' + encodeURIComponent('t.`' + did + '`') + '&currentDocument.exists=true',
+      { method: 'PATCH', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: '{}' });
+  } catch (e) { /* tried again next time */ }
+}
+
 /* ---------- small guards ---------- */
 const SEEN = new Map();               // events already handled (best effort, per Worker instance)
 const RATE = new Map();               // uid -> {n, t}
@@ -189,7 +237,7 @@ const fresh = ts => !ts || Date.now() - ts <= MAX_AGE_MS;
 
 /* ---------- who may be notified ----------
    users/<u>/private/push = { os: true|false (this person's phone is registered with OneSignal / has notifications switched off), mut: [chat ids], lck: [chat ids], pn: false (no friend-snap alerts) }
-   returns { normal, locked, miss }  (miss = nobody registered a OneSignal phone: the sender app uses Expo for them) */
+   returns { normal, locked, miss }  normal / locked = [{ u, k: [FCM tokens], os: has a OneSignal phone }]  (miss = no route here: the sender app uses Expo for them) */
 async function audience(project, tok, uid, rec, opt) {
   const paths = [];
   rec.forEach(u => paths.push('users/' + u + '/private/push', 'blocks/' + u + '_' + uid));
@@ -198,23 +246,54 @@ async function audience(project, tok, uid, rec, opt) {
   for (const u of rec) {
     const p = info['users/' + u + '/private/push'];
     if (info['blocks/' + u + '_' + uid]) continue;                      // the receiver blocked the caller
-    if (!p || typeof p.os !== 'boolean') { miss.push(u); continue; }     // no OneSignal phone (old app, browser, never registered)
-    if (p.os !== true) continue;                                         // logged out or notifications switched off
+    const k = fcmTokens(p);
+    if (!p || (typeof p.os !== 'boolean' && !k.length)) { miss.push(u); continue; }   // no phone registered with Google or OneSignal (old app, browser, never registered)
+    if (p.os === false) continue;                                        // logged out or notifications switched off
     if (opt.snap && p.pn === false) continue;                            // "New snaps from friends" is off
     if (opt.chat && Array.isArray(p.mut) && p.mut.includes(opt.chat)) continue;   // muted chat
-    (opt.chat && Array.isArray(p.lck) && p.lck.includes(opt.chat) ? locked : normal).push(u);
+    (opt.chat && Array.isArray(p.lck) && p.lck.includes(opt.chat) ? locked : normal).push({ u, k, os: p.os === true });
   }
   return { normal, locked, miss };
 }
-/* sends to the people in a (normal / locked) audience; returns { sent, err } */
-async function deliver(env, aud, text, lockedText, data, collapse) {
+/* sends to the people in a (normal / locked) audience: Google FCM straight to the phone first, OneSignal for the rest and for phones Google could not reach.
+   returns { sent, err, failed }  (failed = people no route reached) */
+async function deliver(env, project, tok, st, aud, text, lockedText) {
   let sent = 0, err = '';
-  for (const [ids, t] of [[aud.normal, text], [aud.locked, lockedText]]) {
-    if (!ids.length || !t) continue;
-    const r = await oneSignal(env, ids, t.title, t.body, data, collapse);
-    if (r.ok && r.id) sent += ids.length; else if (!r.ok || r.err) err = r.err || err;
+  const failed = [];
+  for (const [list, t] of [[aud.normal, text], [aud.locked, lockedText]]) {
+    if (!list.length || !t) continue;
+    const jobs = [], osIds = [];
+    for (const e of list) {
+      if (e.k.length && st.budget >= e.k.length) { st.budget -= e.k.length; jobs.push(e); }
+      else if (e.os) osIds.push(e.u);
+      else failed.push(e.u);
+    }
+    for (let i = 0; i < jobs.length; i += 6) {
+      await Promise.all(jobs.slice(i, i + 6).map(async e => {
+        let ok = false;
+        for (const k of e.k) {
+          const r = await fcmSend(project, tok, k.k, fcmMsg(t, st.data));
+          if (r.ok) ok = true;
+          else { st.fcmErr = st.fcmErr || r.err; if (r.dead) st.dead.push({ u: e.u, d: k.d }); }
+        }
+        if (ok) { sent++; st.fcm++; } else if (e.os) osIds.push(e.u); else failed.push(e.u);
+      }));
+    }
+    if (osIds.length) {
+      const r = await oneSignal(env, osIds, t.title, t.body, st.data, '');
+      if (r.ok && r.id) sent += osIds.length;
+      else { failed.push(...osIds); if (!r.ok || r.err) err = r.err || err; }
+    }
   }
-  return { sent, err };
+  return { sent, err, failed };
+}
+/* the answer of a call: who was reached how, and who was not (miss) */
+async function finish(project, tok, st, aud, r, keepMiss) {
+  for (const d of st.dead.slice(0, 4)) await fsDropToken(project, tok, d.u, d.d);
+  const out = { ok: !r.err || r.sent > 0, sent: r.sent, miss: keepMiss ? aud.miss.concat(r.failed) : [], fcm: st.fcm };
+  if (r.err) out.err = r.err;
+  if (st.fcmErr) out.fcmErr = st.fcmErr;
+  return out;
 }
 
 async function handle(req, env) {
@@ -230,14 +309,28 @@ async function handle(req, env) {
   guard(uid);
   const showText = String(env.SHOW_TEXT || 'true').toLowerCase() !== 'false';
 
-  if (b.test === true) {                                              // "Send a test notification to this phone"
-    const r = await oneSignal(env, [uid], 'Snapme', 'Test notification: push messages are working ✅', null, '');
-    const sent = r.ok && r.id ? 1 : 0, err = r.err || (sent ? '' : 'OneSignal has no active phone for your account yet. Open the app, log in and allow notifications.');
-    return { ok: !err, sent, err };
+  if (b.test === true) {                                              // "Send a test notification to this phone": one by each route this phone has, so they can be compared
+    const tok = await googleToken(sa);
+    const doc = (await fsBatch(project, tok, ['users/' + uid + '/private/push']))['users/' + uid + '/private/push'] || {};
+    const keys = fcmTokens(doc), at = clean(b.at, 12), when = at ? ' (sent ' + at + ')' : '';
+    let nF = 0, fcmErr = '';
+    const dead = [];
+    for (const k of keys) {
+      const r = await fcmSend(project, tok, k.k, fcmMsg({ title: 'Snapme', body: 'Test 1 of 2, Google direct: it works ✅' + when }, null));
+      if (r.ok) nF = 1; else { fcmErr = fcmErr || r.err; if (r.dead) dead.push(k.d); }
+    }
+    for (const d of dead.slice(0, 2)) await fsDropToken(project, tok, uid, d);
+    const r = await oneSignal(env, [uid], 'Snapme', keys.length ? 'Test 2 of 2, OneSignal: it works ✅' + when : 'Test notification: push messages are working ✅' + when, null, '');
+    const nO = r.ok && r.id ? 1 : 0, sent = nF + nO;
+    const err = sent ? '' : (r.err || 'OneSignal has no active phone for your account yet. Open the app, log in and allow notifications.');
+    const out = { ok: !err, sent, fcm: nF, os: nO, err };
+    if (fcmErr) out.fcmErr = fcmErr;
+    return out;
   }
 
   const kind = String(b.k || 'chat');
   const tok = await googleToken(sa);
+  const st = { budget: FCM_BUDGET, fcm: 0, fcmErr: '', dead: [], data: null };
 
   /* ----- a message was sent: the chat document says who wrote the last message and what it was ----- */
   if (kind === 'chat') {
@@ -253,8 +346,8 @@ async function handle(req, env) {
     const rec = doc.members.filter(u => typeof u === 'string' && u && u !== uid).slice(0, MAX_RECIPIENTS);
     if (!rec.length) return { ok: true, sent: 0, miss: [] };
     const aud = await audience(project, tok, uid, rec, { chat: chatId });
-    const r = await deliver(env, aud, chatText(doc, uid, showText), { title: 'Snapme', body: 'New message' }, { chat: chatId }, chatId);
-    return { ok: !r.err, sent: r.sent, miss: aud.miss, err: r.err };
+    st.data = { chat: chatId };
+    return await finish(project, tok, st, aud, await deliver(env, project, tok, st, aud, chatText(doc, uid, showText), { title: 'Snapme', body: 'New message' }), true);
   }
 
   /* ----- a friend posted a snap ----- */
@@ -271,8 +364,8 @@ async function handle(req, env) {
     if (!rec.length) return { ok: true, sent: 0, miss: [] };
     const aud = await audience(project, tok, uid, rec, { snap: true });
     const t = { title: clean(p.nm, 40) || 'Snapme', body: 'posted a snap ⚡' };
-    const r = await deliver(env, aud, t, null, { chat: 'post:' + postId }, 'post-' + postId);
-    return { ok: !r.err, sent: r.sent, miss: aud.miss, err: r.err };
+    st.data = { chat: 'post:' + postId };
+    return await finish(project, tok, st, aud, await deliver(env, project, tok, st, aud, t, null), true);
   }
 
   /* ----- a friend request was sent: requests/<from>_<to> says it ----- */
@@ -287,8 +380,8 @@ async function handle(req, env) {
     SEEN.set(key, Date.now());
     const aud = await audience(project, tok, uid, [to], {});
     const t = { title: 'Snapme', body: firstName(d.fromName) + ' sent you a friend request' };
-    const r = await deliver(env, aud, t, null, { chat: 'nf:req' }, 'req-' + uid);
-    return { ok: !r.err, sent: r.sent, miss: [], err: r.err };
+    st.data = { chat: 'nf:req' };
+    return await finish(project, tok, st, aud, await deliver(env, project, tok, st, aud, t, null), false);
   }
 
   /* ----- a like, a comment or an accepted request: the notification document the caller wrote for the receiver ----- */
@@ -305,8 +398,8 @@ async function handle(req, env) {
     if (!t) throw new HttpErr(400, 'Unknown notification');
     SEEN.set(key, Date.now());
     const aud = await audience(project, tok, uid, [to], {});
-    const r = await deliver(env, aud, t, null, { chat: 'nf:' + id }, 'nf-' + id);
-    return { ok: !r.err, sent: r.sent, miss: [], err: r.err };
+    st.data = { chat: 'nf:' + id };
+    return await finish(project, tok, st, aud, await deliver(env, project, tok, st, aud, t, null), false);
   }
   throw new HttpErr(400, 'Unknown request');
 }
@@ -319,7 +412,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
     if (req.method === 'GET') {                                       // open the Worker address in a browser: it says what is set and what is wrong (never the secrets)
       const k = readKey(env && env.ONESIGNAL_REST_KEY), f = readSA(env && env.FIREBASE_SA);
-      const out = { ok: true, service: 'Snapme push sender', version: '2026-11-03 no-collapse', oneSignalKey: !!k.key, firebaseKey: !!f.sa };
+      const out = { ok: true, service: 'Snapme push sender', version: '2026-11-04 fcm-direct', oneSignalKey: !!k.key, firebaseKey: !!f.sa };
       if (!k.key) out.oneSignalKeyProblem = k.why;
       if (!f.sa) out.firebaseKeyProblem = f.why;
       if (k.key && f.sa) {                                              // does OneSignal accept the key? (one harmless call to nobody, remembered for a minute)
@@ -329,6 +422,20 @@ export default {
         }
         out.oneSignalAccepts = probe.v.ok;
         if (!probe.v.ok) out.oneSignalKeyProblem = probe.v.why;
+      }
+      if (f.sa) {                                                       // does Google accept the service account for sending straight to phones? (a message that is only checked, never sent)
+        if (!fprobe.v || Date.now() - fprobe.at > 60e3) {
+          let v;
+          try {
+            const gt = await googleToken(f.sa), pr = (env && env.FIREBASE_PROJECT) || f.sa.project_id;
+            const r = await fcmSend(pr, gt, 'snapme-check-' + 'x'.repeat(40), { notification: { title: 'check', body: 'check' } }, true);
+            v = { ok: r.ok || r.status === 400 || r.status === 404, why: r.err || '' };       // 400 / 404 = Google read the request and only dislikes the made-up phone: the permission is fine
+            if (!v.ok) v.why = (r.status === 403 || r.status === 401 ? 'The service account may not send FCM messages. In Google Cloud console (project ' + pr + ') enable "Firebase Cloud Messaging API" and give the service account the role "Firebase Cloud Messaging API Admin". ' : '') + (r.err || '');
+          } catch (e) { v = { ok: false, why: e && e.expose ? e.message : 'Could not ask Google' }; }
+          fprobe = { at: Date.now(), v };
+        }
+        out.fcmAccepts = fprobe.v.ok;
+        if (!fprobe.v.ok) out.fcmProblem = fprobe.v.why;
       }
       return json(out, 200, cors);
     }
