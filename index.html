@@ -3863,6 +3863,17 @@ async function wkCall(body){
   const r=await fetch(wkUrl(),{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(Object.assign({t},body)),keepalive:true});
   const j=await r.json().catch(()=>({}));return{st:r.status,j}}
 function wkOk(r){return r.st===200&&r.j&&r.j.ok!==false}
+/* what the last call to the Worker did and how long it took (shown in Settings > Notifications > Closed-app notifications, so a slow notification can be traced) */
+WK.last=null;
+function wkMark(k,t0,tries,r,how){try{const j=(r&&r.j)||{};WK.last={k,at:Date.now(),ms:Math.max(0,Date.now()-t0),tries:tries|0,how:how||'',st:r?r.st:0,sent:j.sent|0,fcm:j.fcm|0,fcmErr:j.fcmErr?String(j.fcmErr).slice(0,110):'',miss:Array.isArray(j.miss)?j.miss.length:0,dup:!!j.dup,err:r&&!wkOk(r)?String(j.err||('HTTP '+r.st)).slice(0,80):''}}catch(e){}}
+function wkLast(){const x=WK.last;if(!x)return'none yet';
+  const nm={chat:'message',post:'snap',test:'test',req:'friend request',nf:'like / comment'}[x.k]||x.k,sec=(x.ms/1000).toFixed(1)+' s',ago=Math.max(0,Math.round((Date.now()-x.at)/1000));
+  const tr=x.tries>1?', '+x.tries+' tries':'',w=ago<90?ago+' s ago':Math.round(ago/60)+' min ago';
+  if(x.how==='kept')return nm+': still not saved after '+sec+'. Kept, tried again later ('+w+')';
+  if(x.err)return nm+': failed after '+sec+tr+': '+x.err+' ('+w+')';
+  if(x.dup)return nm+': already sent before ('+w+')';
+  const via=x.sent<1?'':x.fcm<1?' by OneSignal':x.fcm>=x.sent?' straight through Google':' ('+x.fcm+' straight through Google, '+(x.sent-x.fcm)+' by OneSignal)';
+  return nm+': answered in '+sec+tr+', '+x.sent+' phone'+(x.sent===1?'':'s')+' notified'+via+(x.miss?', '+x.miss+' by the second route':'')+(x.how==='late'?' (kept call)':'')+' ('+w+')'+(x.fcmErr?'. Google direct problem: '+x.fcmErr:'')}
 /* ---- calls that could not be made yet (Round 19): the phone was offline, or the message / snap was still being saved on a slow connection.
    They are kept (on this phone, up to 10 minutes) and tried again when the phone is back online, when Snapme is opened again, and a few times after a short wait.
    The Worker still checks that the thing really happened a moment ago, and it answers a repeated call only once. No Expo copy is sent for a kept call: it would notify twice. ---- */
@@ -3885,7 +3896,7 @@ async function wkqRun(){
       const del=()=>wkqSet(wkqGet().filter(x=>!wkqSame(x,it)));
       if(r.j&&r.j.wait&&(it.n|0)<6){wkqSet(wkqGet().map(x=>wkqSame(x,it)?Object.assign(x,{n:(x.n|0)+1}):x));continue}   /* still not saved */
       if(r.st===404&&(it.n|0)<6&&it.k==='post'){wkqSet(wkqGet().map(x=>wkqSame(x,it)?Object.assign(x,{n:(x.n|0)+1}):x));continue}
-      del();
+      del();wkMark(it.k,it.at,(it.n|0)+1,r,'late');
       if(wkOk(r)){WK.sent='ok';const miss=Array.isArray(r.j.miss)?r.j.miss:[];
         if(miss.length){try{if(it.k==='chat'){const c=chats.find(z=>z.id===it.chat);if(c)WK.xp.send(c,it.p||'New message',miss)}else if(it.k==='post')WK.xp.snap(it.post,miss)}catch(e){}}}
       else WK.sent=String((r.j&&r.j.err)||('HTTP '+r.st))}}
@@ -3896,11 +3907,12 @@ window.addEventListener('online',()=>{setTimeout(()=>{wkqRun()},800)});
 async function wkChat(c,p){
   if(!c||!me)return;
   if(!wkOn()){try{WK.xp.send(c,p)}catch(e){}return}
-  const b={k:'chat',chat:c.id};
+  const b={k:'chat',chat:c.id},t0=Date.now();
   if(navigator.onLine===false){wkqAdd(b,{p:String(p||'').slice(0,140)});return}
   for(let i=0;i<=WK.waits.length;i++){
     try{const r=await wkCall(b);
-      if(r.j&&r.j.wait){if(i<WK.waits.length){await sleep(WK.waits[i]);continue}wkqAdd(b,{p:String(p||'').slice(0,140)});return}   /* still not saved after a long wait: kept, tried again later */
+      if(r.j&&r.j.wait){if(i<WK.waits.length){await sleep(WK.waits[i]);continue}wkMark('chat',t0,i+1,r,'kept');wkqAdd(b,{p:String(p||'').slice(0,140)});return}   /* still not saved after a long wait: kept, tried again later */
+      wkMark('chat',t0,i+1,r);
       if(wkOk(r)){WK.sent='ok';const miss=Array.isArray(r.j.miss)?r.j.miss:[];if(miss.length){try{WK.xp.send(c,p,miss)}catch(e){}}return}
       WK.sent=String((r.j&&r.j.err)||('HTTP '+r.st));break}
     catch(e){if(navigator.onLine===false){wkqAdd(b,{p:String(p||'').slice(0,140)});return}WK.sent='net';break}}
@@ -3909,18 +3921,18 @@ async function wkChat(c,p){
 async function wkSnap(postId,uids){
   if(!postId||!me)return;
   if(!wkOn()){try{WK.xp.snap(postId,uids)}catch(e){}return}
-  const b={k:'post',post:postId};
+  const b={k:'post',post:postId},t0=Date.now();
   if(navigator.onLine===false){wkqAdd(b);return}
-  try{const r=await wkCall(b);
+  try{const r=await wkCall(b);wkMark('post',t0,1,r,r.st===404?'kept':'');
     if(wkOk(r)){WK.sent='ok';const miss=Array.isArray(r.j.miss)?r.j.miss:[];if(miss.length){try{WK.xp.snap(postId,miss)}catch(e){}}return}
     if(r.st===404){wkqAdd(b);return}                                           /* the snap is not saved yet (slow connection): kept, tried again later */
     WK.sent=String((r.j&&r.j.err)||('HTTP '+r.st))}
   catch(e){if(navigator.onLine===false){wkqAdd(b);return}WK.sent='net'}
   try{WK.xp.snap(postId,uids)}catch(e){}}
 /* a friend request was sent to uid / a like, comment or accepted request was written for uid (no second route: they are only sent by the Worker) */
-function wkReq(to){if(!wkOn()||!me||!to)return;wkCall({k:'req',to}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net';if(navigator.onLine===false)wkqAdd({k:'req',to})})}
-function wkNf(to,id){if(!wkOn()||!me||!to||!id)return;wkCall({k:'nf',to,id}).then(r=>{WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net';if(navigator.onLine===false)wkqAdd({k:'nf',to,id})})}
-WK.chat=wkChat;WK.snap=wkSnap;WK.req=wkReq;WK.nf=wkNf;WK.q=wkqRun;                          /* handles for the tests */
+function wkReq(to){if(!wkOn()||!me||!to)return;const t0=Date.now();wkCall({k:'req',to}).then(r=>{wkMark('req',t0,1,r);WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net';if(navigator.onLine===false)wkqAdd({k:'req',to})})}
+function wkNf(to,id){if(!wkOn()||!me||!to||!id)return;const t0=Date.now();wkCall({k:'nf',to,id}).then(r=>{wkMark('nf',t0,1,r);WK.sent=wkOk(r)?'ok':String((r.j&&r.j.err)||('HTTP '+r.st))}).catch(()=>{WK.sent='net';if(navigator.onLine===false)wkqAdd({k:'nf',to,id})})}
+WK.chat=wkChat;WK.snap=wkSnap;WK.req=wkReq;WK.nf=wkNf;WK.q=wkqRun;WK.lastLine=wkLast;WK.fcmLine=wkFcm;                          /* handles for the tests */
 /* ---- Settings > Notifications > "Closed-app notifications": what this phone has and what is missing (so nobody needs a computer to find out) ---- */
 function wkLine(){
   if(!isNative())return'Only in the Android app';
@@ -3928,6 +3940,10 @@ function wkLine(){
   if(featOff('wk'))return'Switched off by the owner';
   if(WK.state==='on')return'On: this phone is registered. Tap for details';
   return({oldapk:'This APK has no OneSignal. Tap for details',nofb:'OneSignal did not start in this APK. Tap for details',err:'Not working. Tap for details'}[WK.state])||'Starting... Tap for details'}
+/* does this phone have a Google push token (the straight route)? PUSH is the Firebase push state of push.js */
+function wkFcm(){const s=PUSH.state;
+  if(s==='on'&&PUSH.tok)return'ready: this phone has a Google push token, so notifications can go straight through Google';
+  return({nofb:'NOT available: this APK was built without the Firebase file (google-services.json)',oldapk:'NOT available: this APK has no push plugin',perm:'NOT available: notifications are not allowed for Snapme (phone Settings > Apps > Snapme > Notifications)',off:'off: notifications are switched off in Snapme',err:'error: '+String(PUSH.err||'').slice(0,80),on:'registered, waiting for the token'}[s])||'not started yet'}
 async function wkInfo(){
   const L=[];
   L.push('Worker address: '+(wkUrl()?'set':'MISSING (add window.VT_PUSH_URL to config.js)'));
@@ -3940,12 +3956,14 @@ async function wkInfo(){
       L.push('Notification permission: '+(st.permission===true?'allowed':'NOT allowed (Phone Settings > Apps > Snapme > Notifications)'));
       L.push('This phone at OneSignal: '+(st.id?'registered ('+String(st.id).slice(0,8)+'...), '+(st.optedIn?'subscribed':'not subscribed'):'NOT registered yet'))}}
   L.push('Registered by the app after login: '+(WK.state==='on'?'yes':(WK.state||'not yet')+(WK.err?' ('+WK.err.slice(0,100)+')':'')));
-  L.push('Last call to the Worker: '+(WK.sent||'none yet'));
+  L.push('Google direct (FCM): '+wkFcm());
+  L.push('Last call to the Worker: '+wkLast());
   L.push('');
   L.push('Test: sends a notification to this phone. Close Snapme (swipe it away) before you look.');
   if(await ask(L.join('\n'),'',true,false,['Close','Send test'])){
     if(!wkUrl()){toast('Add the Worker address to config.js first');return}
-    try{const r=await wkCall({test:true});toast(wkOk(r)?'Sent. It should arrive in a few seconds.':String((r.j&&r.j.err)||('HTTP '+r.st)).slice(0,160))}
+    try{const t0=Date.now(),r=await wkCall({test:true,at:new Date().toTimeString().slice(0,8)});wkMark('test',t0,1,r);
+      const j=r.j||{};toast(!wkOk(r)?String(j.err||('HTTP '+r.st)).slice(0,160):(j.fcm&&j.os)?'Sent 2 tests: "Google direct" and "OneSignal". Close Snapme and see which one comes first.':j.fcm?'Sent straight through Google. It should arrive in a few seconds.':'Sent. It should arrive in a few seconds.')}
     catch(e){toast('Could not reach the Worker')}}}
 WK.line=wkLine;WK.info=wkInfo;
 /* ---------- QR code encoder (own code, no library). Byte mode, versions 1 to 40, error correction L / M / Q / H. qrMake(text) returns {n, g(x,y)}:

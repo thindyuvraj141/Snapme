@@ -199,6 +199,26 @@ back, so a message comes late or not at all. The push route itself is fine (the 
    notification is its own message (FCM keeps up to 100 per phone). Doubles are still stopped by the Worker's own checks. The Worker address shows `"version":"2026-11-03 no-collapse"`
    once the new code is deployed. Files: `push-worker/vtext-push-worker.js` and the paste-friendly `push-worker/vtext-push-worker.min.js` (no comments, no indentation, 360 lines).
    Deploy: Cloudflare > Workers > snapme-push > Edit code > replace everything with the new `.min.js` > Deploy (see `ONESIGNAL-SETUP.txt` B3). Test: `push-worker/test.mjs` (95).
+ - **"Last call to the Worker" (4 Nov, only index.html).** Settings > Notifications > Closed-app notifications now shows what the last call to the push Worker did and how long
+   it took, e.g. `message: answered in 1.4 s, 1 phone notified (12 s ago)`, `message: answered in 9.8 s, 3 tries ...` (the message was not saved yet when the Worker looked),
+   `message: still not saved after 31.2 s. Kept, tried again later`, `message: failed after 0.4 s: <reason>`. It also times the "Send test" button. With it a late notification can be
+   traced: a small time here means the sending phone, the Worker and OneSignal were quick and the delay is on the way to the other phone (Google, the phone's battery rules, Wi-Fi);
+   a big time here means the delay is before OneSignal. Test: `qa/t_r19_last.py` (15).
+ - **Straight through Google (4 Nov, Worker + index.html, no APK).** Why other apps are fast: they send Google's own "notification message" to the phone, which Google's code shows by itself.
+   OneSignal sends a "data message" that the OneSignal library in Snapme has to process first, and phones with strict battery rules (Samsung, Xiaomi, ...) can hold that step back.
+   The Worker now sends **straight through Google FCM** to every phone that saved a token, and keeps OneSignal as the second route. One route per person, so nobody gets two.
+   - The tokens are already in Firestore: `users/<uid>/private/push.t.<deviceId> = { k: token, p: 'android', ts }` (saved by push.js after login). The newest 2 phones of a person get the message.
+   - Routing per receiver: switched off (`os:false`) or muted or blocked = nothing; has an Android token = Google; else `os:true` = OneSignal; else `miss` (the sender's app uses Expo, as before).
+     Google refused (or the phone is gone) = OneSignal takes over for that person. A token Google calls UNREGISTERED is removed from the document (nothing else ever deletes a token).
+   - The message: `notification` {title, body}, `android` {priority HIGH, ttl 86400 s, channel `snapme_msgs`, icon `ic_stat_vtext`}, `data.vt_chat` = chat id (MainActivity opens it). No collapse key.
+   - Free plan limit: one outgoing call per phone, at most 30 per request; everybody else goes through OneSignal in one call (a request stays under 45 of the 50 outgoing calls).
+   - The Worker answers `{ ok, sent, miss, fcm, fcmErr? }`. The app shows it in Settings > Notifications > Closed-app notifications: `Google direct (FCM): ready ...` (or why not: no google-services.json in the APK,
+     notifications not allowed, ...) and `Last call to the Worker: message: answered in 1.4 s, 1 phone notified straight through Google`. "Send test" now sends two notifications when both routes exist:
+     "Test 1 of 2, Google direct" and "Test 2 of 2, OneSignal", each with the time the phone sent it, so the two routes can be compared on the same phone.
+   - The Worker address now shows `"version":"2026-11-04 fcm-direct"` and `"fcmAccepts": true` (a check-only message to Google, nothing is sent). If it says false, `fcmProblem` names what to enable:
+     Google Cloud console > APIs > "Firebase Cloud Messaging API" and the service account role "Firebase Cloud Messaging API Admin".
+   - Needs from the APK: the push plugin and `scripts/google-services.json` (the build that already has the Expo route has them). An APK without them still works through OneSignal.
+   - Tests: `push-worker/test.mjs` (130) and `qa/t_r19_last.py` (29).
  - Tests: `qa/t_r19.py` (32: the page with a fake plugin for 5 phone makers, old APK, browser, kept calls), `qa/t_z_power.py` (26: patch script, Java compiled against stubs, build ladder).
  - **Not verifiable without a phone:** the real Autostart screens of each maker (the names are from public lists and differ between versions; a screen the phone does not have falls back to Snapme's page in Settings).
 
